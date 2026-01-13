@@ -130,69 +130,33 @@ function App() {
               <div className="bg-slate-50 rounded-lg p-4 mb-4 break-all text-sm text-slate-700 font-mono">
                 {wallpaperUrl}
               </div>
-              <div className="space-y-3">
-                <a
-                  href={`/download.html?${new URLSearchParams({
-                    mode: config.mode,
-                    granularity: config.granularity,
-                    grouping: config.grouping,
-                    theme: config.theme,
-                    width: modelSpecs?.width.toString() || '1170',
-                    height: modelSpecs?.height.toString() || '2532',
-                    safeTop: modelSpecs?.safeArea.top.toString() || '140',
-                    safeBottom: modelSpecs?.safeArea.bottom.toString() || '110',
-                    safeLeft: modelSpecs?.safeArea.left.toString() || '40',
-                    safeRight: modelSpecs?.safeArea.right.toString() || '40',
-                    ...(config.targetDate && { target: config.targetDate }),
-                    ...(config.startDate && { start: config.startDate }),
-                    ...(config.birthDate && { birth: config.birthDate }),
-                    ...(config.lifeExpectancy && { life: config.lifeExpectancy.toString() }),
-                  }).toString()}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full bg-orange-600 text-white px-6 py-4 rounded-lg font-semibold hover:bg-orange-700 transition-colors text-center"
-                >
-                  📱 Télécharger sur iPhone
-                </a>
-                <button
-                  onClick={copyUrl}
-                  className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-5 h-5" />
-                      Copié !
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-5 h-5" />
-                      Copier l'URL
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                onClick={copyUrl}
+                className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Copié !
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-5 h-5" />
+                    Copier l'URL
+                  </>
+                )}
+              </button>
 
-              <div className="mt-6 p-4 bg-orange-50 rounded-lg">
-                <h4 className="font-semibold text-orange-900 mb-2">
-                  ✅ Méthode recommandée
-                </h4>
-                <ol className="text-sm text-orange-800 space-y-2 list-decimal list-inside">
-                  <li>Clique sur "📱 Télécharger sur iPhone"</li>
-                  <li>Appui long sur l'image</li>
-                  <li>Sélectionne "Enregistrer l'image"</li>
-                  <li>Réglages → Fond d'écran → Choisir l'image</li>
-                </ol>
-              </div>
-
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-semibold text-blue-900 mb-2">
-                  🔄 Automatisation (Apple Raccourcis)
+                  Configuration Apple Raccourcis
                 </h4>
                 <ol className="text-sm text-blue-800 space-y-2 list-decimal list-inside">
                   <li>Ouvre l'app Raccourcis</li>
                   <li>Crée un nouveau raccourci</li>
-                  <li>Ajoute "Ouvrir les URL"</li>
-                  <li>Colle l'URL du bouton orange</li>
+                  <li>Ajoute "Obtenir le contenu de l'URL"</li>
+                  <li>Colle l'URL ci-dessus</li>
+                  <li>Ajoute "Définir comme fond d'écran"</li>
                   <li>Configure une automatisation quotidienne</li>
                 </ol>
               </div>
