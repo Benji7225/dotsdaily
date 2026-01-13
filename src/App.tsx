@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { Calendar, Clock, Heart, Target, Copy, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Calendar, Clock, Heart, Target, Copy, Check, Loader2 } from 'lucide-react';
 import WallpaperPreview from './components/WallpaperPreview';
 import ConfigPanel from './components/ConfigPanel';
 import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from './utils/iPhoneModels';
+import { createClient } from '@supabase/supabase-js';
 
 export type WallpaperMode = 'year' | 'month' | 'life' | 'countdown';
 export type Granularity = 'day' | 'week' | 'month' | 'year';
@@ -21,6 +22,20 @@ export interface WallpaperConfig {
   variant: Variant;
 }
 
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
+
+function generateShortId(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let id = '';
+  for (let i = 0; i < 8; i++) {
+    id += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return id;
+}
+
 function App() {
   const [config, setConfig] = useState<WallpaperConfig>({
     mode: 'year',
@@ -32,6 +47,8 @@ function App() {
   });
 
   const [copied, setCopied] = useState(false);
+  const [wallpaperId, setWallpaperId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const getDefaultGranularity = (mode: WallpaperMode): Granularity => {
     switch (mode) {
@@ -58,25 +75,50 @@ function App() {
   const modelSpecs = getModelSpecs(config.generation, config.variant);
   const apiUrl = import.meta.env.VITE_SUPABASE_URL;
 
-  // Add current date as a template variable that Shortcuts will replace daily
-  // Use {{CURRENT_DATE}} as placeholder that user will replace in Shortcuts
-  const wallpaperUrl = modelSpecs ? `${apiUrl}/functions/v1/wallpaper?${new URLSearchParams({
-    mode: config.mode,
-    granularity: config.granularity,
-    grouping: config.grouping,
-    theme: config.theme,
-    width: modelSpecs.width.toString(),
-    height: modelSpecs.height.toString(),
-    safeTop: modelSpecs.safeArea.top.toString(),
-    safeBottom: modelSpecs.safeArea.bottom.toString(),
-    safeLeft: modelSpecs.safeArea.left.toString(),
-    safeRight: modelSpecs.safeArea.right.toString(),
-    ...(config.targetDate && { target: config.targetDate }),
-    ...(config.startDate && { start: config.startDate }),
-    ...(config.birthDate && { birth: config.birthDate }),
-    ...(config.lifeExpectancy && { life: config.lifeExpectancy.toString() }),
-    date: '{{CURRENT_DATE}}', // This forces cache invalidation each day
-  }).toString()}` : '';
+  const saveConfiguration = async () => {
+    if (!modelSpecs) return;
+
+    setIsSaving(true);
+    try {
+      const id = generateShortId();
+
+      const { error } = await supabase
+        .from('wallpaper_configs')
+        .insert({
+          id,
+          mode: config.mode,
+          granularity: config.granularity,
+          grouping: config.grouping,
+          theme: config.theme,
+          target_date: config.targetDate || null,
+          start_date: config.startDate || null,
+          birth_date: config.birthDate || null,
+          life_expectancy: config.lifeExpectancy || null,
+          width: modelSpecs.width,
+          height: modelSpecs.height,
+          safe_top: modelSpecs.safeArea.top,
+          safe_bottom: modelSpecs.safeArea.bottom,
+          safe_left: modelSpecs.safeArea.left,
+          safe_right: modelSpecs.safeArea.right,
+        });
+
+      if (!error) {
+        setWallpaperId(id);
+      }
+    } catch (error) {
+      console.error('Error saving configuration:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    setWallpaperId(null);
+  }, [config, modelSpecs]);
+
+  const wallpaperUrl = wallpaperId
+    ? `${apiUrl}/functions/v1/wallpaper/${wallpaperId}.png`
+    : '';
 
   const copyUrl = async () => {
     await navigator.clipboard.writeText(wallpaperUrl);
@@ -131,42 +173,62 @@ function App() {
               <h3 className="text-lg font-semibold text-slate-900 mb-4">
                 URL pour Apple Raccourcis
               </h3>
-              <div className="bg-slate-50 rounded-lg p-4 mb-4 break-all text-sm text-slate-700 font-mono">
-                {wallpaperUrl}
-              </div>
-              <button
-                onClick={copyUrl}
-                className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-5 h-5" />
-                    Copié !
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-5 h-5" />
-                    Copier l'URL
-                  </>
-                )}
-              </button>
 
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <h4 className="font-semibold text-blue-900 mb-2">
+              {!wallpaperId ? (
+                <button
+                  onClick={saveConfiguration}
+                  disabled={isSaving}
+                  className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Génération...
+                    </>
+                  ) : (
+                    'Générer l\'URL simple'
+                  )}
+                </button>
+              ) : (
+                <>
+                  <div className="bg-slate-50 rounded-lg p-4 mb-4 break-all text-sm text-slate-700 font-mono">
+                    {wallpaperUrl}
+                  </div>
+                  <button
+                    onClick={copyUrl}
+                    className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 mb-6"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-5 h-5" />
+                        Copié !
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-5 h-5" />
+                        Copier l'URL
+                      </>
+                    )}
+                  </button>
+                </>
+              )}
+
+              <div className="mt-6 p-4 bg-green-50 rounded-lg">
+                <h4 className="font-semibold text-green-900 mb-2">
                   Configuration Apple Raccourcis
                 </h4>
-                <ol className="text-sm text-blue-800 space-y-2 list-decimal list-inside">
-                  <li>Ouvre l'app Raccourcis</li>
+                <ol className="text-sm text-green-800 space-y-2 list-decimal list-inside">
+                  <li>Clique sur "Générer l'URL simple" ci-dessus</li>
+                  <li>Copie l'URL générée</li>
+                  <li>Ouvre l'app Raccourcis sur ton iPhone</li>
                   <li>Crée un nouveau raccourci</li>
-                  <li>Ajoute "Obtenir le contenu de l'URL"</li>
-                  <li>Colle l'URL ci-dessus, puis remplace <strong>{"{{CURRENT_DATE}}"}</strong> par la variable "Date actuelle" de Shortcuts</li>
-                  <li>Ajoute "Convertir" puis sélectionne PNG</li>
+                  <li>Ajoute "Obtenir le contenu de l'URL" et colle l'URL</li>
                   <li>Ajoute "Définir comme fond d'écran"</li>
-                  <li>Configure une automatisation quotidienne (ex: chaque jour à 6h)</li>
+                  <li>Configure une automatisation quotidienne</li>
                 </ol>
-                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded">
-                  <p className="text-xs text-amber-900">
-                    <strong>Important :</strong> Remplace {"{{CURRENT_DATE}}"} dans l'URL par la variable magique "Date actuelle" dans Shortcuts. Cela force le téléchargement d'une nouvelle image chaque jour.
+                <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded">
+                  <p className="text-xs text-emerald-900">
+                    <strong>C'est tout !</strong> L'URL retourne directement un PNG. Plus besoin de conversion ni de variables magiques. Le fond d'écran se met à jour automatiquement chaque jour.
                   </p>
                 </div>
               </div>
@@ -174,7 +236,29 @@ function App() {
           </div>
 
           <div>
-            <WallpaperPreview url={wallpaperUrl} modelSpecs={modelSpecs} theme={config.theme} generation={config.generation} variant={config.variant} />
+            <WallpaperPreview
+              url={wallpaperId ? wallpaperUrl : (modelSpecs ? `${apiUrl}/functions/v1/wallpaper?${new URLSearchParams({
+                mode: config.mode,
+                granularity: config.granularity,
+                grouping: config.grouping,
+                theme: config.theme,
+                width: modelSpecs.width.toString(),
+                height: modelSpecs.height.toString(),
+                safeTop: modelSpecs.safeArea.top.toString(),
+                safeBottom: modelSpecs.safeArea.bottom.toString(),
+                safeLeft: modelSpecs.safeArea.left.toString(),
+                safeRight: modelSpecs.safeArea.right.toString(),
+                ...(config.targetDate && { target: config.targetDate }),
+                ...(config.startDate && { start: config.startDate }),
+                ...(config.birthDate && { birth: config.birthDate }),
+                ...(config.lifeExpectancy && { life: config.lifeExpectancy.toString() }),
+                format: 'svg'
+              }).toString()}` : '')}
+              modelSpecs={modelSpecs}
+              theme={config.theme}
+              generation={config.generation}
+              variant={config.variant}
+            />
           </div>
         </div>
       </div>

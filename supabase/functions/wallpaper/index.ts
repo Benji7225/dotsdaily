@@ -1,4 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { Resvg } from "npm:@resvg/resvg-js@2.6.0";
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -59,7 +61,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
 
   if (config.granularity === 'day') {
     if (config.grouping === 'month') {
-      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+      const monthNames = ['Jan', 'F\u00e9v', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Ao\u00fb', 'Sep', 'Oct', 'Nov', 'D\u00e9c'];
       const now = new Date();
       const year = now.getFullYear();
       let dayIndex = 0;
@@ -117,7 +119,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
     }
   } else if (config.granularity === 'week') {
     if (config.grouping === 'month') {
-      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+      const monthNames = ['Jan', 'F\u00e9v', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Ao\u00fb', 'Sep', 'Oct', 'Nov', 'D\u00e9c'];
       let weekIndex = 0;
 
       for (let month = 0; month < 12; month++) {
@@ -389,7 +391,7 @@ function generateSVG(config: WallpaperConfig): string {
       const groupY = startY + groupRow * (groupHeight + groupSpacing + labelHeight);
 
       const labelY = groupY + labelHeight / 2;
-      dots += `<text x="${groupX + groupWidth / 2}" y="${labelY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="${labelColor}" text-anchor="middle">${group.label}</text>`;
+      dots += `<text x=\"${groupX + groupWidth / 2}\" y=\"${labelY}\" font-family=\"-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif\" font-size=\"14\" font-weight=\"500\" fill=\"${labelColor}\" text-anchor=\"middle\">${group.label}</text>`;
 
       const dotsInGroup = group.count;
       const groupDotArea = groupHeight - labelHeight;
@@ -450,7 +452,7 @@ function generateSVG(config: WallpaperConfig): string {
           fill = isDark ? '#3a3a3a' : '#d0d0d0';
         }
 
-        dots += `<circle cx="${x}" cy="${y}" r="${dotSize / 2}" fill="${fill}" />`;
+        dots += `<circle cx=\"${x}\" cy=\"${y}\" r=\"${dotSize / 2}\" fill=\"${fill}\" />`;
       }
     }
   } else {
@@ -528,21 +530,21 @@ function generateSVG(config: WallpaperConfig): string {
         fill = isDark ? '#3a3a3a' : '#d0d0d0';
       }
 
-      dots += `<circle cx="${x}" cy="${y}" r="${dotSize / 2}" fill="${fill}" />`;
+      dots += `<circle cx=\"${x}\" cy=\"${y}\" r=\"${dotSize / 2}\" fill=\"${fill}\" />`;
     }
   }
 
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-  <rect width="${width}" height="${height}" fill="${bgColor}"/>
+  return `<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<svg width=\"${width}\" height=\"${height}\" xmlns=\"http://www.w3.org/2000/svg\">
+  <rect width=\"${width}\" height=\"${height}\" fill=\"${bgColor}\"/>
 
   ${dots}
 
-  <text x="${width / 2}" y="${textTopY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="600" fill="${textColor}" text-anchor="middle">
+  <text x=\"${width / 2}\" y=\"${textTopY}\" font-family=\"-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif\" font-size=\"28\" font-weight=\"600\" fill=\"${textColor}\" text-anchor=\"middle\">
     ${label}
   </text>
 
-  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="42" font-weight="600" fill="${subTextColor}" text-anchor="middle">
+  <text x=\"${width / 2}\" y=\"${textBottomY}\" font-family=\"-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif\" font-size=\"42\" font-weight=\"600\" fill=\"${subTextColor}\" text-anchor=\"middle\">
     ${percentage}%
   </text>
 </svg>`;
@@ -558,30 +560,118 @@ Deno.serve(async (req: Request) => {
 
   try {
     const url = new URL(req.url);
+    const pathname = url.pathname;
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const idMatch = pathname.match(/\/([^\/]+)\.png$/);
+
+    if (!idMatch) {
+      const config: WallpaperConfig = {
+        mode: (url.searchParams.get('mode') as WallpaperConfig['mode']) || 'year',
+        granularity: (url.searchParams.get('granularity') as WallpaperConfig['granularity']) || 'day',
+        grouping: (url.searchParams.get('grouping') as WallpaperConfig['grouping']) || 'none',
+        targetDate: url.searchParams.get('target') || undefined,
+        startDate: url.searchParams.get('start') || undefined,
+        birthDate: url.searchParams.get('birth') || undefined,
+        lifeExpectancy: url.searchParams.get('life') ? parseInt(url.searchParams.get('life')!) : undefined,
+        width: url.searchParams.get('width') ? parseInt(url.searchParams.get('width')!) : 1170,
+        height: url.searchParams.get('height') ? parseInt(url.searchParams.get('height')!) : 2532,
+        theme: (url.searchParams.get('theme') as 'dark' | 'light') || 'dark',
+        safeTop: url.searchParams.get('safeTop') ? parseInt(url.searchParams.get('safeTop')!) : 140,
+        safeBottom: url.searchParams.get('safeBottom') ? parseInt(url.searchParams.get('safeBottom')!) : 110,
+        safeLeft: url.searchParams.get('safeLeft') ? parseInt(url.searchParams.get('safeLeft')!) : 40,
+        safeRight: url.searchParams.get('safeRight') ? parseInt(url.searchParams.get('safeRight')!) : 40,
+      };
+
+      const svg = generateSVG(config);
+      const format = url.searchParams.get('format') || 'svg';
+
+      if (format === 'png') {
+        const resvg = new Resvg(svg, {
+          fitTo: {
+            mode: 'original',
+          },
+        });
+        const pngData = resvg.render();
+        const pngBuffer = pngData.asPng();
+
+        return new Response(pngBuffer, {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'image/png',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          },
+        });
+      }
+
+      return new Response(svg, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      });
+    }
+
+    const id = idMatch[1];
+
+    const { data: configData, error: configError } = await supabase
+      .from('wallpaper_configs')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (configError || !configData) {
+      return new Response(
+        JSON.stringify({ error: 'Configuration not found' }),
+        {
+          status: 404,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
 
     const config: WallpaperConfig = {
-      mode: (url.searchParams.get('mode') as WallpaperConfig['mode']) || 'year',
-      granularity: (url.searchParams.get('granularity') as WallpaperConfig['granularity']) || 'day',
-      grouping: (url.searchParams.get('grouping') as WallpaperConfig['grouping']) || 'none',
-      targetDate: url.searchParams.get('target') || undefined,
-      startDate: url.searchParams.get('start') || undefined,
-      birthDate: url.searchParams.get('birth') || undefined,
-      lifeExpectancy: url.searchParams.get('life') ? parseInt(url.searchParams.get('life')!) : undefined,
-      width: url.searchParams.get('width') ? parseInt(url.searchParams.get('width')!) : 1170,
-      height: url.searchParams.get('height') ? parseInt(url.searchParams.get('height')!) : 2532,
-      theme: (url.searchParams.get('theme') as 'dark' | 'light') || 'dark',
-      safeTop: url.searchParams.get('safeTop') ? parseInt(url.searchParams.get('safeTop')!) : 140,
-      safeBottom: url.searchParams.get('safeBottom') ? parseInt(url.searchParams.get('safeBottom')!) : 110,
-      safeLeft: url.searchParams.get('safeLeft') ? parseInt(url.searchParams.get('safeLeft')!) : 40,
-      safeRight: url.searchParams.get('safeRight') ? parseInt(url.searchParams.get('safeRight')!) : 40,
+      mode: configData.mode as WallpaperConfig['mode'],
+      granularity: configData.granularity as WallpaperConfig['granularity'],
+      grouping: (configData.grouping as WallpaperConfig['grouping']) || 'none',
+      targetDate: configData.target_date || undefined,
+      startDate: configData.start_date || undefined,
+      birthDate: configData.birth_date || undefined,
+      lifeExpectancy: configData.life_expectancy || undefined,
+      width: configData.width,
+      height: configData.height,
+      theme: configData.theme as 'dark' | 'light',
+      safeTop: configData.safe_top,
+      safeBottom: configData.safe_bottom,
+      safeLeft: configData.safe_left,
+      safeRight: configData.safe_right,
     };
 
     const svg = generateSVG(config);
 
-    return new Response(svg, {
+    const resvg = new Resvg(svg, {
+      fitTo: {
+        mode: 'original',
+      },
+    });
+    const pngData = resvg.render();
+    const pngBuffer = pngData.asPng();
+
+    return new Response(pngBuffer, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'image/svg+xml',
+        'Content-Type': 'image/png',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',
