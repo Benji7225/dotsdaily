@@ -57,6 +57,9 @@ function App() {
 
   const modelSpecs = getModelSpecs(config.generation, config.variant);
   const apiUrl = import.meta.env.VITE_SUPABASE_URL;
+
+  // Add current date as a template variable that Shortcuts will replace daily
+  // Use {{CURRENT_DATE}} as placeholder that user will replace in Shortcuts
   const wallpaperUrl = modelSpecs ? `${apiUrl}/functions/v1/wallpaper?${new URLSearchParams({
     mode: config.mode,
     granularity: config.granularity,
@@ -72,6 +75,7 @@ function App() {
     ...(config.startDate && { start: config.startDate }),
     ...(config.birthDate && { birth: config.birthDate }),
     ...(config.lifeExpectancy && { life: config.lifeExpectancy.toString() }),
+    date: '{{CURRENT_DATE}}', // This forces cache invalidation each day
   }).toString()}` : '';
 
   const copyUrl = async () => {
@@ -155,10 +159,16 @@ function App() {
                   <li>Ouvre l'app Raccourcis</li>
                   <li>Crée un nouveau raccourci</li>
                   <li>Ajoute "Obtenir le contenu de l'URL"</li>
-                  <li>Colle l'URL ci-dessus</li>
+                  <li>Colle l'URL ci-dessus, puis remplace <strong>{"{{CURRENT_DATE}}"}</strong> par la variable "Date actuelle" de Shortcuts</li>
+                  <li>Ajoute "Convertir" puis sélectionne PNG</li>
                   <li>Ajoute "Définir comme fond d'écran"</li>
-                  <li>Configure une automatisation quotidienne</li>
+                  <li>Configure une automatisation quotidienne (ex: chaque jour à 6h)</li>
                 </ol>
+                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded">
+                  <p className="text-xs text-amber-900">
+                    <strong>Important :</strong> Remplace {"{{CURRENT_DATE}}"} dans l'URL par la variable magique "Date actuelle" dans Shortcuts. Cela force le téléchargement d'une nouvelle image chaque jour.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
