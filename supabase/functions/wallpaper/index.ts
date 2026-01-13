@@ -1,4 +1,3 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -576,25 +575,3 @@ Deno.serve(async (req: Request) => {
       safeRight: url.searchParams.get('safeRight') ? parseInt(url.searchParams.get('safeRight')!) : 40,
     };
 
-    const svg = generateSVG(config);
-
-    return new Response(svg, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=3600',
-      },
-    });
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 400,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-  }
-});
