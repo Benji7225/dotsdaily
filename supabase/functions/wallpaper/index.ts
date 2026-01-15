@@ -302,21 +302,18 @@ function generateSVG(config: WallpaperConfig): string {
   const safeLeft = config.safeLeft || 40;
   const safeRight = config.safeRight || 40;
 
-  const { current, total, label } = calculateProgress(config);
+  const { current, total } = calculateProgress(config);
   const percentage = Math.round((current / total) * 100);
 
-  const textTopHeight = 80;
   const textBottomHeight = 80;
 
   const availableWidth = width - safeLeft - safeRight;
-  const availableHeight = height - safeTop - safeBottom - textTopHeight - textBottomHeight;
+  const availableHeight = height - safeTop - safeBottom - textBottomHeight;
 
   const bgColor = isDark ? '#0a0a0a' : '#ffffff';
-  const textColor = isDark ? '#ffffff' : '#1a1a1a';
   const subTextColor = isDark ? '#999999' : '#666666';
   const labelColor = isDark ? '#666666' : '#999999';
 
-  const textTopY = safeTop + 40;
   const textBottomY = height - safeBottom - 40;
 
   const groups = calculateGroups(config, total);
@@ -345,7 +342,7 @@ function generateSVG(config: WallpaperConfig): string {
     const groupWidth = (availableWidth - (groupCols - 1) * groupSpacing) / groupCols;
     const groupHeight = (availableHeight - (groupRows - 1) * groupSpacing - groupRows * labelHeight) / groupRows;
 
-    const contentTop = safeTop + textTopHeight;
+    const contentTop = safeTop;
     const startX = safeLeft;
     const startY = contentTop;
 
@@ -497,7 +494,7 @@ function generateSVG(config: WallpaperConfig): string {
     const gridWidth = cols * (dotSize * dotSpacing);
     const gridHeight = rows * (dotSize * dotSpacing);
 
-    const contentTop = safeTop + textTopHeight;
+    const contentTop = safeTop;
     const startX = safeLeft + (availableWidth - gridWidth) / 2;
     const startY = contentTop + (availableHeight - gridHeight) / 2;
 
@@ -538,10 +535,6 @@ function generateSVG(config: WallpaperConfig): string {
   <rect width=\"${width}\" height=\"${height}\" fill=\"${bgColor}\"/>
 
   ${dots}
-
-  <text x=\"${width / 2}\" y=\"${textTopY}\" font-family=\"-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif\" font-size=\"28\" font-weight=\"600\" fill=\"${textColor}\" text-anchor=\"middle\">
-    ${label}
-  </text>
 
   <text x=\"${width / 2}\" y=\"${textBottomY}\" font-family=\"-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif\" font-size=\"42\" font-weight=\"600\" fill=\"${subTextColor}\" text-anchor=\"middle\">
     ${percentage}%
