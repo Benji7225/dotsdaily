@@ -558,9 +558,10 @@ Deno.serve(async (req: Request) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const idMatch = pathname.match(/\/([^\/]+)\.svg$/);
+    const idMatch = pathname.match(/\/([a-z0-9\-]+)$/);
+    const id = idMatch ? idMatch[1] : null;
 
-    if (!idMatch) {
+    if (!id) {
       const config: WallpaperConfig = {
         mode: (url.searchParams.get('mode') as WallpaperConfig['mode']) || 'year',
         granularity: (url.searchParams.get('granularity') as WallpaperConfig['granularity']) || 'day',
@@ -579,19 +580,18 @@ Deno.serve(async (req: Request) => {
       };
 
       const svg = generateSVG(config);
+      const pngBuffer = await convertSvgToPng(svg, config.width || 1170, config.height || 2532);
 
-      return new Response(svg, {
+      return new Response(pngBuffer, {
         headers: {
           ...corsHeaders,
-          'Content-Type': 'image/svg+xml',
+          'Content-Type': 'image/png',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0',
         },
       });
     }
-
-    const id = idMatch[1];
 
     const { data: configData, error: configError } = await supabase
       .from('wallpaper_configs')
@@ -630,11 +630,12 @@ Deno.serve(async (req: Request) => {
     };
 
     const svg = generateSVG(config);
+    const pngBuffer = await convertSvgToPng(svg, config.width, config.height);
 
-    return new Response(svg, {
+    return new Response(pngBuffer, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'image/svg+xml',
+        'Content-Type': 'image/png',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',
