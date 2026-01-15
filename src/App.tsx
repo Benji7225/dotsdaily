@@ -117,7 +117,7 @@ function App() {
   }, [config, modelSpecs]);
 
   const wallpaperUrl = wallpaperId
-    ? `${apiUrl}/functions/v1/wallpaper/${wallpaperId}.png`
+    ? `${apiUrl}/functions/v1/wallpaper/${wallpaperId}.svg`
     : '';
 
   const copyUrl = async () => {
@@ -228,7 +228,7 @@ function App() {
                 </ol>
                 <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded">
                   <p className="text-xs text-emerald-900">
-                    <strong>C'est tout !</strong> L'URL retourne directement un PNG. Plus besoin de conversion ni de variables magiques. Le fond d'écran se met à jour automatiquement chaque jour.
+                    <strong>C'est tout !</strong> L'URL est simple et le fond d'écran se met à jour automatiquement chaque jour.
                   </p>
                 </div>
               </div>
