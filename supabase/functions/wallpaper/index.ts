@@ -580,12 +580,11 @@ Deno.serve(async (req: Request) => {
       };
 
       const svg = generateSVG(config);
-      const pngBuffer = await convertSvgToPng(svg, config.width || 1170, config.height || 2532);
 
-      return new Response(pngBuffer, {
+      return new Response(svg, {
         headers: {
           ...corsHeaders,
-          'Content-Type': 'image/png',
+          'Content-Type': 'image/svg+xml',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0',
@@ -630,12 +629,11 @@ Deno.serve(async (req: Request) => {
     };
 
     const svg = generateSVG(config);
-    const pngBuffer = await convertSvgToPng(svg, config.width, config.height);
 
-    return new Response(pngBuffer, {
+    return new Response(svg, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'image/png',
+        'Content-Type': 'image/svg+xml',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',

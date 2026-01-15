@@ -223,12 +223,13 @@ function App() {
                   <li>Ouvre l'app Raccourcis sur ton iPhone</li>
                   <li>Crée un nouveau raccourci</li>
                   <li>Ajoute "Obtenir le contenu de l'URL" et colle l'URL</li>
-                  <li>Ajoute "Définir comme fond d'écran" (connecte directement)</li>
+                  <li>Ajoute "Convertir l'image" et choisis "PNG"</li>
+                  <li>Ajoute "Définir comme fond d'écran"</li>
                   <li>Configure une automatisation quotidienne</li>
                 </ol>
                 <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded">
                   <p className="text-xs text-emerald-900">
-                    <strong>Direct et simple !</strong> L'URL retourne directement une image PNG prête à l'emploi, sans extension. Fonctionne parfaitement dans les automatisations iOS.
+                    <strong>Compatible iOS !</strong> L'URL retourne une image SVG vectorielle. Le raccourci la convertit automatiquement en PNG avant de la définir comme fond d'écran.
                   </p>
                 </div>
               </div>
