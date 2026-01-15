@@ -1,12 +1,28 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { Resvg } from 'npm:@resvg/resvg-js@2';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
+
+async function convertSvgToPng(svg: string, width: number, height: number): Promise<Uint8Array> {
+  const resvgWasm = await fetch('https://unpkg.com/@resvg/resvg-wasm/index_bg.wasm');
+  const wasmBuffer = await resvgWasm.arrayBuffer();
+
+  const { Resvg, initWasm } = await import('https://esm.sh/@resvg/resvg-wasm@2.4.1');
+  await initWasm(wasmBuffer);
+
+  const resvg = new Resvg(svg, {
+    fitTo: {
+      mode: 'width',
+      value: width,
+    },
+  });
+
+  return resvg.render().asPng();
+}
 
 interface WallpaperConfig {
   mode: 'year' | 'month' | 'life' | 'countdown';
@@ -580,14 +596,7 @@ Deno.serve(async (req: Request) => {
       };
 
       const svg = generateSVG(config);
-      const resvg = new Resvg(svg, {
-        fitTo: {
-          mode: 'width',
-          value: config.width || 1170,
-        },
-      });
-      const pngData = resvg.render();
-      const pngBuffer = pngData.asPng();
+      const pngBuffer = await convertSvgToPng(svg, config.width || 1170, config.height || 2532);
 
       return new Response(pngBuffer, {
         headers: {
@@ -639,14 +648,7 @@ Deno.serve(async (req: Request) => {
     };
 
     const svg = generateSVG(config);
-    const resvg = new Resvg(svg, {
-      fitTo: {
-        mode: 'width',
-        value: config.width,
-      },
-    });
-    const pngData = resvg.render();
-    const pngBuffer = pngData.asPng();
+    const pngBuffer = await convertSvgToPng(svg, config.width, config.height);
 
     return new Response(pngBuffer, {
       headers: {
