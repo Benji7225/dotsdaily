@@ -7,23 +7,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-async function convertSvgToPng(svg: string, width: number, height: number): Promise<Uint8Array> {
-  const resvgWasm = await fetch('https://unpkg.com/@resvg/resvg-wasm/index_bg.wasm');
-  const wasmBuffer = await resvgWasm.arrayBuffer();
-
-  const { Resvg, initWasm } = await import('https://esm.sh/@resvg/resvg-wasm@2.4.1');
-  await initWasm(wasmBuffer);
-
-  const resvg = new Resvg(svg, {
-    fitTo: {
-      mode: 'width',
-      value: width,
-    },
-  });
-
-  return resvg.render().asPng();
-}
-
 interface WallpaperConfig {
   mode: 'year' | 'month' | 'life' | 'countdown';
   granularity: 'day' | 'week' | 'month' | 'year';
@@ -575,7 +558,7 @@ Deno.serve(async (req: Request) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const idMatch = pathname.match(/\/([^\/]+)\.png$/);
+    const idMatch = pathname.match(/\/([^\/]+)\.svg$/);
 
     if (!idMatch) {
       const config: WallpaperConfig = {
@@ -596,12 +579,11 @@ Deno.serve(async (req: Request) => {
       };
 
       const svg = generateSVG(config);
-      const pngBuffer = await convertSvgToPng(svg, config.width || 1170, config.height || 2532);
 
-      return new Response(pngBuffer, {
+      return new Response(svg, {
         headers: {
           ...corsHeaders,
-          'Content-Type': 'image/png',
+          'Content-Type': 'image/svg+xml',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0',
@@ -648,12 +630,11 @@ Deno.serve(async (req: Request) => {
     };
 
     const svg = generateSVG(config);
-    const pngBuffer = await convertSvgToPng(svg, config.width, config.height);
 
-    return new Response(pngBuffer, {
+    return new Response(svg, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'image/png',
+        'Content-Type': 'image/svg+xml',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',

@@ -117,7 +117,7 @@ function App() {
   }, [config, modelSpecs]);
 
   const wallpaperUrl = wallpaperId
-    ? `${apiUrl}/functions/v1/wallpaper/${wallpaperId}.png`
+    ? `${apiUrl}/functions/v1/wallpaper/${wallpaperId}.svg`
     : '';
 
   const copyUrl = async () => {
@@ -223,12 +223,13 @@ function App() {
                   <li>Ouvre l'app Raccourcis sur ton iPhone</li>
                   <li>Crée un nouveau raccourci</li>
                   <li>Ajoute "Obtenir le contenu de l'URL" et colle l'URL</li>
-                  <li>Ajoute "Définir comme fond d'écran" et connecte directement</li>
+                  <li>Ajoute "Convertir l'image" et choisis PNG comme format</li>
+                  <li>Ajoute "Définir comme fond d'écran"</li>
                   <li>Configure une automatisation quotidienne</li>
                 </ol>
                 <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded">
                   <p className="text-xs text-emerald-900">
-                    <strong>Simple et rapide !</strong> Pas besoin de conversion, l'URL retourne directement une image PNG. Le fond d'écran se met à jour automatiquement chaque jour.
+                    <strong>Simple !</strong> Le raccourci convertit automatiquement le SVG en PNG avant de le définir comme fond d'écran. L'image se met à jour chaque jour.
                   </p>
                 </div>
               </div>
