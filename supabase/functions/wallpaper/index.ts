@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { Resvg } from 'npm:@resvg/resvg-js@2';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -558,7 +559,7 @@ Deno.serve(async (req: Request) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const idMatch = pathname.match(/\/([^\/]+)\.svg$/);
+    const idMatch = pathname.match(/\/([^\/]+)\.png$/);
 
     if (!idMatch) {
       const config: WallpaperConfig = {
@@ -579,11 +580,19 @@ Deno.serve(async (req: Request) => {
       };
 
       const svg = generateSVG(config);
+      const resvg = new Resvg(svg, {
+        fitTo: {
+          mode: 'width',
+          value: config.width || 1170,
+        },
+      });
+      const pngData = resvg.render();
+      const pngBuffer = pngData.asPng();
 
-      return new Response(svg, {
+      return new Response(pngBuffer, {
         headers: {
           ...corsHeaders,
-          'Content-Type': 'image/svg+xml',
+          'Content-Type': 'image/png',
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0',
@@ -630,11 +639,19 @@ Deno.serve(async (req: Request) => {
     };
 
     const svg = generateSVG(config);
+    const resvg = new Resvg(svg, {
+      fitTo: {
+        mode: 'width',
+        value: config.width,
+      },
+    });
+    const pngData = resvg.render();
+    const pngBuffer = pngData.asPng();
 
-    return new Response(svg, {
+    return new Response(pngBuffer, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'image/svg+xml',
+        'Content-Type': 'image/png',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',
