@@ -221,15 +221,15 @@ function App() {
                   <li>Clique sur "Générer l'URL simple" ci-dessus</li>
                   <li>Copie l'URL générée</li>
                   <li>Ouvre l'app Raccourcis sur ton iPhone</li>
-                  <li>Crée un nouveau raccourci</li>
-                  <li>Ajoute "Obtenir le contenu de l'URL" et colle l'URL</li>
-                  <li>Ajoute "Convertir l'image" et choisis "PNG"</li>
-                  <li>Ajoute "Définir comme fond d'écran"</li>
-                  <li>Configure une automatisation quotidienne</li>
+                  <li>Crée un nouveau raccourci avec ces 3 actions :</li>
+                  <li className="ml-6">1. Ajoute "Obtenir le contenu de l'URL" et colle l'URL</li>
+                  <li className="ml-6">2. Ajoute "Convertir l'image" (PAS "File Extension" !) et choisis PNG</li>
+                  <li className="ml-6">3. Ajoute "Définir comme fond d'écran" et connecte l'image convertie</li>
+                  <li>Configure une automatisation quotidienne qui exécute ce raccourci</li>
                 </ol>
-                <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded">
-                  <p className="text-xs text-emerald-900">
-                    <strong>Compatible iOS !</strong> L'URL retourne une image SVG vectorielle. Le raccourci la convertit automatiquement en PNG avant de la définir comme fond d'écran.
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+                  <p className="text-xs text-red-900">
+                    <strong>Important !</strong> Utilise bien "Convertir l'image", PAS "Convert File Extension". File Extension ne fait que renommer le fichier, il ne convertit pas le SVG en PNG.
                   </p>
                 </div>
               </div>
