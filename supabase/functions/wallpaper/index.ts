@@ -1,12 +1,14 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { Resvg } from 'npm:@resvg/resvg-js@2.6.2';
+import initWasm, { Resvg } from 'npm:@resvg/resvg-wasm@2.4.1';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
+
+let wasmInitialized = false;
 
 interface WallpaperConfig {
   mode: 'year' | 'month' | 'life' | 'countdown';
@@ -631,13 +633,12 @@ Deno.serve(async (req: Request) => {
 
     const svg = generateSVG(config);
 
-    const resvg = new Resvg(svg, {
-      fitTo: {
-        mode: 'width',
-        value: config.width || 1170,
-      },
-    });
+    if (!wasmInitialized) {
+      await initWasm(fetch('https://unpkg.com/@resvg/resvg-wasm@2.4.1/index_bg.wasm'));
+      wasmInitialized = true;
+    }
 
+    const resvg = new Resvg(svg);
     const pngData = resvg.render();
     const pngBuffer = pngData.asPng();
 
