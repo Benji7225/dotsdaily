@@ -1,5 +1,4 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -302,18 +301,21 @@ function generateSVG(config: WallpaperConfig): string {
   const safeLeft = config.safeLeft || 40;
   const safeRight = config.safeRight || 40;
 
-  const { current, total } = calculateProgress(config);
+  const { current, total, label } = calculateProgress(config);
   const percentage = Math.round((current / total) * 100);
 
+  const textTopHeight = 80;
   const textBottomHeight = 80;
 
   const availableWidth = width - safeLeft - safeRight;
-  const availableHeight = height - safeTop - safeBottom - textBottomHeight;
+  const availableHeight = height - safeTop - safeBottom - textTopHeight - textBottomHeight;
 
   const bgColor = isDark ? '#0a0a0a' : '#ffffff';
+  const textColor = isDark ? '#ffffff' : '#1a1a1a';
   const subTextColor = isDark ? '#999999' : '#666666';
   const labelColor = isDark ? '#666666' : '#999999';
 
+  const textTopY = safeTop + 40;
   const textBottomY = height - safeBottom - 40;
 
   const groups = calculateGroups(config, total);
@@ -342,7 +344,7 @@ function generateSVG(config: WallpaperConfig): string {
     const groupWidth = (availableWidth - (groupCols - 1) * groupSpacing) / groupCols;
     const groupHeight = (availableHeight - (groupRows - 1) * groupSpacing - groupRows * labelHeight) / groupRows;
 
-    const contentTop = safeTop;
+    const contentTop = safeTop + textTopHeight;
     const startX = safeLeft;
     const startY = contentTop;
 
@@ -494,7 +496,7 @@ function generateSVG(config: WallpaperConfig): string {
     const gridWidth = cols * (dotSize * dotSpacing);
     const gridHeight = rows * (dotSize * dotSpacing);
 
-    const contentTop = safeTop;
+    const contentTop = safeTop + textTopHeight;
     const startX = safeLeft + (availableWidth - gridWidth) / 2;
     const startY = contentTop + (availableHeight - gridHeight) / 2;
 
@@ -536,22 +538,14 @@ function generateSVG(config: WallpaperConfig): string {
 
   ${dots}
 
+  <text x="${width / 2}" y="${textTopY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="600" fill="${textColor}" text-anchor="middle">
+    ${label}
+  </text>
+
   <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="42" font-weight="600" fill="${subTextColor}" text-anchor="middle">
     ${percentage}%
   </text>
 </svg>`;
-}
-
-async function svgToPng(svgString: string): Promise<Uint8Array> {
-  const { Resvg } = await import('https://deno.land/x/resvg_wasm@0.2.0/mod.ts');
-
-  await Resvg.initWasm(
-    fetch('https://deno.land/x/resvg_wasm@0.2.0/resvg.wasm')
-  );
-
-  const resvg = new Resvg(svgString);
-  const image = resvg.render();
-  return image.asPng();
 }
 
 Deno.serve(async (req: Request) => {
@@ -564,100 +558,38 @@ Deno.serve(async (req: Request) => {
 
   try {
     const url = new URL(req.url);
-    const pathname = url.pathname;
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const idMatch = pathname.match(/\/([a-z0-9\-]+)$/);
-    const id = idMatch ? idMatch[1] : null;
-
-    if (!id) {
-      const config: WallpaperConfig = {
-        mode: (url.searchParams.get('mode') as WallpaperConfig['mode']) || 'year',
-        granularity: (url.searchParams.get('granularity') as WallpaperConfig['granularity']) || 'day',
-        grouping: (url.searchParams.get('grouping') as WallpaperConfig['grouping']) || 'none',
-        targetDate: url.searchParams.get('target') || undefined,
-        startDate: url.searchParams.get('start') || undefined,
-        birthDate: url.searchParams.get('birth') || undefined,
-        lifeExpectancy: url.searchParams.get('life') ? parseInt(url.searchParams.get('life')!) : undefined,
-        width: url.searchParams.get('width') ? parseInt(url.searchParams.get('width')!) : 1170,
-        height: url.searchParams.get('height') ? parseInt(url.searchParams.get('height')!) : 2532,
-        theme: (url.searchParams.get('theme') as 'dark' | 'light') || 'dark',
-        safeTop: url.searchParams.get('safeTop') ? parseInt(url.searchParams.get('safeTop')!) : 140,
-        safeBottom: url.searchParams.get('safeBottom') ? parseInt(url.searchParams.get('safeBottom')!) : 110,
-        safeLeft: url.searchParams.get('safeLeft') ? parseInt(url.searchParams.get('safeLeft')!) : 40,
-        safeRight: url.searchParams.get('safeRight') ? parseInt(url.searchParams.get('safeRight')!) : 40,
-      };
-
-      const svg = generateSVG(config);
-
-      return new Response(svg, {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'image/svg+xml',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        },
-      });
-    }
-
-    const { data: configData, error: configError } = await supabase
-      .from('wallpaper_configs')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle();
-
-    if (configError || !configData) {
-      return new Response(
-        JSON.stringify({ error: 'Configuration not found' }),
-        {
-          status: 404,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-    }
 
     const config: WallpaperConfig = {
-      mode: configData.mode as WallpaperConfig['mode'],
-      granularity: configData.granularity as WallpaperConfig['granularity'],
-      grouping: (configData.grouping as WallpaperConfig['grouping']) || 'none',
-      targetDate: configData.target_date || undefined,
-      startDate: configData.start_date || undefined,
-      birthDate: configData.birth_date || undefined,
-      lifeExpectancy: configData.life_expectancy || undefined,
-      width: configData.width,
-      height: configData.height,
-      theme: configData.theme as 'dark' | 'light',
-      safeTop: configData.safe_top,
-      safeBottom: configData.safe_bottom,
-      safeLeft: configData.safe_left,
-      safeRight: configData.safe_right,
+      mode: (url.searchParams.get('mode') as WallpaperConfig['mode']) || 'year',
+      granularity: (url.searchParams.get('granularity') as WallpaperConfig['granularity']) || 'day',
+      grouping: (url.searchParams.get('grouping') as WallpaperConfig['grouping']) || 'none',
+      targetDate: url.searchParams.get('target') || undefined,
+      startDate: url.searchParams.get('start') || undefined,
+      birthDate: url.searchParams.get('birth') || undefined,
+      lifeExpectancy: url.searchParams.get('life') ? parseInt(url.searchParams.get('life')!) : undefined,
+      width: url.searchParams.get('width') ? parseInt(url.searchParams.get('width')!) : 1170,
+      height: url.searchParams.get('height') ? parseInt(url.searchParams.get('height')!) : 2532,
+      theme: (url.searchParams.get('theme') as 'dark' | 'light') || 'dark',
+      safeTop: url.searchParams.get('safeTop') ? parseInt(url.searchParams.get('safeTop')!) : 140,
+      safeBottom: url.searchParams.get('safeBottom') ? parseInt(url.searchParams.get('safeBottom')!) : 110,
+      safeLeft: url.searchParams.get('safeLeft') ? parseInt(url.searchParams.get('safeLeft')!) : 40,
+      safeRight: url.searchParams.get('safeRight') ? parseInt(url.searchParams.get('safeRight')!) : 40,
     };
 
     const svg = generateSVG(config);
-    const pngBuffer = await svgToPng(svg);
 
-    return new Response(pngBuffer, {
+    return new Response(svg, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'image/png',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'public, max-age=3600',
       },
     });
   } catch (error) {
-    console.error('Error:', error);
     return new Response(
-      JSON.stringify({ error: error.message, stack: error.stack }),
+      JSON.stringify({ error: error.message }),
       {
-        status: 500,
+        status: 400,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json',

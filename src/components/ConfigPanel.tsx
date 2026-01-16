@@ -31,6 +31,7 @@ const granularityOptions: Record<WallpaperMode, { value: Granularity; label: str
 const groupingOptions: Record<WallpaperMode, { value: Grouping; label: string }[]> = {
   year: [
     { value: 'none', label: 'Aucun' },
+    { value: 'week', label: 'Semaine' },
     { value: 'month', label: 'Mois' },
     { value: 'quarter', label: 'Trimestre' },
   ],
