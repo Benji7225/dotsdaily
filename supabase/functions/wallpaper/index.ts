@@ -1,14 +1,13 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import initWasm, { Resvg } from 'npm:@resvg/resvg-wasm@2.4.1';
+import satori from 'npm:satori@0.10.14';
+import { Resvg } from 'npm:@resvg/resvg-js@2.6.2';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
-
-let wasmInitialized = false;
 
 interface WallpaperConfig {
   mode: 'year' | 'month' | 'life' | 'countdown';
@@ -63,7 +62,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
 
   if (config.granularity === 'day') {
     if (config.grouping === 'month') {
-      const monthNames = ['Jan', 'F\u00e9v', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Ao\u00fb', 'Sep', 'Oct', 'Nov', 'D\u00e9c'];
+      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
       const now = new Date();
       const year = now.getFullYear();
       let dayIndex = 0;
@@ -121,7 +120,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
     }
   } else if (config.granularity === 'week') {
     if (config.grouping === 'month') {
-      const monthNames = ['Jan', 'F\u00e9v', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Ao\u00fb', 'Sep', 'Oct', 'Nov', 'D\u00e9c'];
+      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
       let weekIndex = 0;
 
       for (let month = 0; month < 12; month++) {
@@ -390,7 +389,7 @@ function generateSVG(config: WallpaperConfig): string {
       const groupY = startY + groupRow * (groupHeight + groupSpacing + labelHeight);
 
       const labelY = groupY + labelHeight / 2;
-      dots += `<text x=\"${groupX + groupWidth / 2}\" y=\"${labelY}\" font-family=\"-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif\" font-size=\"14\" font-weight=\"500\" fill=\"${labelColor}\" text-anchor=\"middle\">${group.label}</text>`;
+      dots += `<text x="${groupX + groupWidth / 2}" y="${labelY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="${labelColor}" text-anchor="middle">${group.label}</text>`;
 
       const dotsInGroup = group.count;
       const groupDotArea = groupHeight - labelHeight;
@@ -451,7 +450,7 @@ function generateSVG(config: WallpaperConfig): string {
           fill = isDark ? '#3a3a3a' : '#d0d0d0';
         }
 
-        dots += `<circle cx=\"${x}\" cy=\"${y}\" r=\"${dotSize / 2}\" fill=\"${fill}\" />`;
+        dots += `<circle cx="${x}" cy="${y}" r="${dotSize / 2}" fill="${fill}" />`;
       }
     }
   } else {
@@ -529,17 +528,17 @@ function generateSVG(config: WallpaperConfig): string {
         fill = isDark ? '#3a3a3a' : '#d0d0d0';
       }
 
-      dots += `<circle cx=\"${x}\" cy=\"${y}\" r=\"${dotSize / 2}\" fill=\"${fill}\" />`;
+      dots += `<circle cx="${x}" cy="${y}" r="${dotSize / 2}" fill="${fill}" />`;
     }
   }
 
-  return `<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<svg width=\"${width}\" height=\"${height}\" xmlns=\"http://www.w3.org/2000/svg\">
-  <rect width=\"${width}\" height=\"${height}\" fill=\"${bgColor}\"/>
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="${width}" height="${height}" fill="${bgColor}"/>
 
   ${dots}
 
-  <text x=\"${width / 2}\" y=\"${textBottomY}\" font-family=\"-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif\" font-size=\"42\" font-weight=\"600\" fill=\"${subTextColor}\" text-anchor=\"middle\">
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="42" font-weight="600" fill="${subTextColor}" text-anchor="middle">
     ${percentage}%
   </text>
 </svg>`;
@@ -633,12 +632,12 @@ Deno.serve(async (req: Request) => {
 
     const svg = generateSVG(config);
 
-    if (!wasmInitialized) {
-      await initWasm(fetch('https://unpkg.com/@resvg/resvg-wasm@2.4.1/index_bg.wasm'));
-      wasmInitialized = true;
-    }
+    const resvg = new Resvg(svg, {
+      fitTo: {
+        mode: 'original',
+      },
+    });
 
-    const resvg = new Resvg(svg);
     const pngData = resvg.render();
     const pngBuffer = pngData.asPng();
 
@@ -652,10 +651,11 @@ Deno.serve(async (req: Request) => {
       },
     });
   } catch (error) {
+    console.error('Error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message, stack: error.stack }),
       {
-        status: 400,
+        status: 500,
         headers: {
           ...corsHeaders,
           'Content-Type': 'application/json',
