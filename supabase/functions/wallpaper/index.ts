@@ -1,7 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import satori from 'npm:satori@0.10.14';
-import { Resvg } from 'npm:@resvg/resvg-js@2.6.2';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -544,6 +542,18 @@ function generateSVG(config: WallpaperConfig): string {
 </svg>`;
 }
 
+async function svgToPng(svgString: string): Promise<Uint8Array> {
+  const { Resvg } = await import('https://deno.land/x/resvg_wasm@0.2.0/mod.ts');
+
+  await Resvg.initWasm(
+    fetch('https://deno.land/x/resvg_wasm@0.2.0/resvg.wasm')
+  );
+
+  const resvg = new Resvg(svgString);
+  const image = resvg.render();
+  return image.asPng();
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -631,15 +641,7 @@ Deno.serve(async (req: Request) => {
     };
 
     const svg = generateSVG(config);
-
-    const resvg = new Resvg(svg, {
-      fitTo: {
-        mode: 'original',
-      },
-    });
-
-    const pngData = resvg.render();
-    const pngBuffer = pngData.asPng();
+    const pngBuffer = await svgToPng(svg);
 
     return new Response(pngBuffer, {
       headers: {

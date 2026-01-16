@@ -73,7 +73,7 @@ function App() {
   };
 
   const modelSpecs = getModelSpecs(config.generation, config.variant);
-  const apiUrl = 'https://dotsdaily.app';
+  const apiUrl = import.meta.env.VITE_SUPABASE_URL;
 
   const saveConfiguration = async () => {
     if (!modelSpecs) return;
