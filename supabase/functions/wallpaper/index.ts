@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -548,6 +549,102 @@ function generateSVG(config: WallpaperConfig): string {
 </svg>`;
 }
 
+function generateErrorSVG(message: string): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1170" height="2532" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1170" height="2532" fill="#0a0a0a"/>
+  <text x="585" y="1266" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" font-weight="600" fill="#ffffff" text-anchor="middle">
+    ${message}
+  </text>
+</svg>`;
+}
+
+async function svgToPng(svgContent: string): Promise<Uint8Array> {
+  const cloudName = Deno.env.get('CLOUDINARY_CLOUD_NAME');
+  const apiKey = Deno.env.get('CLOUDINARY_API_KEY');
+  const apiSecret = Deno.env.get('CLOUDINARY_API_SECRET');
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error('Cloudinary credentials not configured');
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const publicId = `wallpaper_${timestamp}_${Math.random().toString(36).substring(7)}`;
+
+  const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+
+  const svgBase64 = btoa(svgContent);
+  const dataUri = `data:image/svg+xml;base64,${svgBase64}`;
+
+  const formData = new FormData();
+  formData.append('file', dataUri);
+  formData.append('public_id', publicId);
+  formData.append('api_key', apiKey);
+  formData.append('timestamp', timestamp.toString());
+  formData.append('format', 'png');
+
+  const stringToSign = `format=png&public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
+  const encoder = new TextEncoder();
+  const data = encoder.encode(stringToSign);
+  const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  formData.append('signature', signature);
+
+  const uploadResponse = await fetch(uploadUrl, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error(`Cloudinary upload failed: ${uploadResponse.statusText}`);
+  }
+
+  const uploadResult = await uploadResponse.json();
+  const pngUrl = uploadResult.secure_url;
+
+  const pngResponse = await fetch(pngUrl);
+  if (!pngResponse.ok) {
+    throw new Error('Failed to fetch PNG from Cloudinary');
+  }
+
+  const pngBuffer = await pngResponse.arrayBuffer();
+  return new Uint8Array(pngBuffer);
+}
+
+function calculateSecondsUntilMidnight(timezone: string): number {
+  try {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+
+    const parts = formatter.formatToParts(now);
+    const year = parseInt(parts.find(p => p.type === 'year')?.value || '0');
+    const month = parseInt(parts.find(p => p.type === 'month')?.value || '0') - 1;
+    const day = parseInt(parts.find(p => p.type === 'day')?.value || '0');
+    const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0');
+    const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0');
+    const second = parseInt(parts.find(p => p.type === 'second')?.value || '0');
+
+    const secondsElapsedToday = hour * 3600 + minute * 60 + second;
+    const secondsInDay = 86400;
+    const secondsUntilMidnight = secondsInDay - secondsElapsedToday;
+
+    return Math.max(secondsUntilMidnight, 60);
+  } catch {
+    return 3600;
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -558,43 +655,109 @@ Deno.serve(async (req: Request) => {
 
   try {
     const url = new URL(req.url);
+    const pathname = url.pathname;
 
-    const config: WallpaperConfig = {
-      mode: (url.searchParams.get('mode') as WallpaperConfig['mode']) || 'year',
-      granularity: (url.searchParams.get('granularity') as WallpaperConfig['granularity']) || 'day',
-      grouping: (url.searchParams.get('grouping') as WallpaperConfig['grouping']) || 'none',
-      targetDate: url.searchParams.get('target') || undefined,
-      startDate: url.searchParams.get('start') || undefined,
-      birthDate: url.searchParams.get('birth') || undefined,
-      lifeExpectancy: url.searchParams.get('life') ? parseInt(url.searchParams.get('life')!) : undefined,
-      width: url.searchParams.get('width') ? parseInt(url.searchParams.get('width')!) : 1170,
-      height: url.searchParams.get('height') ? parseInt(url.searchParams.get('height')!) : 2532,
-      theme: (url.searchParams.get('theme') as 'dark' | 'light') || 'dark',
-      safeTop: url.searchParams.get('safeTop') ? parseInt(url.searchParams.get('safeTop')!) : 140,
-      safeBottom: url.searchParams.get('safeBottom') ? parseInt(url.searchParams.get('safeBottom')!) : 110,
-      safeLeft: url.searchParams.get('safeLeft') ? parseInt(url.searchParams.get('safeLeft')!) : 40,
-      safeRight: url.searchParams.get('safeRight') ? parseInt(url.searchParams.get('safeRight')!) : 40,
-    };
+    let config: WallpaperConfig;
+    let timezone = 'UTC';
+
+    const shortIdMatch = pathname.match(/\/w\/([a-z0-9]{6})/);
+
+    if (shortIdMatch) {
+      const shortId = shortIdMatch[1];
+
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      const { data, error } = await supabase
+        .from('wallpaper_configs')
+        .select('*')
+        .eq('id', shortId)
+        .maybeSingle();
+
+      if (error || !data) {
+        const errorSvg = generateErrorSVG('Configuration not found');
+        const errorPng = await svgToPng(errorSvg);
+
+        return new Response(errorPng, {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'image/png',
+            'Cache-Control': 'public, max-age=60',
+          },
+        });
+      }
+
+      config = {
+        mode: data.mode,
+        granularity: data.granularity,
+        grouping: data.grouping || 'none',
+        targetDate: data.target_date || undefined,
+        startDate: data.start_date || undefined,
+        birthDate: data.birth_date || undefined,
+        lifeExpectancy: data.life_expectancy || undefined,
+        width: data.width,
+        height: data.height,
+        theme: data.theme || 'dark',
+        safeTop: data.safe_top,
+        safeBottom: data.safe_bottom,
+        safeLeft: data.safe_left,
+        safeRight: data.safe_right,
+      };
+
+      timezone = data.timezone || 'UTC';
+    } else {
+      config = {
+        mode: (url.searchParams.get('mode') as WallpaperConfig['mode']) || 'year',
+        granularity: (url.searchParams.get('granularity') as WallpaperConfig['granularity']) || 'day',
+        grouping: (url.searchParams.get('grouping') as WallpaperConfig['grouping']) || 'none',
+        targetDate: url.searchParams.get('target') || undefined,
+        startDate: url.searchParams.get('start') || undefined,
+        birthDate: url.searchParams.get('birth') || undefined,
+        lifeExpectancy: url.searchParams.get('life') ? parseInt(url.searchParams.get('life')!) : undefined,
+        width: url.searchParams.get('width') ? parseInt(url.searchParams.get('width')!) : 1170,
+        height: url.searchParams.get('height') ? parseInt(url.searchParams.get('height')!) : 2532,
+        theme: (url.searchParams.get('theme') as 'dark' | 'light') || 'dark',
+        safeTop: url.searchParams.get('safeTop') ? parseInt(url.searchParams.get('safeTop')!) : 140,
+        safeBottom: url.searchParams.get('safeBottom') ? parseInt(url.searchParams.get('safeBottom')!) : 110,
+        safeLeft: url.searchParams.get('safeLeft') ? parseInt(url.searchParams.get('safeLeft')!) : 40,
+        safeRight: url.searchParams.get('safeRight') ? parseInt(url.searchParams.get('safeRight')!) : 40,
+      };
+    }
 
     const svg = generateSVG(config);
+    const png = await svgToPng(svg);
 
-    return new Response(svg, {
+    const maxAge = calculateSecondsUntilMidnight(timezone);
+
+    return new Response(png, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=3600',
+        'Content-Type': 'image/png',
+        'Cache-Control': `public, max-age=${maxAge}`,
       },
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 400,
+    const errorSvg = generateErrorSVG('Error generating wallpaper');
+
+    try {
+      const errorPng = await svgToPng(errorSvg);
+
+      return new Response(errorPng, {
         headers: {
           ...corsHeaders,
-          'Content-Type': 'application/json',
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=60',
         },
-      }
-    );
+      });
+    } catch {
+      return new Response(errorSvg, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'image/svg+xml',
+          'Cache-Control': 'public, max-age=60',
+        },
+      });
+    }
   }
 });

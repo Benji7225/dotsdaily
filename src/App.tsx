@@ -32,6 +32,8 @@ function App() {
   });
 
   const [copied, setCopied] = useState(false);
+  const [shortUrl, setShortUrl] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const getDefaultGranularity = (mode: WallpaperMode): Granularity => {
     switch (mode) {
@@ -74,8 +76,59 @@ function App() {
     ...(config.lifeExpectancy && { life: config.lifeExpectancy.toString() }),
   }).toString()}` : '';
 
+  const generateShortUrl = async () => {
+    if (!modelSpecs) return;
+
+    setIsGenerating(true);
+    try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      const payload = {
+        mode: config.mode,
+        granularity: config.granularity,
+        grouping: config.grouping,
+        theme: config.theme,
+        targetDate: config.targetDate,
+        startDate: config.startDate,
+        birthDate: config.birthDate,
+        lifeExpectancy: config.lifeExpectancy,
+        width: modelSpecs.width,
+        height: modelSpecs.height,
+        safeTop: modelSpecs.safeArea.top,
+        safeBottom: modelSpecs.safeArea.bottom,
+        safeLeft: modelSpecs.safeArea.left,
+        safeRight: modelSpecs.safeArea.right,
+        timezone,
+      };
+
+      const response = await fetch(`${apiUrl}/functions/v1/save-wallpaper`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate short URL');
+      }
+
+      const data = await response.json();
+      const baseUrl = window.location.hostname === 'localhost'
+        ? apiUrl
+        : 'https://dotsdaily.app';
+      setShortUrl(`${baseUrl}/functions/v1/wallpaper/w/${data.id}`);
+    } catch (error) {
+      console.error('Error generating short URL:', error);
+      alert('Erreur lors de la génération de l\'URL courte');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const copyUrl = async () => {
-    await navigator.clipboard.writeText(wallpaperUrl);
+    const urlToCopy = shortUrl || wallpaperUrl;
+    await navigator.clipboard.writeText(urlToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -127,44 +180,67 @@ function App() {
               <h3 className="text-lg font-semibold text-slate-900 mb-4">
                 URL pour Apple Raccourcis
               </h3>
-              <div className="bg-slate-50 rounded-lg p-4 mb-4 break-all text-sm text-slate-700 font-mono">
-                {wallpaperUrl}
-              </div>
-              <button
-                onClick={copyUrl}
-                className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-5 h-5" />
-                    Copié !
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-5 h-5" />
-                    Copier l'URL
-                  </>
-                )}
-              </button>
+
+              {!shortUrl ? (
+                <>
+                  <button
+                    onClick={generateShortUrl}
+                    disabled={isGenerating}
+                    className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed mb-4"
+                  >
+                    {isGenerating ? 'Génération...' : 'Générer l\'URL courte'}
+                  </button>
+                  <div className="p-4 bg-slate-50 rounded-lg">
+                    <p className="text-sm text-slate-600">
+                      Cliquez pour générer une URL courte et facile à utiliser avec Apple Raccourcis. L'image sera automatiquement mise à jour chaque jour à minuit dans votre fuseau horaire.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bg-slate-50 rounded-lg p-4 mb-4 break-all text-sm text-slate-700 font-mono">
+                    {shortUrl}
+                  </div>
+                  <button
+                    onClick={copyUrl}
+                    className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-5 h-5" />
+                        Copié !
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-5 h-5" />
+                        Copier l'URL
+                      </>
+                    )}
+                  </button>
+                </>
+              )}
 
               <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-semibold text-blue-900 mb-2">
                   Configuration Apple Raccourcis
                 </h4>
                 <ol className="text-sm text-blue-800 space-y-2 list-decimal list-inside">
-                  <li>Ouvre l'app Raccourcis</li>
+                  <li>Ouvre l'app Raccourcis sur ton iPhone</li>
                   <li>Crée un nouveau raccourci</li>
-                  <li>Ajoute "Obtenir le contenu de l'URL"</li>
-                  <li>Colle l'URL ci-dessus</li>
-                  <li>Ajoute "Définir comme fond d'écran"</li>
-                  <li>Configure une automatisation quotidienne</li>
+                  <li>Ajoute l'action "Obtenir le contenu de l'URL"</li>
+                  <li>Colle l'URL générée ci-dessus</li>
+                  <li>Ajoute l'action "Définir comme fond d'écran"</li>
+                  <li>Configure une automatisation quotidienne après minuit</li>
                 </ol>
+                <p className="text-xs text-blue-700 mt-3">
+                  Le fond d'écran se mettra à jour automatiquement chaque jour à minuit dans ton fuseau horaire.
+                </p>
               </div>
             </div>
           </div>
 
           <div>
-            <WallpaperPreview url={wallpaperUrl} modelSpecs={modelSpecs} theme={config.theme} generation={config.generation} variant={config.variant} />
+            <WallpaperPreview url={shortUrl || wallpaperUrl} modelSpecs={modelSpecs} theme={config.theme} generation={config.generation} variant={config.variant} />
           </div>
         </div>
       </div>
