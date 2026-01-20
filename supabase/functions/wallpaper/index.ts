@@ -543,7 +543,7 @@ function generateSVG(config: WallpaperConfig): string {
     ${label}
   </text>
 
-  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="42" font-weight="600" fill="${subTextColor}" text-anchor="middle">
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="600" fill="${subTextColor}" text-anchor="middle">
     ${percentage}%
   </text>
 </svg>`;
