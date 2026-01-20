@@ -11,7 +11,7 @@ export interface ModelSpecs {
   safeArea: SafeArea;
 }
 
-export type Variant = 'standard' | 'mini' | 'plus' | 'pro' | 'pro-max' | 'xs' | 'xs-max' | 'xr';
+export type Variant = 'standard' | 'mini' | 'plus' | 'pro' | 'pro-max' | 'xs' | 'xs-max' | 'xr' | 'se';
 
 export interface Generation {
   id: string;
@@ -28,6 +28,7 @@ export const variantLabels: Record<Variant, string> = {
   xs: 'XS',
   'xs-max': 'XS Max',
   xr: 'XR',
+  se: 'SE',
 };
 
 export const iPhoneGenerations: Generation[] = [
@@ -205,6 +206,81 @@ export const iPhoneGenerations: Generation[] = [
         width: 414,
         height: 896,
         safeArea: { top: Math.round(896 * 0.30), bottom: Math.round(896 * 0.15), left: Math.round(414 * 0.08), right: Math.round(414 * 0.08) },
+      },
+    },
+  },
+  {
+    id: 'se3',
+    name: 'iPhone SE',
+    variants: {
+      se: {
+        width: 375,
+        height: 667,
+        safeArea: { top: Math.round(667 * 0.30), bottom: Math.round(667 * 0.15), left: Math.round(375 * 0.08), right: Math.round(375 * 0.08) },
+      },
+    },
+  },
+  {
+    id: '8',
+    name: 'iPhone 8',
+    variants: {
+      standard: {
+        width: 375,
+        height: 667,
+        safeArea: { top: Math.round(667 * 0.30), bottom: Math.round(667 * 0.15), left: Math.round(375 * 0.08), right: Math.round(375 * 0.08) },
+      },
+      plus: {
+        width: 414,
+        height: 736,
+        safeArea: { top: Math.round(736 * 0.30), bottom: Math.round(736 * 0.15), left: Math.round(414 * 0.08), right: Math.round(414 * 0.08) },
+      },
+    },
+  },
+  {
+    id: '7',
+    name: 'iPhone 7',
+    variants: {
+      standard: {
+        width: 375,
+        height: 667,
+        safeArea: { top: Math.round(667 * 0.30), bottom: Math.round(667 * 0.15), left: Math.round(375 * 0.08), right: Math.round(375 * 0.08) },
+      },
+      plus: {
+        width: 414,
+        height: 736,
+        safeArea: { top: Math.round(736 * 0.30), bottom: Math.round(736 * 0.15), left: Math.round(414 * 0.08), right: Math.round(414 * 0.08) },
+      },
+    },
+  },
+  {
+    id: '6s',
+    name: 'iPhone 6s',
+    variants: {
+      standard: {
+        width: 375,
+        height: 667,
+        safeArea: { top: Math.round(667 * 0.30), bottom: Math.round(667 * 0.15), left: Math.round(375 * 0.08), right: Math.round(375 * 0.08) },
+      },
+      plus: {
+        width: 414,
+        height: 736,
+        safeArea: { top: Math.round(736 * 0.30), bottom: Math.round(736 * 0.15), left: Math.round(414 * 0.08), right: Math.round(414 * 0.08) },
+      },
+    },
+  },
+  {
+    id: '6',
+    name: 'iPhone 6',
+    variants: {
+      standard: {
+        width: 375,
+        height: 667,
+        safeArea: { top: Math.round(667 * 0.30), bottom: Math.round(667 * 0.15), left: Math.round(375 * 0.08), right: Math.round(375 * 0.08) },
+      },
+      plus: {
+        width: 414,
+        height: 736,
+        safeArea: { top: Math.round(736 * 0.30), bottom: Math.round(736 * 0.15), left: Math.round(414 * 0.08), right: Math.round(414 * 0.08) },
       },
     },
   },
