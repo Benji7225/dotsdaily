@@ -116,9 +116,9 @@ function App() {
 
       const data = await response.json();
       const baseUrl = window.location.hostname === 'localhost'
-        ? apiUrl
+        ? `${apiUrl}/functions/v1/wallpaper`
         : 'https://dotsdaily.app';
-      setShortUrl(`${baseUrl}/functions/v1/wallpaper/w/${data.id}`);
+      setShortUrl(`${baseUrl}/w/${data.id}`);
     } catch (error) {
       console.error('Error generating short URL:', error);
       alert('Erreur lors de la génération de l\'URL courte');
