@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/w/:path*",
+      "destination": "https://rgmiykvhddqwyqhprvkf.supabase.co/functions/v1/wallpaper/w/:path*"
+    }
+  ]
+}

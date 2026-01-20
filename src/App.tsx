@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, Heart, Target, Copy, Check } from 'lucide-react';
 import WallpaperPreview from './components/WallpaperPreview';
 import ConfigPanel from './components/ConfigPanel';
@@ -34,6 +34,17 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [shortUrl, setShortUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    const match = path.match(/^\/w\/([a-z0-9]{6})$/);
+
+    if (match) {
+      const shortId = match[1];
+      const apiUrl = import.meta.env.VITE_SUPABASE_URL;
+      window.location.href = `${apiUrl}/functions/v1/wallpaper/w/${shortId}`;
+    }
+  }, []);
 
   const getDefaultGranularity = (mode: WallpaperMode): Granularity => {
     switch (mode) {
