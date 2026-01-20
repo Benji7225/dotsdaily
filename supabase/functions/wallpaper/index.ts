@@ -560,56 +560,21 @@ function generateErrorSVG(message: string): string {
 }
 
 async function svgToPng(svgContent: string): Promise<Uint8Array> {
-  const cloudName = Deno.env.get('CLOUDINARY_CLOUD_NAME');
-  const apiKey = Deno.env.get('CLOUDINARY_API_KEY');
-  const apiSecret = Deno.env.get('CLOUDINARY_API_SECRET');
+  const resvgUrl = 'https://resvg.fly.dev/convert';
 
-  if (!cloudName || !apiKey || !apiSecret) {
-    throw new Error('Cloudinary credentials not configured');
-  }
-
-  const timestamp = Math.floor(Date.now() / 1000);
-  const publicId = `wallpaper_${timestamp}_${Math.random().toString(36).substring(7)}`;
-
-  const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-
-  const svgBase64 = btoa(svgContent);
-  const dataUri = `data:image/svg+xml;base64,${svgBase64}`;
-
-  const formData = new FormData();
-  formData.append('file', dataUri);
-  formData.append('public_id', publicId);
-  formData.append('api_key', apiKey);
-  formData.append('timestamp', timestamp.toString());
-  formData.append('format', 'png');
-
-  const stringToSign = `format=png&public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
-  const encoder = new TextEncoder();
-  const data = encoder.encode(stringToSign);
-  const hashBuffer = await crypto.subtle.digest('SHA-1', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-  formData.append('signature', signature);
-
-  const uploadResponse = await fetch(uploadUrl, {
+  const response = await fetch(resvgUrl, {
     method: 'POST',
-    body: formData,
+    headers: {
+      'Content-Type': 'image/svg+xml',
+    },
+    body: svgContent,
   });
 
-  if (!uploadResponse.ok) {
-    throw new Error(`Cloudinary upload failed: ${uploadResponse.statusText}`);
+  if (!response.ok) {
+    throw new Error(`resvg conversion failed: ${response.statusText}`);
   }
 
-  const uploadResult = await uploadResponse.json();
-  const pngUrl = uploadResult.secure_url;
-
-  const pngResponse = await fetch(pngUrl);
-  if (!pngResponse.ok) {
-    throw new Error('Failed to fetch PNG from Cloudinary');
-  }
-
-  const pngBuffer = await pngResponse.arrayBuffer();
+  const pngBuffer = await response.arrayBuffer();
   return new Uint8Array(pngBuffer);
 }
 
