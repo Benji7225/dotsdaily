@@ -625,7 +625,7 @@ Deno.serve(async (req: Request) => {
     let config: WallpaperConfig;
     let timezone = 'UTC';
 
-    const shortIdMatch = pathname.match(/\/w\/([a-z0-9]{6})/);
+    const shortIdMatch = pathname.match(/\/(?:w\/)?([a-z0-9]{6})/);
 
     if (shortIdMatch) {
       const shortId = shortIdMatch[1];
