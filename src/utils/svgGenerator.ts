@@ -280,19 +280,19 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
 }
 
 export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): string {
-  const { width, height, safeArea } = modelSpecs;
+  const { width, height } = modelSpecs;
   const isDark = config.theme !== 'light';
 
-  const safeTop = safeArea.top;
-  const safeBottom = safeArea.bottom;
-  const safeLeft = safeArea.left;
-  const safeRight = safeArea.right;
+  const safeTop = height * 0.30;
+  const safeBottom = height * 0.15;
+  const safeLeft = width * 0.08;
+  const safeRight = width * 0.08;
 
   const { current, total } = calculateProgress(config);
   const percentage = Math.round((current / total) * 100);
 
   const textTopHeight = 0;
-  const textBottomHeight = 80;
+  const textBottomHeight = 50;
 
   const availableWidth = width - safeLeft - safeRight;
   const availableHeight = height - safeTop - safeBottom - textTopHeight - textBottomHeight;
@@ -302,7 +302,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   const subTextColor = isDark ? '#999999' : '#666666';
   const labelColor = isDark ? '#666666' : '#999999';
 
-  const textBottomY = height - safeBottom - 40;
+  const textBottomY = height - safeBottom - 25;
 
   const groups = calculateGroups(config, total);
 
@@ -524,7 +524,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
   ${dots}
 
-  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="42" font-weight="600" fill="${subTextColor}" text-anchor="middle">
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" font-weight="400" fill="${subTextColor}" text-anchor="middle">
     ${percentage}%
   </text>
 </svg>`;
