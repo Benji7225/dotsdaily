@@ -285,7 +285,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
   const safeTop = safeArea.top;
   const safeBottom = safeArea.bottom;
-  const safeLeft = safeArea.left + 15;
+  const safeLeft = safeArea.left + 3;
   const safeRight = safeArea.right;
 
   const { current, total } = calculateProgress(config);
