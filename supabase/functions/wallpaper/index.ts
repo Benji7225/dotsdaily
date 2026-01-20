@@ -622,13 +622,17 @@ Deno.serve(async (req: Request) => {
     const url = new URL(req.url);
     const pathname = url.pathname;
 
+    console.log('Request pathname:', pathname);
+
     let config: WallpaperConfig;
     let timezone = 'UTC';
 
     const shortIdMatch = pathname.match(/([a-z0-9]{6,10})$/);
+    console.log('Short ID match:', shortIdMatch);
 
     if (shortIdMatch) {
       const shortId = shortIdMatch[1];
+      console.log('Fetching config for ID:', shortId);
 
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
       const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -640,7 +644,10 @@ Deno.serve(async (req: Request) => {
         .eq('id', shortId)
         .maybeSingle();
 
+      console.log('Database query result:', { data, error });
+
       if (error || !data) {
+        console.log('Config not found or error:', error);
         const errorSvg = generateErrorSVG('Configuration not found');
         const errorPng = await svgToPng(errorSvg);
 
@@ -703,6 +710,7 @@ Deno.serve(async (req: Request) => {
       },
     });
   } catch (error) {
+    console.error('Error generating wallpaper:', error);
     const errorSvg = generateErrorSVG('Error generating wallpaper');
 
     try {
