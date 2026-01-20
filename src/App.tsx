@@ -173,7 +173,7 @@ function App() {
         throw new Error(`Upload PNG échoué: ${errorText}`);
       }
 
-      const pngUrl = `${apiUrl}/storage/v1/object/public/wallpapers/${configId}.png`;
+      const pngUrl = `https://dotsdaily.app/w/${configId}`;
       setShortUrl(pngUrl);
     } catch (error) {
       console.error('Erreur:', error);
@@ -238,29 +238,18 @@ function App() {
                 URL pour Apple Raccourcis
               </h3>
 
-              {!shortUrl ? (
-                <>
-                  <button
-                    onClick={generateShortUrl}
-                    disabled={isGenerating}
-                    className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed mb-4"
-                  >
-                    {isGenerating ? 'Génération...' : 'Générer l\'URL courte'}
-                  </button>
-                  <div className="p-4 bg-slate-50 rounded-lg">
-                    <p className="text-sm text-slate-600">
-                      Cliquez pour générer une URL courte et facile à utiliser avec Apple Raccourcis. L'image sera automatiquement mise à jour chaque jour à minuit dans votre fuseau horaire.
-                    </p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="bg-slate-50 rounded-lg p-4 mb-4 break-all text-sm text-slate-700 font-mono">
-                    {shortUrl}
-                  </div>
+              <div className="flex gap-3 mb-4">
+                <button
+                  onClick={generateShortUrl}
+                  disabled={isGenerating}
+                  className="flex-1 bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed"
+                >
+                  {isGenerating ? 'Génération...' : shortUrl ? 'Régénérer l\'URL' : 'Générer l\'URL'}
+                </button>
+                {shortUrl && (
                   <button
                     onClick={copyUrl}
-                    className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+                    className="px-6 py-3 rounded-lg font-semibold border-2 border-slate-900 text-slate-900 hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
                   >
                     {copied ? (
                       <>
@@ -270,11 +259,23 @@ function App() {
                     ) : (
                       <>
                         <Copy className="w-5 h-5" />
-                        Copier l'URL
+                        Copier
                       </>
                     )}
                   </button>
-                </>
+                )}
+              </div>
+
+              {shortUrl ? (
+                <div className="bg-slate-50 rounded-lg p-4 mb-4 break-all text-sm text-slate-700 font-mono">
+                  {shortUrl}
+                </div>
+              ) : (
+                <div className="p-4 bg-slate-50 rounded-lg mb-4">
+                  <p className="text-sm text-slate-600">
+                    Cliquez pour générer une URL courte et facile à utiliser avec Apple Raccourcis. L'image sera automatiquement mise à jour chaque jour à minuit dans votre fuseau horaire.
+                  </p>
+                </div>
               )}
 
               <div className="mt-6 p-4 bg-blue-50 rounded-lg">
