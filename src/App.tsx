@@ -92,6 +92,31 @@ function App() {
 
     setIsGenerating(true);
     try {
+      const svgUrl = wallpaperUrl;
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = svgUrl;
+      });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = modelSpecs.width;
+      canvas.height = modelSpecs.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas non disponible');
+
+      ctx.drawImage(img, 0, 0);
+
+      const pngBlob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error('Conversion PNG échouée'));
+        }, 'image/png');
+      });
+
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       const payload = {
@@ -122,17 +147,31 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate short URL');
+        throw new Error('Sauvegarde config échouée');
       }
 
       const data = await response.json();
-      const baseUrl = window.location.hostname === 'localhost'
-        ? `${apiUrl}/functions/v1/wallpaper`
-        : 'https://dotsdaily.app';
-      setShortUrl(`${baseUrl}/w/${data.id}`);
+      const configId = data.id;
+
+      const uploadResponse = await fetch(`${apiUrl}/storage/v1/object/wallpapers/${configId}.png`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'image/png',
+        },
+        body: pngBlob,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        throw new Error(`Upload PNG échoué: ${errorText}`);
+      }
+
+      const pngUrl = `${apiUrl}/storage/v1/object/public/wallpapers/${configId}.png`;
+      setShortUrl(pngUrl);
     } catch (error) {
-      console.error('Error generating short URL:', error);
-      alert('Erreur lors de la génération de l\'URL courte');
+      console.error('Erreur:', error);
+      alert('Erreur lors de la génération du fond d\'écran');
     } finally {
       setIsGenerating(false);
     }
