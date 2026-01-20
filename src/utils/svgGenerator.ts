@@ -280,13 +280,13 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
 }
 
 export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): string {
-  const { width, height } = modelSpecs;
+  const { width, height, safeArea } = modelSpecs;
   const isDark = config.theme !== 'light';
 
-  const safeTop = height * 0.30;
-  const safeBottom = height * 0.15;
-  const safeLeft = width * 0.08;
-  const safeRight = width * 0.08;
+  const safeTop = safeArea.top;
+  const safeBottom = safeArea.bottom;
+  const safeLeft = safeArea.left;
+  const safeRight = safeArea.right;
 
   const { current, total } = calculateProgress(config);
   const percentage = Math.round((current / total) * 100);
