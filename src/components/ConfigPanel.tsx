@@ -9,7 +9,6 @@ interface ConfigPanelProps {
 const granularityOptions: Record<WallpaperMode, { value: Granularity; label: string }[]> = {
   year: [
     { value: 'day', label: 'Jour' },
-    { value: 'week', label: 'Semaine' },
   ],
   month: [
     { value: 'day', label: 'Jour' },
