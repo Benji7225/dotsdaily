@@ -1,0 +1,536 @@
+import { WallpaperConfig } from '../App';
+
+interface ModelSpecs {
+  width: number;
+  height: number;
+  safeArea: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
+}
+
+function getDayOfYear(date: Date): number {
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date.getTime() - start.getTime();
+  const oneDay = 1000 * 60 * 60 * 24;
+  return Math.floor(diff / oneDay);
+}
+
+function isLeapYear(year: number): boolean {
+  return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
+
+function getWeekOfYear(date: Date): number {
+  const start = new Date(date.getFullYear(), 0, 1);
+  const diff = date.getTime() - start.getTime();
+  const oneWeek = 1000 * 60 * 60 * 24 * 7;
+  return Math.ceil(diff / oneWeek);
+}
+
+interface GroupInfo {
+  startIndex: number;
+  endIndex: number;
+  label: string;
+  count: number;
+  firstDayOfWeek?: number;
+  isCalendarLayout?: boolean;
+}
+
+function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
+  if (!config.grouping || config.grouping === 'none' || config.mode !== 'year') {
+    return [];
+  }
+
+  const groups: GroupInfo[] = [];
+
+  if (config.granularity === 'day') {
+    if (config.grouping === 'month') {
+      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+      const now = new Date();
+      const year = now.getFullYear();
+      let dayIndex = 0;
+
+      for (let month = 0; month < 12; month++) {
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDay = new Date(year, month, 1);
+        const dayOfWeek = firstDay.getDay();
+        const firstDayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
+        groups.push({
+          startIndex: dayIndex,
+          endIndex: dayIndex + daysInMonth - 1,
+          label: monthNames[month],
+          count: daysInMonth,
+          firstDayOfWeek: firstDayOfWeek,
+          isCalendarLayout: true
+        });
+        dayIndex += daysInMonth;
+      }
+    } else if (config.grouping === 'quarter') {
+      const quarters = ['T1', 'T2', 'T3', 'T4'];
+      const now = new Date();
+      const year = now.getFullYear();
+      let dayIndex = 0;
+
+      for (let q = 0; q < 4; q++) {
+        const startMonth = q * 3;
+        let daysInQuarter = 0;
+        for (let m = 0; m < 3; m++) {
+          daysInQuarter += new Date(year, startMonth + m + 1, 0).getDate();
+        }
+        groups.push({
+          startIndex: dayIndex,
+          endIndex: dayIndex + daysInQuarter - 1,
+          label: quarters[q],
+          count: daysInQuarter
+        });
+        dayIndex += daysInQuarter;
+      }
+    } else if (config.grouping === 'week') {
+      const weeksInYear = 52;
+      for (let week = 0; week < weeksInYear; week++) {
+        const startDay = week * 7;
+        const endDay = Math.min(startDay + 6, total - 1);
+        if (startDay < total) {
+          groups.push({
+            startIndex: startDay,
+            endIndex: endDay,
+            label: `S${week + 1}`,
+            count: endDay - startDay + 1
+          });
+        }
+      }
+    }
+  } else if (config.granularity === 'week') {
+    if (config.grouping === 'month') {
+      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+      let weekIndex = 0;
+
+      for (let month = 0; month < 12; month++) {
+        const weeksInMonth = month === 1 ? 4 : (month % 2 === 0 ? 5 : 4);
+        const actualWeeks = Math.min(weeksInMonth, total - weekIndex);
+        if (actualWeeks > 0) {
+          groups.push({
+            startIndex: weekIndex,
+            endIndex: weekIndex + actualWeeks - 1,
+            label: monthNames[month],
+            count: actualWeeks
+          });
+          weekIndex += actualWeeks;
+        }
+      }
+    } else if (config.grouping === 'quarter') {
+      const quarters = ['T1', 'T2', 'T3', 'T4'];
+      const weeksPerQuarter = 13;
+
+      for (let q = 0; q < 4; q++) {
+        const startWeek = q * weeksPerQuarter;
+        const endWeek = Math.min(startWeek + weeksPerQuarter - 1, total - 1);
+        if (startWeek < total) {
+          groups.push({
+            startIndex: startWeek,
+            endIndex: endWeek,
+            label: quarters[q],
+            count: endWeek - startWeek + 1
+          });
+        }
+      }
+    }
+  }
+
+  return groups;
+}
+
+function calculateProgress(config: WallpaperConfig): { current: number; total: number; label: string } {
+  const now = new Date();
+
+  switch (config.mode) {
+    case 'year': {
+      if (config.granularity === 'day') {
+        const dayOfYear = getDayOfYear(now);
+        const daysInYear = isLeapYear(now.getFullYear()) ? 366 : 365;
+        return {
+          current: dayOfYear,
+          total: daysInYear,
+          label: `Jour ${dayOfYear} / ${daysInYear}`
+        };
+      } else if (config.granularity === 'week') {
+        const weekOfYear = getWeekOfYear(now);
+        const weeksInYear = 52;
+        return {
+          current: weekOfYear,
+          total: weeksInYear,
+          label: `Semaine ${weekOfYear} / ${weeksInYear}`
+        };
+      }
+      break;
+    }
+
+    case 'month': {
+      if (config.granularity === 'day') {
+        const dayOfMonth = now.getDate();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        return {
+          current: dayOfMonth,
+          total: daysInMonth,
+          label: `Jour ${dayOfMonth} / ${daysInMonth}`
+        };
+      } else if (config.granularity === 'week') {
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const currentWeek = Math.ceil((now.getDate() + firstDay.getDay()) / 7);
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const totalWeeks = Math.ceil((daysInMonth + firstDay.getDay()) / 7);
+        return {
+          current: currentWeek,
+          total: totalWeeks,
+          label: `Semaine ${currentWeek} / ${totalWeeks}`
+        };
+      }
+      break;
+    }
+
+    case 'life': {
+      if (!config.birthDate) {
+        throw new Error('birthDate required for life mode');
+      }
+      const birth = new Date(config.birthDate);
+      const expectancy = config.lifeExpectancy || 80;
+
+      if (config.granularity === 'year') {
+        const ageInYears = now.getFullYear() - birth.getFullYear();
+        return {
+          current: Math.min(ageInYears, expectancy),
+          total: expectancy,
+          label: `${ageInYears} ans / ${expectancy} ans`
+        };
+      } else if (config.granularity === 'month') {
+        const ageInMonths = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+        const totalMonths = expectancy * 12;
+        return {
+          current: Math.min(ageInMonths, totalMonths),
+          total: totalMonths,
+          label: `${ageInMonths} mois / ${totalMonths} mois`
+        };
+      } else if (config.granularity === 'week') {
+        const ageInWeeks = Math.floor((now.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24 * 7));
+        const totalWeeks = expectancy * 52;
+        return {
+          current: Math.min(ageInWeeks, totalWeeks),
+          total: totalWeeks,
+          label: `${ageInWeeks} semaines / ${totalWeeks} semaines`
+        };
+      }
+      break;
+    }
+
+    case 'countdown': {
+      if (!config.targetDate) {
+        throw new Error('targetDate required for countdown mode');
+      }
+      const target = new Date(config.targetDate);
+      const start = config.startDate ? new Date(config.startDate) : new Date();
+
+      if (config.granularity === 'day') {
+        const totalDays = Math.ceil((target.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+        const daysElapsed = Math.max(0, Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))) + 1;
+        const daysLeft = Math.max(0, Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+        return {
+          current: Math.min(daysElapsed, totalDays),
+          total: totalDays,
+          label: `${daysLeft}j restants`
+        };
+      } else if (config.granularity === 'week') {
+        const totalWeeks = Math.ceil((target.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 7));
+        const weeksElapsed = Math.max(0, Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 7))) + 1;
+        const weeksLeft = Math.max(0, Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 7)));
+        return {
+          current: Math.min(weeksElapsed, totalWeeks),
+          total: totalWeeks,
+          label: `${weeksLeft}s restantes`
+        };
+      } else if (config.granularity === 'month') {
+        const totalMonths = Math.ceil((target.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30));
+        const monthsElapsed = Math.max(0, Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30))) + 1;
+        const monthsLeft = Math.max(0, Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)));
+        return {
+          current: Math.min(monthsElapsed, totalMonths),
+          total: totalMonths,
+          label: `${monthsLeft}m restants`
+        };
+      } else if (config.granularity === 'year') {
+        const totalYears = Math.ceil((target.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365));
+        const yearsElapsed = Math.max(0, Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365))) + 1;
+        const yearsLeft = Math.max(0, Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365)));
+        return {
+          current: Math.min(yearsElapsed, totalYears),
+          total: totalYears,
+          label: `${yearsLeft}a restantes`
+        };
+      }
+      break;
+    }
+
+    default:
+      throw new Error('Invalid mode');
+  }
+
+  throw new Error('Invalid granularity for mode');
+}
+
+export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): string {
+  const { width, height, safeArea } = modelSpecs;
+  const isDark = config.theme !== 'light';
+
+  const safeTop = safeArea.top;
+  const safeBottom = safeArea.bottom;
+  const safeLeft = safeArea.left;
+  const safeRight = safeArea.right;
+
+  const { current, total, label } = calculateProgress(config);
+  const percentage = Math.round((current / total) * 100);
+
+  const textTopHeight = 80;
+  const textBottomHeight = 80;
+
+  const availableWidth = width - safeLeft - safeRight;
+  const availableHeight = height - safeTop - safeBottom - textTopHeight - textBottomHeight;
+
+  const bgColor = isDark ? '#0a0a0a' : '#ffffff';
+  const textColor = isDark ? '#ffffff' : '#1a1a1a';
+  const subTextColor = isDark ? '#999999' : '#666666';
+  const labelColor = isDark ? '#666666' : '#999999';
+
+  const textTopY = safeTop + 40;
+  const textBottomY = height - safeBottom - 40;
+
+  const groups = calculateGroups(config, total);
+
+  let dots = '';
+
+  const dotSpacing = 1.6;
+
+  const maxMonthDayDotSize = (() => {
+    const calendarCols = 7;
+    const calendarRows = 6;
+    return Math.min(
+      availableWidth / (calendarCols * dotSpacing),
+      availableHeight / (calendarRows * dotSpacing)
+    );
+  })();
+
+  if (groups.length > 0) {
+    const numGroups = groups.length;
+    const groupCols = config.grouping === 'week' ? 13 : (config.grouping === 'quarter' ? 2 : 3);
+    const groupRows = Math.ceil(numGroups / groupCols);
+
+    const groupSpacing = 40;
+    const labelHeight = 25;
+
+    const groupWidth = (availableWidth - (groupCols - 1) * groupSpacing) / groupCols;
+    const groupHeight = (availableHeight - (groupRows - 1) * groupSpacing - groupRows * labelHeight) / groupRows;
+
+    const contentTop = safeTop + textTopHeight;
+    const startX = safeLeft;
+    const startY = contentTop;
+
+    let globalDotSize = Infinity;
+
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i];
+      const dotsInGroup = group.count;
+      const groupDotArea = groupHeight - labelHeight;
+
+      let dotCols: number;
+      let dotRows: number;
+
+      const isMonthWeek = config.mode === 'month' && config.granularity === 'week';
+
+      if (isMonthWeek) {
+        dotCols = dotsInGroup;
+        dotRows = 1;
+      } else if (group.isCalendarLayout && group.firstDayOfWeek !== undefined) {
+        dotCols = 7;
+        dotRows = Math.ceil((dotsInGroup + group.firstDayOfWeek) / 7);
+      } else {
+        dotCols = Math.ceil(Math.sqrt(dotsInGroup * (groupWidth / groupDotArea)));
+        dotRows = Math.ceil(dotsInGroup / dotCols);
+      }
+
+      const dotSize = Math.min(
+        groupWidth / (dotCols * dotSpacing),
+        groupDotArea / (dotRows * dotSpacing),
+        maxMonthDayDotSize
+      );
+
+      globalDotSize = Math.min(globalDotSize, dotSize);
+    }
+
+    for (let i = 0; i < groups.length; i++) {
+      const group = groups[i];
+      const groupRow = Math.floor(i / groupCols);
+      const groupCol = i % groupCols;
+
+      const groupX = startX + groupCol * (groupWidth + groupSpacing);
+      const groupY = startY + groupRow * (groupHeight + groupSpacing + labelHeight);
+
+      const labelY = groupY + labelHeight / 2;
+      dots += `<text x="${groupX + groupWidth / 2}" y="${labelY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="${labelColor}" text-anchor="middle">${group.label}</text>`;
+
+      const dotsInGroup = group.count;
+      const groupDotArea = groupHeight - labelHeight;
+
+      let dotCols: number;
+      let dotRows: number;
+      let firstDayOffset = 0;
+
+      const isMonthWeek = config.mode === 'month' && config.granularity === 'week';
+
+      if (isMonthWeek) {
+        dotCols = dotsInGroup;
+        dotRows = 1;
+      } else if (group.isCalendarLayout && group.firstDayOfWeek !== undefined) {
+        dotCols = 7;
+        firstDayOffset = group.firstDayOfWeek;
+        dotRows = Math.ceil((dotsInGroup + firstDayOffset) / 7);
+      } else {
+        dotCols = Math.ceil(Math.sqrt(dotsInGroup * (groupWidth / groupDotArea)));
+        dotRows = Math.ceil(dotsInGroup / dotCols);
+      }
+
+      const dotSize = globalDotSize;
+
+      const gridWidth = dotCols * (dotSize * dotSpacing);
+      const gridHeight = dotRows * (dotSize * dotSpacing);
+
+      const dotStartX = groupX + (groupWidth - gridWidth) / 2;
+      const dotStartY = groupY + labelHeight + (groupDotArea - gridHeight) / 2;
+
+      for (let j = 0; j < dotsInGroup; j++) {
+        const absoluteIndex = group.startIndex + j;
+
+        let dotRow: number;
+        let dotCol: number;
+
+        if (group.isCalendarLayout) {
+          const adjustedIndex = j + firstDayOffset;
+          dotRow = Math.floor(adjustedIndex / 7);
+          dotCol = adjustedIndex % 7;
+        } else {
+          dotRow = Math.floor(j / dotCols);
+          dotCol = j % dotCols;
+        }
+
+        const x = dotStartX + dotCol * (dotSize * dotSpacing) + dotSize / 2;
+        const y = dotStartY + dotRow * (dotSize * dotSpacing) + dotSize / 2;
+
+        const isCurrent = absoluteIndex === current - 1;
+        const isFilled = absoluteIndex < current;
+
+        let fill: string;
+        if (isCurrent) {
+          fill = '#ff6b35';
+        } else if (isFilled) {
+          fill = isDark ? '#ffffff' : '#1a1a1a';
+        } else {
+          fill = isDark ? '#3a3a3a' : '#d0d0d0';
+        }
+
+        dots += `<circle cx="${x}" cy="${y}" r="${dotSize / 2}" fill="${fill}" />`;
+      }
+    }
+  } else {
+    const useCalendarLayout = config.granularity === 'day' &&
+      ((config.mode === 'month') ||
+       (config.mode === 'countdown' && total <= 31));
+
+    const isMonthWeek = config.mode === 'month' && config.granularity === 'week';
+
+    let cols: number;
+    let rows: number;
+    let firstDayOffset = 0;
+
+    if (isMonthWeek) {
+      cols = total;
+      rows = 1;
+    } else if (useCalendarLayout) {
+      cols = 7;
+
+      if (config.mode === 'month') {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const dayOfWeek = firstDay.getDay();
+        firstDayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      } else if (config.mode === 'countdown' && config.startDate) {
+        const startDate = new Date(config.startDate);
+        const dayOfWeek = startDate.getDay();
+        firstDayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      }
+
+      rows = Math.ceil((total + firstDayOffset) / 7);
+    } else {
+      cols = Math.ceil(Math.sqrt(total * (availableWidth / availableHeight)));
+      rows = Math.ceil(total / cols);
+    }
+
+    const dotSize = Math.min(
+      availableWidth / (cols * dotSpacing),
+      availableHeight / (rows * dotSpacing),
+      maxMonthDayDotSize
+    );
+
+    const gridWidth = cols * (dotSize * dotSpacing);
+    const gridHeight = rows * (dotSize * dotSpacing);
+
+    const contentTop = safeTop + textTopHeight;
+    const startX = safeLeft + (availableWidth - gridWidth) / 2;
+    const startY = contentTop + (availableHeight - gridHeight) / 2;
+
+    for (let i = 0; i < total; i++) {
+      let row: number;
+      let col: number;
+
+      if (useCalendarLayout) {
+        const adjustedIndex = i + firstDayOffset;
+        row = Math.floor(adjustedIndex / 7);
+        col = adjustedIndex % 7;
+      } else {
+        row = Math.floor(i / cols);
+        col = i % cols;
+      }
+
+      const x = startX + col * (dotSize * dotSpacing) + dotSize / 2;
+      const y = startY + row * (dotSize * dotSpacing) + dotSize / 2;
+
+      const isCurrent = i === current - 1;
+      const isFilled = i < current;
+
+      let fill: string;
+      if (isCurrent) {
+        fill = '#ff6b35';
+      } else if (isFilled) {
+        fill = isDark ? '#ffffff' : '#1a1a1a';
+      } else {
+        fill = isDark ? '#3a3a3a' : '#d0d0d0';
+      }
+
+      dots += `<circle cx="${x}" cy="${y}" r="${dotSize / 2}" fill="${fill}" />`;
+    }
+  }
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="${width}" height="${height}" fill="${bgColor}"/>
+
+  ${dots}
+
+  <text x="${width / 2}" y="${textTopY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="600" fill="${textColor}" text-anchor="middle">
+    ${label}
+  </text>
+
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="42" font-weight="600" fill="${subTextColor}" text-anchor="middle">
+    ${percentage}%
+  </text>
+</svg>`;
+}
