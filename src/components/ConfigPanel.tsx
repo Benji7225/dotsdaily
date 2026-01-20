@@ -9,7 +9,6 @@ interface ConfigPanelProps {
 const granularityOptions: Record<WallpaperMode, { value: Granularity; label: string }[]> = {
   year: [
     { value: 'day', label: 'Jour' },
-    { value: 'week', label: 'Semaine' },
   ],
   month: [
     { value: 'day', label: 'Jour' },
@@ -239,6 +238,73 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
             </p>
           </div>
         )}
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Espacements personnalisés (px)
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="paddingTop" className="block text-xs text-slate-500 mb-1">
+                Haut
+              </label>
+              <input
+                id="paddingTop"
+                type="number"
+                min="0"
+                placeholder="Auto"
+                value={config.paddingTop ?? ''}
+                onChange={(e) => setConfig({ ...config, paddingTop: e.target.value ? parseInt(e.target.value) : undefined })}
+                className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
+              />
+            </div>
+            <div>
+              <label htmlFor="paddingBottom" className="block text-xs text-slate-500 mb-1">
+                Bas
+              </label>
+              <input
+                id="paddingBottom"
+                type="number"
+                min="0"
+                placeholder="Auto"
+                value={config.paddingBottom ?? ''}
+                onChange={(e) => setConfig({ ...config, paddingBottom: e.target.value ? parseInt(e.target.value) : undefined })}
+                className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
+              />
+            </div>
+            <div>
+              <label htmlFor="paddingLeft" className="block text-xs text-slate-500 mb-1">
+                Gauche
+              </label>
+              <input
+                id="paddingLeft"
+                type="number"
+                min="0"
+                placeholder="Auto"
+                value={config.paddingLeft ?? ''}
+                onChange={(e) => setConfig({ ...config, paddingLeft: e.target.value ? parseInt(e.target.value) : undefined })}
+                className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
+              />
+            </div>
+            <div>
+              <label htmlFor="paddingRight" className="block text-xs text-slate-500 mb-1">
+                Droite
+              </label>
+              <input
+                id="paddingRight"
+                type="number"
+                min="0"
+                placeholder="Auto"
+                value={config.paddingRight ?? ''}
+                onChange={(e) => setConfig({ ...config, paddingRight: e.target.value ? parseInt(e.target.value) : undefined })}
+                className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mt-2">
+            Laissez vide pour utiliser les valeurs automatiques (safe area)
+          </p>
+        </div>
       </div>
     </div>
   );
