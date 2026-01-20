@@ -141,12 +141,14 @@ function App() {
         img.src = svgUrl;
       });
 
+      const scale = 3;
       const canvas = document.createElement('canvas');
-      canvas.width = modelSpecs.width;
-      canvas.height = modelSpecs.height;
+      canvas.width = modelSpecs.width * scale;
+      canvas.height = modelSpecs.height * scale;
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas non disponible');
 
+      ctx.scale(scale, scale);
       ctx.drawImage(img, 0, 0);
       URL.revokeObjectURL(svgUrl);
 

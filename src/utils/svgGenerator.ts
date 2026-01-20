@@ -288,10 +288,10 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   const safeLeft = safeArea.left;
   const safeRight = safeArea.right;
 
-  const { current, total, label } = calculateProgress(config);
+  const { current, total } = calculateProgress(config);
   const percentage = Math.round((current / total) * 100);
 
-  const textTopHeight = 80;
+  const textTopHeight = 0;
   const textBottomHeight = 80;
 
   const availableWidth = width - safeLeft - safeRight;
@@ -302,7 +302,6 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   const subTextColor = isDark ? '#999999' : '#666666';
   const labelColor = isDark ? '#666666' : '#999999';
 
-  const textTopY = safeTop + 40;
   const textBottomY = height - safeBottom - 40;
 
   const groups = calculateGroups(config, total);
@@ -524,10 +523,6 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   <rect width="${width}" height="${height}" fill="${bgColor}"/>
 
   ${dots}
-
-  <text x="${width / 2}" y="${textTopY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="600" fill="${textColor}" text-anchor="middle">
-    ${label}
-  </text>
 
   <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="42" font-weight="600" fill="${subTextColor}" text-anchor="middle">
     ${percentage}%
