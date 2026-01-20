@@ -283,10 +283,10 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   const { width, height, safeArea } = modelSpecs;
   const isDark = config.theme !== 'light';
 
-  const safeTop = config.paddingTop ?? safeArea.top;
-  const safeBottom = config.paddingBottom ?? safeArea.bottom;
-  const safeLeft = config.paddingLeft ?? safeArea.left;
-  const safeRight = config.paddingRight ?? safeArea.right;
+  const safeTop = safeArea.top;
+  const safeBottom = safeArea.bottom;
+  const safeLeft = safeArea.left;
+  const safeRight = safeArea.right;
 
   const { current, total } = calculateProgress(config);
   const percentage = Math.round((current / total) * 100);

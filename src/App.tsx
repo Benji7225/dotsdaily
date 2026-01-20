@@ -19,10 +19,6 @@ export interface WallpaperConfig {
   theme: 'dark' | 'light';
   generation: string;
   variant: Variant;
-  paddingTop?: number;
-  paddingBottom?: number;
-  paddingLeft?: number;
-  paddingRight?: number;
 }
 
 function App() {
@@ -70,10 +66,10 @@ function App() {
     theme: config.theme,
     width: modelSpecs.width.toString(),
     height: modelSpecs.height.toString(),
-    safeTop: (config.paddingTop ?? modelSpecs.safeArea.top).toString(),
-    safeBottom: (config.paddingBottom ?? modelSpecs.safeArea.bottom).toString(),
-    safeLeft: (config.paddingLeft ?? modelSpecs.safeArea.left).toString(),
-    safeRight: (config.paddingRight ?? modelSpecs.safeArea.right).toString(),
+    safeTop: modelSpecs.safeArea.top.toString(),
+    safeBottom: modelSpecs.safeArea.bottom.toString(),
+    safeLeft: modelSpecs.safeArea.left.toString(),
+    safeRight: modelSpecs.safeArea.right.toString(),
     ...(config.targetDate && { target: config.targetDate }),
     ...(config.startDate && { start: config.startDate }),
     ...(config.birthDate && { birth: config.birthDate }),
@@ -98,10 +94,10 @@ function App() {
         lifeExpectancy: config.lifeExpectancy,
         width: modelSpecs.width,
         height: modelSpecs.height,
-        safeTop: config.paddingTop ?? modelSpecs.safeArea.top,
-        safeBottom: config.paddingBottom ?? modelSpecs.safeArea.bottom,
-        safeLeft: config.paddingLeft ?? modelSpecs.safeArea.left,
-        safeRight: config.paddingRight ?? modelSpecs.safeArea.right,
+        safeTop: modelSpecs.safeArea.top,
+        safeBottom: modelSpecs.safeArea.bottom,
+        safeLeft: modelSpecs.safeArea.left,
+        safeRight: modelSpecs.safeArea.right,
         timezone,
       };
 
