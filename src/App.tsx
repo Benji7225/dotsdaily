@@ -35,6 +35,10 @@ function App() {
   const [shortUrl, setShortUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
+  useEffect(() => {
+    setShortUrl('');
+  }, [config]);
+
   const getDefaultGranularity = (mode: WallpaperMode): Granularity => {
     switch (mode) {
       case 'year': return 'day';
