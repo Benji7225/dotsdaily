@@ -436,8 +436,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
       const dotSize = globalDotSize;
 
-      const gridWidth = dotCols * (dotSize * dotSpacing);
-      const gridHeight = dotRows * (dotSize * dotSpacing);
+      const gridWidth = (dotCols - 1) * (dotSize * dotSpacing) + dotSize;
+      const gridHeight = (dotRows - 1) * (dotSize * dotSpacing) + dotSize;
 
       const dotStartX = groupX + (groupWidth - gridWidth) / 2;
       const dotStartY = groupY + labelHeight;
@@ -516,8 +516,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
       maxMonthDayDotSize
     );
 
-    const gridWidth = cols * (dotSize * dotSpacing);
-    const gridHeight = rows * (dotSize * dotSpacing);
+    const gridWidth = (cols - 1) * (dotSize * dotSpacing) + dotSize;
+    const gridHeight = (rows - 1) * (dotSize * dotSpacing) + dotSize;
 
     const contentTop = safeTop + textTopHeight;
     const startX = safeLeft + (availableWidth - gridWidth) / 2;
