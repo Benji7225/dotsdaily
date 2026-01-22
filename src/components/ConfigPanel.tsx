@@ -11,10 +11,6 @@ const granularityOptions: Record<WallpaperMode, { value: Granularity; label: str
     { value: 'day', label: 'Jour' },
     { value: 'week', label: 'Semaine' },
   ],
-  month: [
-    { value: 'day', label: 'Jour' },
-    { value: 'week', label: 'Semaine' },
-  ],
   life: [
     { value: 'year', label: 'Année' },
     { value: 'month', label: 'Mois' },
@@ -34,7 +30,6 @@ const groupingOptions: Record<WallpaperMode, { value: Grouping; label: string }[
     { value: 'month', label: 'Mois' },
     { value: 'quarter', label: 'Trimestre' },
   ],
-  month: [],
   life: [],
   countdown: [],
 };
@@ -238,14 +233,6 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
           <div className="p-4 bg-slate-50 rounded-lg">
             <p className="text-sm text-slate-600">
               Affiche la progression dans l'année en cours avec la granularité choisie.
-            </p>
-          </div>
-        )}
-
-        {config.mode === 'month' && (
-          <div className="p-4 bg-slate-50 rounded-lg">
-            <p className="text-sm text-slate-600">
-              Affiche la progression dans le mois en cours avec la granularité choisie.
             </p>
           </div>
         )}

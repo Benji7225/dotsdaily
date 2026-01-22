@@ -4,7 +4,7 @@ import WallpaperPreview from './components/WallpaperPreview';
 import ConfigPanel from './components/ConfigPanel';
 import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from './utils/iPhoneModels';
 
-export type WallpaperMode = 'year' | 'month' | 'life' | 'countdown';
+export type WallpaperMode = 'year' | 'life' | 'countdown';
 export type Granularity = 'day' | 'week' | 'month' | 'year';
 export type Grouping = 'none' | 'week' | 'month' | 'quarter' | 'year';
 
@@ -42,7 +42,6 @@ function App() {
   const getDefaultGranularity = (mode: WallpaperMode): Granularity => {
     switch (mode) {
       case 'year': return 'day';
-      case 'month': return 'day';
       case 'life': return 'year';
       case 'countdown': return 'day';
     }
@@ -239,7 +238,6 @@ function App() {
 
   const modes = [
     { id: 'year' as WallpaperMode, name: 'Année', icon: Calendar, desc: 'Progression dans l\'année' },
-    { id: 'month' as WallpaperMode, name: 'Mois', icon: Clock, desc: 'Progression dans le mois' },
     { id: 'life' as WallpaperMode, name: 'Vie', icon: Heart, desc: 'Progression dans la vie' },
     { id: 'countdown' as WallpaperMode, name: 'Objectif', icon: Target, desc: 'Compte à rebours vers un objectif' },
   ];
