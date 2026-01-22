@@ -321,7 +321,6 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
       'year-day-week': { spacing: 1.6, size: 1.0 },
       'year-day-quarter': { spacing: 1.6, size: 1.0 },
       'year-day': { spacing: 1.6, size: 1.0 },
-      'year-week-month': { spacing: 2, size: 1.0 },
       'year-week-quarter': { spacing: 1.6, size: 1.0 },
       'year-week': { spacing: 1.6, size: 1.0 },
       'month-day': { spacing: 1.6, size: 1.0 },
@@ -357,7 +356,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
     const groupRows = Math.ceil(numGroups / groupCols);
 
     const isYearDayMonth = config.mode === 'year' && config.granularity === 'day' && config.grouping === 'month';
-    const groupSpacing = isYearDayMonth ? 5 : 100;
+    const isQuarter = config.grouping === 'quarter';
+    const groupSpacing = isYearDayMonth ? 5 : (isQuarter ? 30 : 100);
     const labelHeight = isYearDayMonth ? 12 : 25;
 
     const groupWidth = (availableWidth - (groupCols - 1) * groupSpacing) / groupCols;

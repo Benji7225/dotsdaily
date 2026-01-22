@@ -43,7 +43,11 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
   const today = new Date().toISOString().split('T')[0];
   const availableVariants = getAvailableVariants(config.generation);
   const availableGranularities = granularityOptions[config.mode];
-  const availableGroupings = groupingOptions[config.mode];
+  let availableGroupings = groupingOptions[config.mode];
+
+  if (config.mode === 'year' && config.granularity === 'week') {
+    availableGroupings = availableGroupings.filter(g => g.value !== 'month');
+  }
 
   const handleGenerationChange = (generationId: string) => {
     const defaultVariant = getDefaultVariant(generationId);
@@ -131,7 +135,14 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
             <div>
               <select
                 value={config.granularity}
-                onChange={(e) => setConfig({ ...config, granularity: e.target.value as Granularity })}
+                onChange={(e) => {
+                  const newGranularity = e.target.value as Granularity;
+                  const newConfig = { ...config, granularity: newGranularity };
+                  if (config.mode === 'year' && newGranularity === 'week' && config.grouping === 'month') {
+                    newConfig.grouping = 'none';
+                  }
+                  setConfig(newConfig);
+                }}
                 className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
               >
                 {availableGranularities.map((option) => (
