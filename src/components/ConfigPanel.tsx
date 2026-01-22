@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType } from '../App';
+import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType } from '../pages/Create';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
 import { Pipette, Upload } from 'lucide-react';
 
