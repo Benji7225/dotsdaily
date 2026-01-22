@@ -467,7 +467,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
         let fill: string;
         if (isCurrent) {
-          fill = '#ff6b35';
+          fill = config.dotColor || '#ff6b35';
         } else if (isFilled) {
           fill = isDark ? '#ffffff' : '#1a1a1a';
         } else {
@@ -569,7 +569,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
       let fill: string;
       if (isCurrent) {
-        fill = '#ff6b35';
+        fill = config.dotColor || '#ff6b35';
       } else if (isFilled) {
         fill = isDark ? '#ffffff' : '#1a1a1a';
       } else {

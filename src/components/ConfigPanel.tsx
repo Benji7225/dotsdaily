@@ -41,7 +41,6 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
   const availableVariants = getAvailableVariants(config.generation);
   const availableGranularities = granularityOptions[config.mode];
   let availableGroupings = groupingOptions[config.mode];
-  const [showColorPicker, setShowColorPicker] = useState(false);
 
   if (config.mode === 'year' && config.granularity === 'week') {
     availableGroupings = availableGroupings.filter(g => g.value !== 'month');
@@ -87,6 +86,14 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleBgColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleThemeChange('custom', e.target.value);
+  };
+
+  const handleDotColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfig({ ...config, dotColor: e.target.value });
   };
 
   return (
@@ -151,37 +158,27 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
               }`}
               title="Fond blanc"
             />
-            <div className="relative">
-              <button
-                onClick={() => setShowColorPicker(!showColorPicker)}
-                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
-                  config.themeType === 'custom'
-                    ? 'border-slate-900 shadow-lg scale-110'
-                    : 'border-slate-200 hover:border-slate-300'
-                }`}
-                style={{
-                  backgroundColor: config.themeType === 'custom' ? config.customColor : '#888888'
-                }}
-                title="Couleur personnalisée"
-              >
-                {config.themeType !== 'custom' && (
-                  <Pipette className="w-5 h-5 text-white" />
-                )}
-              </button>
-              {showColorPicker && (
-                <div className="absolute top-14 left-0 z-10 bg-white rounded-lg shadow-xl p-3 border-2 border-slate-200">
-                  <input
-                    type="color"
-                    value={config.customColor || '#888888'}
-                    onChange={(e) => {
-                      handleThemeChange('custom', e.target.value);
-                      setShowColorPicker(false);
-                    }}
-                    className="w-32 h-32 cursor-pointer border-none"
-                  />
-                </div>
+            <label
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
+                config.themeType === 'custom'
+                  ? 'border-slate-900 shadow-lg scale-110'
+                  : 'border-slate-200 hover:border-slate-300'
+              }`}
+              style={{
+                backgroundColor: config.themeType === 'custom' ? config.customColor : '#888888'
+              }}
+              title="Couleur personnalisée"
+            >
+              {config.themeType !== 'custom' && (
+                <Pipette className="w-5 h-5 text-white" />
               )}
-            </div>
+              <input
+                type="color"
+                value={config.customColor || '#888888'}
+                onChange={handleBgColorChange}
+                className="w-0 h-0 opacity-0 absolute"
+              />
+            </label>
             <label
               className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
                 config.themeType === 'image'
@@ -206,6 +203,44 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Couleur des points
+          </label>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setConfig({ ...config, dotColor: undefined })}
+              className={`w-12 h-12 rounded-full bg-orange-500 border-4 transition-all ${
+                !config.dotColor
+                  ? 'border-slate-900 shadow-lg scale-110'
+                  : 'border-slate-200 hover:border-slate-300'
+              }`}
+              title="Orange (par défaut)"
+            />
+            <label
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
+                config.dotColor
+                  ? 'border-slate-900 shadow-lg scale-110'
+                  : 'border-slate-200 hover:border-slate-300'
+              }`}
+              style={{
+                backgroundColor: config.dotColor || '#888888'
+              }}
+              title="Couleur personnalisée"
+            >
+              {!config.dotColor && (
+                <Pipette className="w-5 h-5 text-white" />
+              )}
+              <input
+                type="color"
+                value={config.dotColor || '#f97316'}
+                onChange={handleDotColorChange}
+                className="w-0 h-0 opacity-0 absolute"
               />
             </label>
           </div>
