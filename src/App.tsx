@@ -68,6 +68,8 @@ function App() {
   useEffect(() => {
     if (!modelSpecs) return;
 
+    let cancelled = false;
+
     const generatePreview = async () => {
       try {
         const { generateSVG } = await import('./utils/svgGenerator');
@@ -101,8 +103,15 @@ function App() {
           }, 'image/png');
         });
 
-        const pngUrl = URL.createObjectURL(pngBlob);
-        setPreviewUrl(pngUrl);
+        if (!cancelled) {
+          const oldUrl = previewUrl;
+          const pngUrl = URL.createObjectURL(pngBlob);
+          setPreviewUrl(pngUrl);
+
+          if (oldUrl) {
+            URL.revokeObjectURL(oldUrl);
+          }
+        }
       } catch (error) {
         console.error('Erreur génération aperçu:', error);
       }
@@ -111,9 +120,7 @@ function App() {
     generatePreview();
 
     return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
+      cancelled = true;
     };
   }, [config, modelSpecs]);
 
