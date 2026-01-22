@@ -356,8 +356,9 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
     const groupCols = config.grouping === 'week' ? 13 : (config.grouping === 'quarter' ? 2 : 3);
     const groupRows = Math.ceil(numGroups / groupCols);
 
-    const groupSpacing = 10;
-    const labelHeight = 25;
+    const isYearDayMonth = config.mode === 'year' && config.granularity === 'day' && config.grouping === 'month';
+    const groupSpacing = isYearDayMonth ? 5 : 10;
+    const labelHeight = isYearDayMonth ? 20 : 25;
 
     const groupWidth = (availableWidth - (groupCols - 1) * groupSpacing) / groupCols;
     const groupHeight = (availableHeight - (groupRows - 1) * groupSpacing - groupRows * labelHeight) / groupRows;
