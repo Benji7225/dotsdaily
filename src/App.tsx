@@ -7,6 +7,7 @@ import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from './uti
 export type WallpaperMode = 'year' | 'life' | 'countdown';
 export type Granularity = 'day' | 'week' | 'month' | 'year';
 export type Grouping = 'none' | 'week' | 'month' | 'quarter' | 'year';
+export type ThemeType = 'dark' | 'light' | 'custom' | 'image';
 
 export interface WallpaperConfig {
   mode: WallpaperMode;
@@ -17,6 +18,9 @@ export interface WallpaperConfig {
   birthDate?: string;
   lifeExpectancy?: number;
   theme: 'dark' | 'light';
+  themeType: ThemeType;
+  customColor?: string;
+  backgroundImage?: string;
   generation: string;
   variant: Variant;
 }
@@ -27,6 +31,7 @@ function App() {
     granularity: 'day',
     grouping: 'month',
     theme: 'dark',
+    themeType: 'dark',
     generation: defaultGeneration.id,
     variant: defaultVariant,
   });
@@ -145,6 +150,9 @@ function App() {
         granularity: config.granularity,
         grouping: config.grouping,
         theme: config.theme,
+        themeType: config.themeType,
+        customColor: config.customColor,
+        backgroundImage: config.backgroundImage,
         targetDate: config.targetDate,
         startDate: config.startDate,
         birthDate: config.birthDate,

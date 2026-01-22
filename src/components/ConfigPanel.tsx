@@ -1,5 +1,7 @@
-import { WallpaperConfig, WallpaperMode, Granularity, Grouping } from '../App';
+import { useState } from 'react';
+import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType } from '../App';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
+import { Pipette, Upload } from 'lucide-react';
 
 interface ConfigPanelProps {
   config: WallpaperConfig;
@@ -39,6 +41,7 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
   const availableVariants = getAvailableVariants(config.generation);
   const availableGranularities = granularityOptions[config.mode];
   let availableGroupings = groupingOptions[config.mode];
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   if (config.mode === 'year' && config.granularity === 'week') {
     availableGroupings = availableGroupings.filter(g => g.value !== 'month');
@@ -53,6 +56,37 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
 
   const handleVariantChange = (variant: Variant) => {
     setConfig({ ...config, variant });
+  };
+
+  const handleThemeChange = (themeType: ThemeType, customColor?: string, backgroundImage?: string) => {
+    const isDark = themeType === 'dark' || (themeType === 'custom' && customColor && isColorDark(customColor));
+    setConfig({
+      ...config,
+      themeType,
+      theme: isDark ? 'dark' : 'light',
+      customColor,
+      backgroundImage,
+    });
+  };
+
+  const isColorDark = (color: string): boolean => {
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness < 128;
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleThemeChange('image', undefined, reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -96,29 +130,84 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            Thème
+            Fond d'écran
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => setConfig({ ...config, theme: 'dark' })}
-              className={`p-3 rounded-lg border-2 transition-all ${
-                config.theme === 'dark'
-                  ? 'border-slate-900 bg-slate-900 text-white'
-                  : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+              onClick={() => handleThemeChange('dark')}
+              className={`w-12 h-12 rounded-full bg-black border-4 transition-all ${
+                config.themeType === 'dark'
+                  ? 'border-slate-900 shadow-lg scale-110'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
-            >
-              Sombre
-            </button>
+              title="Fond noir"
+            />
             <button
-              onClick={() => setConfig({ ...config, theme: 'light' })}
-              className={`p-3 rounded-lg border-2 transition-all ${
-                config.theme === 'light'
-                  ? 'border-slate-900 bg-slate-900 text-white'
-                  : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+              onClick={() => handleThemeChange('light')}
+              className={`w-12 h-12 rounded-full bg-white border-4 transition-all ${
+                config.themeType === 'light'
+                  ? 'border-slate-900 shadow-lg scale-110'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
+              title="Fond blanc"
+            />
+            <div className="relative">
+              <button
+                onClick={() => setShowColorPicker(!showColorPicker)}
+                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
+                  config.themeType === 'custom'
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                style={{
+                  backgroundColor: config.themeType === 'custom' ? config.customColor : '#888888'
+                }}
+                title="Couleur personnalisée"
+              >
+                {config.themeType !== 'custom' && (
+                  <Pipette className="w-5 h-5 text-white" />
+                )}
+              </button>
+              {showColorPicker && (
+                <div className="absolute top-14 left-0 z-10 bg-white rounded-lg shadow-xl p-3 border-2 border-slate-200">
+                  <input
+                    type="color"
+                    value={config.customColor || '#888888'}
+                    onChange={(e) => {
+                      handleThemeChange('custom', e.target.value);
+                      setShowColorPicker(false);
+                    }}
+                    className="w-32 h-32 cursor-pointer border-none"
+                  />
+                </div>
+              )}
+            </div>
+            <label
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
+                config.themeType === 'image'
+                  ? 'border-slate-900 shadow-lg scale-110'
+                  : 'border-slate-200 hover:border-slate-300'
+              }`}
+              style={{
+                backgroundImage: config.themeType === 'image' && config.backgroundImage
+                  ? `url(${config.backgroundImage})`
+                  : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundColor: config.themeType === 'image' ? 'transparent' : '#666666'
+              }}
+              title="Image personnalisée"
             >
-              Clair
-            </button>
+              {config.themeType !== 'image' && (
+                <Upload className="w-5 h-5 text-white" />
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </label>
           </div>
         </div>
 

@@ -297,7 +297,20 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   const availableWidth = width - safeLeft - safeRight;
   const availableHeight = height - safeTop - safeBottom - textTopHeight - textBottomHeight;
 
-  const bgColor = isDark ? '#0a0a0a' : '#ffffff';
+  let bgColor = isDark ? '#0a0a0a' : '#ffffff';
+  let backgroundDef = '';
+
+  if (config.themeType === 'custom' && config.customColor) {
+    bgColor = config.customColor;
+  } else if (config.themeType === 'image' && config.backgroundImage) {
+    backgroundDef = `<defs>
+      <pattern id="bgImage" x="0" y="0" width="1" height="1">
+        <image href="${config.backgroundImage}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+      </pattern>
+    </defs>`;
+    bgColor = 'url(#bgImage)';
+  }
+
   const textColor = isDark ? '#ffffff' : '#1a1a1a';
   const subTextColor = isDark ? '#999999' : '#666666';
   const labelColor = isDark ? '#666666' : '#999999';
@@ -581,7 +594,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   }
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  ${backgroundDef}
   <rect width="${width}" height="${height}" fill="${bgColor}"/>
 
   ${dots}
