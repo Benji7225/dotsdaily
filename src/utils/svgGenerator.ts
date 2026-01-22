@@ -308,7 +308,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
   let dots = '';
 
-  const dotSpacing = 2.5;
+  const dotSpacing = 2.0;
 
   const maxMonthDayDotSize = (() => {
     const calendarCols = 7;
@@ -318,6 +318,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
       availableHeight / (calendarRows * dotSpacing)
     );
   })();
+
+  const isYearDayMonthView = config.mode === 'year' && config.granularity === 'day' && config.grouping === 'month';
 
   if (groups.length > 0) {
     const numGroups = groups.length;
@@ -406,6 +408,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
       const dotStartX = groupX + (groupWidth - gridWidth) / 2;
       const dotStartY = groupY + labelHeight + (groupDotArea - gridHeight) / 2;
 
+      const dotRadiusMultiplier = isYearDayMonthView ? 1.8 : 1.0;
+
       for (let j = 0; j < dotsInGroup; j++) {
         const absoluteIndex = group.startIndex + j;
 
@@ -436,7 +440,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
           fill = isDark ? '#3a3a3a' : '#d0d0d0';
         }
 
-        dots += `<circle cx="${x}" cy="${y}" r="${dotSize / 2}" fill="${fill}" />`;
+        const radius = (dotSize / 2) * dotRadiusMultiplier;
+        dots += `<circle cx="${x}" cy="${y}" r="${radius}" fill="${fill}" />`;
       }
     }
   } else {
