@@ -63,22 +63,59 @@ function App() {
 
   const modelSpecs = getModelSpecs(config.generation, config.variant);
   const apiUrl = import.meta.env.VITE_SUPABASE_URL;
-  const wallpaperUrl = modelSpecs ? `${apiUrl}/functions/v1/wallpaper?${new URLSearchParams({
-    mode: config.mode,
-    granularity: config.granularity,
-    grouping: config.grouping,
-    theme: config.theme,
-    width: modelSpecs.width.toString(),
-    height: modelSpecs.height.toString(),
-    safeTop: modelSpecs.safeArea.top.toString(),
-    safeBottom: modelSpecs.safeArea.bottom.toString(),
-    safeLeft: modelSpecs.safeArea.left.toString(),
-    safeRight: modelSpecs.safeArea.right.toString(),
-    ...(config.targetDate && { target: config.targetDate }),
-    ...(config.startDate && { start: config.startDate }),
-    ...(config.birthDate && { birth: config.birthDate }),
-    ...(config.lifeExpectancy && { life: config.lifeExpectancy.toString() }),
-  }).toString()}` : '';
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+
+  useEffect(() => {
+    if (!modelSpecs) return;
+
+    const generatePreview = async () => {
+      try {
+        const { generateSVG } = await import('./utils/svgGenerator');
+        const svgContent = generateSVG(config, modelSpecs);
+
+        const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+        const svgUrl = URL.createObjectURL(svgBlob);
+
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = svgUrl;
+        });
+
+        const scale = 3;
+        const canvas = document.createElement('canvas');
+        canvas.width = modelSpecs.width * scale;
+        canvas.height = modelSpecs.height * scale;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas non disponible');
+
+        ctx.scale(scale, scale);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(svgUrl);
+
+        const pngBlob = await new Promise<Blob>((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Conversion PNG échouée'));
+          }, 'image/png');
+        });
+
+        const pngUrl = URL.createObjectURL(pngBlob);
+        setPreviewUrl(pngUrl);
+      } catch (error) {
+        console.error('Erreur génération aperçu:', error);
+      }
+    };
+
+    generatePreview();
+
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [config, modelSpecs]);
 
   const generateShortUrl = async () => {
     if (!modelSpecs) return;
@@ -177,8 +214,8 @@ function App() {
   };
 
   const copyUrl = async () => {
-    const urlToCopy = shortUrl || wallpaperUrl;
-    await navigator.clipboard.writeText(urlToCopy);
+    if (!shortUrl) return;
+    await navigator.clipboard.writeText(shortUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -291,7 +328,7 @@ function App() {
           </div>
 
           <div>
-            <WallpaperPreview url={shortUrl || wallpaperUrl} modelSpecs={modelSpecs} theme={config.theme} generation={config.generation} variant={config.variant} />
+            <WallpaperPreview url={shortUrl || previewUrl} modelSpecs={modelSpecs} theme={config.theme} generation={config.generation} variant={config.variant} />
           </div>
         </div>
       </div>
