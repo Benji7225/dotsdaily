@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Calendar, Clock, Heart, Target, Copy, Check } from 'lucide-react';
 import WallpaperPreview from '../components/WallpaperPreview';
 import ConfigPanel from '../components/ConfigPanel';
 import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from '../utils/iPhoneModels';
@@ -87,6 +87,33 @@ export default function Create() {
   };
 
   const apiUrl = import.meta.env.VITE_SUPABASE_URL;
+  const modelSpecs = getModelSpecs(config.generation, config.variant);
+
+  const buildPreviewUrl = () => {
+    const params = new URLSearchParams({
+      mode: config.mode,
+      granularity: config.granularity,
+      grouping: config.grouping,
+      theme: config.theme,
+      themeType: config.themeType,
+      width: modelSpecs.width.toString(),
+      height: modelSpecs.height.toString(),
+      safeTop: modelSpecs.safeArea.top.toString(),
+      safeBottom: modelSpecs.safeArea.bottom.toString(),
+      safeLeft: modelSpecs.safeArea.left.toString(),
+      safeRight: modelSpecs.safeArea.right.toString(),
+    });
+
+    if (config.customColor) params.set('customColor', config.customColor);
+    if (config.backgroundImage) params.set('backgroundImage', config.backgroundImage);
+    if (config.dotColor) params.set('dotColor', config.dotColor);
+    if (config.targetDate) params.set('targetDate', config.targetDate);
+    if (config.startDate) params.set('startDate', config.startDate);
+    if (config.birthDate) params.set('birthDate', config.birthDate);
+    if (config.lifeExpectancy) params.set('lifeExpectancy', config.lifeExpectancy.toString());
+
+    return `${apiUrl}/functions/v1/wallpaper?${params.toString()}`;
+  };
 
   const generateWallpaper = async () => {
     if (config.mode === 'life' && !config.birthDate) {
@@ -158,73 +185,78 @@ export default function Create() {
     }
   };
 
-  const modelSpecs = getModelSpecs(config.generation, config.variant);
+  const previewUrl = buildPreviewUrl();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-24 pb-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-3">
-            Créez Votre Fond d'Écran
+          <h1 className="text-4xl font-bold text-white mb-3 flex items-center justify-center gap-3">
+            <Calendar className="w-10 h-10 text-orange-500" />
+            DotsDaily
           </h1>
-          <p className="text-lg text-slate-600">
-            Personnalisez votre fond d'écran et générez un lien unique qui se met à jour automatiquement
+          <p className="text-lg text-slate-400">
+            Visualisez votre progression dans le temps
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <ConfigPanel
             config={config}
             setConfig={setConfig}
             onModeChange={handleModeChange}
             onGranularityChange={handleGranularityChange}
           />
-          <WallpaperPreview config={config} />
+          <WallpaperPreview
+            url={previewUrl}
+            modelSpecs={modelSpecs}
+            theme={config.theme}
+            generation={config.generation}
+            variant={config.variant}
+          />
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="max-w-2xl mx-auto">
           <button
             onClick={generateWallpaper}
             disabled={isGenerating}
-            className="bg-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-orange-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-orange-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mb-6"
           >
-            {isGenerating ? 'Génération en cours...' : 'Générer le Lien'}
+            {isGenerating ? 'Génération en cours...' : 'Générer le Lien Permanent'}
           </button>
 
           {shortUrl && (
-            <div className="mt-6 max-w-2xl mx-auto">
-              <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">
-                  Votre fond d'écran est prêt !
-                </h3>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={shortUrl}
-                    readOnly
-                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg text-sm font-mono"
-                  />
-                  <button
-                    onClick={copyToClipboard}
-                    className="px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors flex items-center gap-2"
-                  >
-                    {copied ? (
-                      <>
-                        <Check className="w-5 h-5" />
-                        Copié
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-5 h-5" />
-                        Copier
-                      </>
-                    )}
-                  </button>
-                </div>
-                <p className="text-sm text-slate-600 mt-4">
-                  Ouvrez ce lien sur votre iPhone, appuyez longuement sur l'image et sélectionnez "Ajouter à Photos" ou "Définir comme fond d'écran".
-                </p>
+            <div className="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700">
+              <h3 className="text-lg font-semibold text-white mb-3">
+                Votre fond d'écran est prêt !
+              </h3>
+              <div className="flex gap-2 mb-4">
+                <input
+                  type="text"
+                  value={shortUrl}
+                  readOnly
+                  className="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-sm font-mono text-slate-300"
+                />
+                <button
+                  onClick={copyToClipboard}
+                  className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-5 h-5" />
+                      Copié
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-5 h-5" />
+                      Copier
+                    </>
+                  )}
+                </button>
               </div>
+              <p className="text-sm text-slate-400">
+                Ouvrez ce lien sur votre iPhone, appuyez longuement sur l'image et sélectionnez "Ajouter à Photos" ou "Définir comme fond d'écran".
+              </p>
             </div>
           )}
         </div>

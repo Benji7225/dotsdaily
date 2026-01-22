@@ -130,7 +130,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-slate-900 mb-4">
-              Pourquoi Life Calendar ?
+              Pourquoi DotsDaily ?
             </h2>
           </div>
 
@@ -228,7 +228,7 @@ export default function Home() {
             Prêt à Visualiser Votre Temps ?
           </h2>
           <p className="text-xl mb-10 text-orange-100">
-            Rejoignez des milliers de personnes qui utilisent Life Calendar pour donner du sens à leur temps.
+            Rejoignez des milliers de personnes qui utilisent DotsDaily pour donner du sens à leur temps.
           </p>
           <Link
             to="/create"

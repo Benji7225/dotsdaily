@@ -8,9 +8,9 @@ interface SEOHeadProps {
 }
 
 export default function SEOHead({
-  title = 'Life Calendar - Visualisez Votre Temps avec des Fonds d\'Écran iPhone',
+  title = 'DotsDaily - Visualisez Votre Temps avec des Fonds d\'Écran iPhone',
   description = 'Créez des fonds d\'écran iPhone personnalisés qui transforment votre écran en calendrier visuel. Suivez votre année, créez des comptes à rebours ou visualisez votre vie entière. Gratuit et optimisé pour tous les iPhone.',
-  keywords = 'fond d\'écran iPhone, calendrier de vie, compte à rebours, visualisation du temps, productivité, motivation, wallpaper iPhone, life calendar, année en cours, temps qui passe'
+  keywords = 'fond d\'écran iPhone, calendrier de vie, compte à rebours, visualisation du temps, productivité, motivation, wallpaper iPhone, DotsDaily, année en cours, temps qui passe'
 }: SEOHeadProps) {
   const location = useLocation();
 

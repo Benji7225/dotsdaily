@@ -11,7 +11,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 text-white font-bold text-lg mb-4">
               <Calendar className="w-5 h-5 text-orange-500" />
-              Life Calendar
+              DotsDaily
             </div>
             <p className="text-sm leading-relaxed">
               Transformez votre perception du temps avec des fonds d'écran qui visualisent votre vie.
@@ -74,7 +74,7 @@ export default function Footer() {
 
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm">
-            © {currentYear} Life Calendar. Tous droits réservés.
+            © {currentYear} DotsDaily. Tous droits réservés.
           </p>
           <p className="text-sm flex items-center gap-1">
             Fait avec <Heart className="w-4 h-4 text-orange-500" /> pour vous aider à vivre pleinement

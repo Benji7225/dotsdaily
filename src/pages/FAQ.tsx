@@ -43,7 +43,7 @@ export default function FAQ() {
     },
     {
       question: "Quels modèles d'iPhone sont supportés ?",
-      answer: "Life Calendar supporte tous les modèles d'iPhone récents, y compris les séries iPhone 14, 13, 12, 11, XS, XR, SE, et plus. Chaque fond d'écran est optimisé pour les dimensions exactes et la zone sécurisée de votre modèle."
+      answer: "DotsDaily supporte tous les modèles d'iPhone récents, y compris les séries iPhone 14, 13, 12, 11, XS, XR, SE, et plus. Chaque fond d'écran est optimisé pour les dimensions exactes et la zone sécurisée de votre modèle."
     },
     {
       question: "Puis-je personnaliser les couleurs ?",
@@ -63,7 +63,7 @@ export default function FAQ() {
     },
     {
       question: "Le service est-il vraiment gratuit ?",
-      answer: "Oui, Life Calendar est 100% gratuit et le restera toujours. Il n'y a pas de frais cachés, pas d'abonnement, pas de publicités. Notre mission est de rendre cet outil accessible à tous."
+      answer: "Oui, DotsDaily est 100% gratuit et le restera toujours. Il n'y a pas de frais cachés, pas d'abonnement, pas de publicités. Notre mission est de rendre cet outil accessible à tous."
     },
     {
       question: "Puis-je créer plusieurs fonds d'écran ?",
@@ -83,11 +83,11 @@ export default function FAQ() {
     },
     {
       question: "Le fond d'écran s'adapte-t-il au mode sombre/clair de l'iPhone ?",
-      answer: "Les fonds d'écran Life Calendar ne changent pas automatiquement avec le mode de votre iPhone. À la place, vous choisissez le thème (clair, sombre, ou personnalisé) lors de la création. Vous pouvez créer deux versions si vous changez régulièrement de mode."
+      answer: "Les fonds d'écran DotsDaily ne changent pas automatiquement avec le mode de votre iPhone. À la place, vous choisissez le thème (clair, sombre, ou personnalisé) lors de la création. Vous pouvez créer deux versions si vous changez régulièrement de mode."
     },
     {
-      question: "Puis-je utiliser Life Calendar sur Android ?",
-      answer: "Actuellement, Life Calendar est optimisé pour iPhone. Cependant, le concept fonctionne sur n'importe quel appareil - les dimensions peuvent simplement ne pas être parfaitement adaptées. Une version Android dédiée pourrait être développée à l'avenir."
+      question: "Puis-je utiliser DotsDaily sur Android ?",
+      answer: "Actuellement, DotsDaily est optimisé pour iPhone. Cependant, le concept fonctionne sur n'importe quel appareil - les dimensions peuvent simplement ne pas être parfaitement adaptées. Une version Android dédiée pourrait être développée à l'avenir."
     },
     {
       question: "Que se passe-t-il quand l'année se termine (mode Année) ?",
@@ -103,7 +103,7 @@ export default function FAQ() {
             Questions Fréquentes
           </h1>
           <p className="text-xl text-slate-600">
-            Tout ce que vous devez savoir sur Life Calendar
+            Tout ce que vous devez savoir sur DotsDaily
           </p>
         </div>
 

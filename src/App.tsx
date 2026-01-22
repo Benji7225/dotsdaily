@@ -29,7 +29,7 @@ function App() {
               element={
                 <>
                   <SEOHead
-                    title="Créer un Fond d'Écran - Life Calendar"
+                    title="Créer un Fond d'Écran - DotsDaily"
                     description="Créez votre fond d'écran personnalisé pour iPhone. Choisissez parmi année en cours, compte à rebours ou calendrier de vie. Gratuit et illimité."
                   />
                   <Create />
@@ -41,8 +41,8 @@ function App() {
               element={
                 <>
                   <SEOHead
-                    title="À Propos - Life Calendar"
-                    description="Découvrez la mission de Life Calendar : aider les gens à visualiser leur temps et à vivre plus intentionnellement avec des fonds d'écran iPhone uniques."
+                    title="À Propos - DotsDaily"
+                    description="Découvrez la mission de DotsDaily : aider les gens à visualiser leur temps et à vivre plus intentionnellement avec des fonds d'écran iPhone uniques."
                   />
                   <About />
                 </>
@@ -53,8 +53,8 @@ function App() {
               element={
                 <>
                   <SEOHead
-                    title="FAQ - Questions Fréquentes | Life Calendar"
-                    description="Trouvez des réponses à toutes vos questions sur Life Calendar : utilisation, personnalisation, compatibilité iPhone, mise à jour automatique et plus encore."
+                    title="FAQ - Questions Fréquentes | DotsDaily"
+                    description="Trouvez des réponses à toutes vos questions sur DotsDaily : utilisation, personnalisation, compatibilité iPhone, mise à jour automatique et plus encore."
                   />
                   <FAQ />
                 </>
@@ -65,8 +65,8 @@ function App() {
               element={
                 <>
                   <SEOHead
-                    title="Exemples de Fonds d'Écran - Life Calendar"
-                    description="Découvrez des exemples de fonds d'écran Life Calendar : année en cours, comptes à rebours, calendriers de vie. Inspirez-vous pour créer le vôtre."
+                    title="Exemples de Fonds d'Écran - DotsDaily"
+                    description="Découvrez des exemples de fonds d'écran DotsDaily : année en cours, comptes à rebours, calendriers de vie. Inspirez-vous pour créer le vôtre."
                   />
                   <Examples />
                 </>

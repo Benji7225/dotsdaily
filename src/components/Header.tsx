@@ -14,7 +14,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-xl font-bold text-slate-900 hover:text-orange-600 transition-colors">
             <Calendar className="w-6 h-6 text-orange-600" />
-            Life Calendar
+            DotsDaily
           </Link>
 
           <div className="flex items-center gap-8">
