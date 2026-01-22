@@ -96,7 +96,7 @@ export default function WallpaperPreview({ url, modelSpecs, theme, generation, v
                     {url ? (
                       <img
                         key={refreshKey}
-                        src={`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`}
+                        src={url.startsWith('blob:') ? url : `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`}
                         alt="Aperçu du fond d'écran"
                         className="w-full h-full object-cover"
                         onError={(e) => {
