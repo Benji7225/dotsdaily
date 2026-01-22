@@ -69,11 +69,14 @@ function App() {
     if (!modelSpecs) return;
 
     let cancelled = false;
+    let currentPreviewUrl: string | null = null;
 
     const generatePreview = async () => {
       try {
+        console.log('Génération preview commencée');
         const { generateSVG } = await import('./utils/svgGenerator');
         const svgContent = generateSVG(config, modelSpecs);
+        console.log('SVG généré, longueur:', svgContent.length);
 
         const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
         const svgUrl = URL.createObjectURL(svgBlob);
@@ -81,9 +84,14 @@ function App() {
         const img = new Image();
         await new Promise((resolve, reject) => {
           img.onload = resolve;
-          img.onerror = reject;
+          img.onerror = (e) => {
+            console.error('Erreur chargement image SVG:', e);
+            reject(e);
+          };
           img.src = svgUrl;
         });
+
+        console.log('Image SVG chargée');
 
         const scale = 3;
         const canvas = document.createElement('canvas');
@@ -103,14 +111,13 @@ function App() {
           }, 'image/png');
         });
 
-        if (!cancelled) {
-          const oldUrl = previewUrl;
-          const pngUrl = URL.createObjectURL(pngBlob);
-          setPreviewUrl(pngUrl);
+        console.log('Blob PNG créé, taille:', pngBlob.size);
 
-          if (oldUrl) {
-            URL.revokeObjectURL(oldUrl);
-          }
+        if (!cancelled) {
+          const pngUrl = URL.createObjectURL(pngBlob);
+          currentPreviewUrl = pngUrl;
+          console.log('Preview URL créée:', pngUrl);
+          setPreviewUrl(pngUrl);
         }
       } catch (error) {
         console.error('Erreur génération aperçu:', error);
@@ -121,6 +128,9 @@ function App() {
 
     return () => {
       cancelled = true;
+      if (currentPreviewUrl) {
+        URL.revokeObjectURL(currentPreviewUrl);
+      }
     };
   }, [config, modelSpecs]);
 
