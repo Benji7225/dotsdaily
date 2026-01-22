@@ -141,7 +141,7 @@ export default function WallpaperPreview({ url, modelSpecs, theme, generation, v
                         <div
                           className="absolute left-0 right-0 text-center"
                           style={{
-                            top: hasDynamicIsland ? '70px' : hasNotch ? '70px' : '55px',
+                            top: hasDynamicIsland ? '80px' : hasNotch ? '70px' : '55px',
                             textShadow: theme === 'dark' ? '0 2px 8px rgba(0,0,0,0.6)' : '0 2px 8px rgba(255,255,255,0.8)',
                             color: textColor
                           }}
