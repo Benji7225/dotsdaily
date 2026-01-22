@@ -308,7 +308,39 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
   let dots = '';
 
-  const dotSpacing = 2.0;
+  interface DotStyle {
+    spacing: number;
+    size: number;
+  }
+
+  const getDotStyle = (): DotStyle => {
+    const key = `${config.mode}-${config.granularity}${config.grouping ? `-${config.grouping}` : ''}`;
+
+    const styles: Record<string, DotStyle> = {
+      'year-day-month': { spacing: 1.6, size: 2.5 },
+      'year-day-week': { spacing: 1.6, size: 1.0 },
+      'year-day-quarter': { spacing: 1.6, size: 1.0 },
+      'year-day': { spacing: 1.6, size: 1.0 },
+      'year-week-month': { spacing: 1.6, size: 1.0 },
+      'year-week-quarter': { spacing: 1.6, size: 1.0 },
+      'year-week': { spacing: 1.6, size: 1.0 },
+      'month-day': { spacing: 1.6, size: 1.0 },
+      'month-week': { spacing: 1.6, size: 1.0 },
+      'life-year': { spacing: 1.6, size: 1.0 },
+      'life-month': { spacing: 1.6, size: 1.0 },
+      'life-week': { spacing: 1.6, size: 1.0 },
+      'countdown-day': { spacing: 1.6, size: 1.0 },
+      'countdown-week': { spacing: 1.6, size: 1.0 },
+      'countdown-month': { spacing: 1.6, size: 1.0 },
+      'countdown-year': { spacing: 1.6, size: 1.0 }
+    };
+
+    return styles[key] || { spacing: 1.6, size: 1.0 };
+  };
+
+  const dotStyle = getDotStyle();
+  const dotSpacing = dotStyle.spacing;
+  const dotSizeMultiplier = dotStyle.size;
 
   const maxMonthDayDotSize = (() => {
     const calendarCols = 7;
@@ -318,8 +350,6 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
       availableHeight / (calendarRows * dotSpacing)
     );
   })();
-
-  const isYearDayMonthView = config.mode === 'year' && config.granularity === 'day' && config.grouping === 'month';
 
   if (groups.length > 0) {
     const numGroups = groups.length;
@@ -408,8 +438,6 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
       const dotStartX = groupX + (groupWidth - gridWidth) / 2;
       const dotStartY = groupY + labelHeight + (groupDotArea - gridHeight) / 2;
 
-      const dotRadiusMultiplier = isYearDayMonthView ? 1.8 : 1.0;
-
       for (let j = 0; j < dotsInGroup; j++) {
         const absoluteIndex = group.startIndex + j;
 
@@ -440,7 +468,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
           fill = isDark ? '#3a3a3a' : '#d0d0d0';
         }
 
-        const radius = (dotSize / 2) * dotRadiusMultiplier;
+        const radius = (dotSize / 2) * dotSizeMultiplier;
         dots += `<circle cx="${x}" cy="${y}" r="${radius}" fill="${fill}" />`;
       }
     }
@@ -519,7 +547,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
         fill = isDark ? '#3a3a3a' : '#d0d0d0';
       }
 
-      dots += `<circle cx="${x}" cy="${y}" r="${dotSize / 2}" fill="${fill}" />`;
+      const radius = (dotSize / 2) * dotSizeMultiplier;
+      dots += `<circle cx="${x}" cy="${y}" r="${radius}" fill="${fill}" />`;
     }
   }
 
