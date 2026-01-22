@@ -524,7 +524,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
   ${dots}
 
-  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="400" fill="${subTextColor}" text-anchor="middle">
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="18" font-weight="400" fill="${subTextColor}" text-anchor="middle">
     ${percentage}%
   </text>
 </svg>`;
