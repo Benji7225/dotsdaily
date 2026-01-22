@@ -122,7 +122,7 @@ export default function WallpaperPreview({ url, modelSpecs, theme, generation, v
                             color: textColor
                           }}
                         >
-                          <div>9:41</div>
+                          <div>by benji</div>
                           <div className="flex items-center gap-1.5">
                             <svg width="17" height="12" viewBox="0 0 17 12" fill="none" className="drop-shadow-md">
                               <path d="M15.5 0.5H1.5C0.947715 0.5 0.5 0.947715 0.5 1.5V10.5C0.5 11.0523 0.947715 11.5 1.5 11.5H15.5C16.0523 11.5 16.5 11.0523 16.5 10.5V1.5C16.5 0.947715 16.0523 0.5 15.5 0.5Z" fill={iconColor}/>
