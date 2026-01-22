@@ -357,7 +357,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
     const groupRows = Math.ceil(numGroups / groupCols);
 
     const isYearDayMonth = config.mode === 'year' && config.granularity === 'day' && config.grouping === 'month';
-    const groupSpacing = isYearDayMonth ? 100 : 100;
+    const groupSpacing = isYearDayMonth ? 5 : 100;
     const labelHeight = isYearDayMonth ? 16 : 25;
 
     const groupWidth = (availableWidth - (groupCols - 1) * groupSpacing) / groupCols;
