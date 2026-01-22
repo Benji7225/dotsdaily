@@ -317,7 +317,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
     const key = `${config.mode}-${config.granularity}${config.grouping ? `-${config.grouping}` : ''}`;
 
     const styles: Record<string, DotStyle> = {
-      'year-day-month': { spacing: 3, size: 20.5 },
+      'year-day-month': { spacing: 3, size: 2.5 },
       'year-day-week': { spacing: 1.6, size: 1.0 },
       'year-day-quarter': { spacing: 1.6, size: 1.0 },
       'year-day': { spacing: 1.6, size: 1.0 },
