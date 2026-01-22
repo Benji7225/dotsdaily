@@ -47,7 +47,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
 
   if (config.granularity === 'day') {
     if (config.grouping === 'month') {
-      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+      const monthNames = ['Jan', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Jul', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
       const now = new Date();
       const year = now.getFullYear();
       let dayIndex = 0;
@@ -105,7 +105,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
     }
   } else if (config.granularity === 'week') {
     if (config.grouping === 'month') {
-      const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+      const monthNames = ['Jan', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Jul', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
       let weekIndex = 0;
 
       for (let month = 0; month < 12; month++) {
@@ -408,7 +408,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
       const groupY = startY + groupRow * (groupHeight + groupSpacing + labelHeight);
 
       const labelY = groupY + labelHeight / 2;
-      dots += `<text x="${groupX + groupWidth / 2}" y="${labelY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="${labelColor}" text-anchor="middle">${group.label}</text>`;
+      dots += `<text x="${groupX}" y="${labelY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="${labelColor}" text-anchor="start">${group.label}</text>`;
 
       const dotsInGroup = group.count;
       const groupDotArea = groupHeight - labelHeight;
@@ -437,7 +437,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
       const gridHeight = dotRows * (dotSize * dotSpacing);
 
       const dotStartX = groupX + (groupWidth - gridWidth) / 2;
-      const dotStartY = groupY + labelHeight + (groupDotArea - gridHeight) / 2;
+      const dotStartY = groupY + labelHeight;
 
       for (let j = 0; j < dotsInGroup; j++) {
         const absoluteIndex = group.startIndex + j;
