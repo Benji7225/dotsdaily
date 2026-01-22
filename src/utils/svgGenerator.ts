@@ -308,7 +308,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
   let dots = '';
 
-  const dotSpacing = 4.0;
+  const dotSpacing = 10.0;
 
   const maxMonthDayDotSize = (() => {
     const calendarCols = 7;
