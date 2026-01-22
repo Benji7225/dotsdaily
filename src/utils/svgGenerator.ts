@@ -308,7 +308,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
   let dots = '';
 
-  const dotSpacing = 1.6;
+  const dotSpacing = 1.8;
 
   const maxMonthDayDotSize = (() => {
     const calendarCols = 7;
@@ -324,7 +324,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
     const groupCols = config.grouping === 'week' ? 13 : (config.grouping === 'quarter' ? 2 : 3);
     const groupRows = Math.ceil(numGroups / groupCols);
 
-    const groupSpacing = 40;
+    const groupSpacing = 20;
     const labelHeight = 25;
 
     const groupWidth = (availableWidth - (groupCols - 1) * groupSpacing) / groupCols;
