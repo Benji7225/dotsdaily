@@ -363,9 +363,12 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
     const groupWidth = (availableWidth - (groupCols - 1) * groupSpacing) / groupCols;
     const groupHeight = (availableHeight - (groupRows - 1) * groupSpacing - groupRows * labelHeight) / groupRows;
 
+    const totalGridWidth = groupCols * groupWidth + (groupCols - 1) * groupSpacing;
+    const totalGridHeight = groupRows * groupHeight + (groupRows - 1) * groupSpacing + groupRows * labelHeight;
+
     const contentTop = safeTop + textTopHeight;
-    const startX = safeLeft;
-    const startY = contentTop;
+    const startX = safeLeft + (availableWidth - totalGridWidth) / 2;
+    const startY = contentTop + (availableHeight - totalGridHeight) / 2;
 
     let globalDotSize = Infinity;
 
