@@ -8,7 +8,7 @@ visualizing time, progress, or remaining days in a simple, emotionally impactful
 
 Instead of being an app, DotsDaily works via a single PNG URL that users plug into Apple Shortcuts, allowing their wallpaper to update automatically every day.
 
-No app install. No account required to start. Just a URL → a wallpaper → updated daily.
+No app install. Just a PNG URL → a wallpaper → updated daily.
 
 Core Use Cases
 
