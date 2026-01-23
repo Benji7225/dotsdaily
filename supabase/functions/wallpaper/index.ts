@@ -1,6 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { Resvg } from "npm:@resvg/resvg-js@2.6.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -634,6 +633,55 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 </svg>`;
 }
 
+async function convertSVGToPNG(svgContent: string): Promise<Uint8Array> {
+  const cloudName = Deno.env.get('CLOUDINARY_CLOUD_NAME');
+  const apiKey = Deno.env.get('CLOUDINARY_API_KEY');
+  const apiSecret = Deno.env.get('CLOUDINARY_API_SECRET');
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error('Cloudinary credentials not configured');
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const base64Content = btoa(svgContent);
+  const dataUri = `data:image/svg+xml;base64,${base64Content}`;
+
+  const stringToSign = `timestamp=${timestamp}${apiSecret}`;
+  const encoder = new TextEncoder();
+  const data = encoder.encode(stringToSign);
+  const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  const formData = new FormData();
+  formData.append('file', dataUri);
+  formData.append('timestamp', timestamp.toString());
+  formData.append('api_key', apiKey);
+  formData.append('signature', signature);
+  formData.append('format', 'png');
+
+  const uploadResponse = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+    {
+      method: 'POST',
+      body: formData,
+    }
+  );
+
+  if (!uploadResponse.ok) {
+    const errorText = await uploadResponse.text();
+    throw new Error(`Cloudinary upload failed: ${errorText}`);
+  }
+
+  const result = await uploadResponse.json();
+  const pngUrl = result.secure_url.replace('.svg', '.png');
+
+  const pngResponse = await fetch(pngUrl);
+  const pngBytes = new Uint8Array(await pngResponse.arrayBuffer());
+
+  return pngBytes;
+}
+
 function getDateInTimezone(timezone: string): Date {
   try {
     const formatter = new Intl.DateTimeFormat('en-US', {
@@ -726,15 +774,7 @@ Deno.serve(async (req: Request) => {
     };
 
     const svgContent = generateSVG(config, modelSpecs, now);
-
-    const resvg = new Resvg(svgContent, {
-      fitTo: {
-        mode: 'original',
-      },
-    });
-
-    const pngData = resvg.render();
-    const pngBuffer = pngData.asPng();
+    const pngBuffer = await convertSVGToPNG(svgContent);
 
     const nextMidnight = new Date(now);
     nextMidnight.setDate(nextMidnight.getDate() + 1);
