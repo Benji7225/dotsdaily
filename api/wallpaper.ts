@@ -440,7 +440,7 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
       const groupY = startY + groupRow * (groupHeight + groupSpacing + labelHeight);
 
       const labelY = groupY + labelHeight / 2;
-      dots += `<text x="${groupX}" y="${labelY}" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="${labelColor}" text-anchor="start">${group.label}</text>`;
+      dots += `<text x="${groupX}" y="${labelY}" font-family="Roboto, sans-serif" font-size="14" font-weight="500" fill="${labelColor}" text-anchor="start">${group.label}</text>`;
 
       const dotsInGroup = group.count;
       const groupDotArea = groupHeight - labelHeight;
@@ -622,25 +622,41 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 
   ${dots}
 
-  <text x="${width / 2}" y="${textBottomY}" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">
+  <text x="${width / 2}" y="${textBottomY}" font-family="Roboto, sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">
     ${percentage}%
   </text>
 </svg>`;
 }
 
 async function convertSVGToPNG(svgContent: string, width: number, height: number): Promise<Buffer> {
-  const resvg = new Resvg(svgContent, {
+  let fontBuffer: Buffer | undefined;
+
+  try {
+    const fontUrl = 'https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf';
+    const fontResponse = await fetch(fontUrl);
+    if (fontResponse.ok) {
+      fontBuffer = Buffer.from(await fontResponse.arrayBuffer());
+    }
+  } catch (error) {
+    console.warn('Failed to load font:', error);
+  }
+
+  const opts: any = {
     fitTo: {
-      mode: 'width',
+      mode: 'width' as const,
       value: width * 3,
     },
-    font: {
-      fontFiles: [],
-      loadSystemFonts: true,
-      defaultFontFamily: 'Arial, Helvetica, sans-serif',
-    },
-  });
+  };
 
+  if (fontBuffer) {
+    opts.font = {
+      fontFiles: [fontBuffer],
+      loadSystemFonts: false,
+      defaultFontFamily: 'Roboto',
+    };
+  }
+
+  const resvg = new Resvg(svgContent, opts);
   const pngData = resvg.render();
   return pngData.asPng();
 }
