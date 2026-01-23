@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import { Resvg } from '@resvg/resvg-js';
+import { getRobotoRegular } from './fonts';
 
 interface WallpaperConfig {
   mode: string;
@@ -629,32 +630,19 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 }
 
 async function convertSVGToPNG(svgContent: string, width: number, height: number): Promise<Buffer> {
-  let fontBuffer: Buffer | undefined;
-
-  try {
-    const fontUrl = 'https://github.com/googlefonts/roboto/raw/main/src/hinted/Roboto-Regular.ttf';
-    const fontResponse = await fetch(fontUrl);
-    if (fontResponse.ok) {
-      fontBuffer = Buffer.from(await fontResponse.arrayBuffer());
-    }
-  } catch (error) {
-    console.warn('Failed to load font:', error);
-  }
+  const fontBuffer = getRobotoRegular();
 
   const opts: any = {
     fitTo: {
       mode: 'width' as const,
       value: width * 3,
     },
-  };
-
-  if (fontBuffer) {
-    opts.font = {
+    font: {
       fontFiles: [fontBuffer],
       loadSystemFonts: false,
       defaultFontFamily: 'Roboto',
-    };
-  }
+    },
+  };
 
   const resvg = new Resvg(svgContent, opts);
   const pngData = resvg.render();
