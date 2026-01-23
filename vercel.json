@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/w/:id",
-      "destination": "https://rgmiykvhddqwyqhprvkf.supabase.co/storage/v1/object/public/wallpapers/:id.png"
+      "destination": "https://rgmiykvhddqwyqhprvkf.supabase.co/functions/v1/wallpaper/w/:id"
     }
   ]
 }

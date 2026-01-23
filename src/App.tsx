@@ -184,51 +184,6 @@ function App() {
       const saveData = await saveResponse.json();
       const configId = saveData.id;
 
-      const { generateSVG } = await import('./utils/svgGenerator');
-      const svgContent = generateSVG(config, modelSpecs);
-
-      const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
-      const svgUrl = URL.createObjectURL(svgBlob);
-
-      const img = new Image();
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = svgUrl;
-      });
-
-      const scale = 3;
-      const canvas = document.createElement('canvas');
-      canvas.width = modelSpecs.width * scale;
-      canvas.height = modelSpecs.height * scale;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Canvas non disponible');
-
-      ctx.scale(scale, scale);
-      ctx.drawImage(img, 0, 0);
-      URL.revokeObjectURL(svgUrl);
-
-      const pngBlob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (blob) resolve(blob);
-          else reject(new Error('Conversion PNG échouée'));
-        }, 'image/png');
-      });
-
-      const uploadResponse = await fetch(`${apiUrl}/storage/v1/object/wallpapers/${configId}.png`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'image/png',
-        },
-        body: pngBlob,
-      });
-
-      if (!uploadResponse.ok) {
-        const errorText = await uploadResponse.text();
-        throw new Error(`Upload PNG échoué: ${errorText}`);
-      }
-
       const pngUrl = `https://dotsdaily.app/w/${configId}`;
       setShortUrl(pngUrl);
     } catch (error) {
