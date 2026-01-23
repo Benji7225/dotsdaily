@@ -440,7 +440,7 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
       const groupY = startY + groupRow * (groupHeight + groupSpacing + labelHeight);
 
       const labelY = groupY + labelHeight / 2;
-      dots += `<text x="${groupX}" y="${labelY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="${labelColor}" text-anchor="start">${group.label}</text>`;
+      dots += `<text x="${groupX}" y="${labelY}" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="500" fill="${labelColor}" text-anchor="start">${group.label}</text>`;
 
       const dotsInGroup = group.count;
       const groupDotArea = groupHeight - labelHeight;
@@ -622,15 +622,17 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 
   ${dots}
 
-  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">
+  <text x="${width / 2}" y="${textBottomY}" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">
     ${percentage}%
   </text>
 </svg>`;
 }
 
 async function convertSVGToPNG(svgContent: string): Promise<Buffer> {
-  return await sharp(Buffer.from(svgContent))
-    .png()
+  return await sharp(Buffer.from(svgContent), {
+    density: 300
+  })
+    .png({ quality: 100, compressionLevel: 9 })
     .toBuffer();
 }
 
