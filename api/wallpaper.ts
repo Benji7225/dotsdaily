@@ -715,11 +715,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .maybeSingle();
 
     if (cachedPng && cachedPng.png_data) {
-      const pngBlob = Buffer.from(cachedPng.png_data, 'base64');
+      let pngBuffer: Buffer;
+      if (typeof cachedPng.png_data === 'string') {
+        pngBuffer = Buffer.from(cachedPng.png_data, 'base64');
+      } else if (Buffer.isBuffer(cachedPng.png_data)) {
+        pngBuffer = cachedPng.png_data;
+      } else {
+        pngBuffer = Buffer.from(cachedPng.png_data);
+      }
+
       res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Content-Length', pngBuffer.length.toString());
       res.setHeader('Cache-Control', 'public, max-age=3600');
       res.setHeader('Access-Control-Allow-Origin', '*');
-      return res.send(pngBlob);
+      return res.send(pngBuffer);
     }
 
     const modelSpecs: ModelSpecs = {
@@ -749,6 +758,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
 
     res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Content-Length', pngBuffer.length.toString());
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.setHeader('Access-Control-Allow-Origin', '*');
     return res.send(pngBuffer);
