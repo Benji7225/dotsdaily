@@ -715,7 +715,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .maybeSingle();
 
     if (cachedPng && cachedPng.png_data) {
-      const pngBlob = Buffer.from(cachedPng.png_data);
+      const pngBlob = Buffer.from(cachedPng.png_data, 'base64');
       res.setHeader('Content-Type', 'image/png');
       res.setHeader('Cache-Control', 'public, max-age=3600');
       res.setHeader('Access-Control-Allow-Origin', '*');
@@ -744,7 +744,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .from('wallpaper_cache')
       .upsert({
         id: `${id}-${dateKey}`,
-        png_data: pngBuffer,
+        png_data: pngBuffer.toString('base64'),
         expires_at: nextMidnight.toISOString(),
       });
 
