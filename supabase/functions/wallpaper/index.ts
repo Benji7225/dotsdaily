@@ -634,59 +634,41 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 }
 
 async function convertSVGToPNG(svgContent: string): Promise<Uint8Array> {
-  const cloudName = Deno.env.get('CLOUDINARY_CLOUD_NAME');
-  const apiKey = Deno.env.get('CLOUDINARY_API_KEY');
-  const apiSecret = Deno.env.get('CLOUDINARY_API_SECRET');
+  // Use API Ninja's SVG to PNG conversion service
+  const apiKey = Deno.env.get('API_NINJAS_KEY');
 
-  if (!cloudName || !apiKey || !apiSecret) {
-    throw new Error('Cloudinary credentials not configured');
+  if (!apiKey) {
+    throw new Error('API Ninjas key not configured');
   }
 
-  const timestamp = Math.floor(Date.now() / 1000);
-  const base64Content = btoa(svgContent);
-  const dataUri = `data:image/svg+xml;base64,${base64Content}`;
+  const response = await fetch('https://api.api-ninjas.com/v1/imageconverter', {
+    method: 'POST',
+    headers: {
+      'X-Api-Key': apiKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      image: btoa(svgContent),
+      format: 'png'
+    })
+  });
 
-  const params: Record<string, string> = {
-    timestamp: timestamp.toString(),
-    format: 'png'
-  };
-
-  const sortedParams = Object.keys(params).sort().map(key => `${key}=${params[key]}`).join('&');
-  const stringToSign = `${sortedParams}${apiSecret}`;
-
-  const encoder = new TextEncoder();
-  const data = encoder.encode(stringToSign);
-  const hashBuffer = await crypto.subtle.digest('SHA-1', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-  const formData = new FormData();
-  formData.append('file', dataUri);
-  formData.append('timestamp', timestamp.toString());
-  formData.append('api_key', apiKey);
-  formData.append('signature', signature);
-  formData.append('format', 'png');
-
-  const uploadResponse = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-    {
-      method: 'POST',
-      body: formData,
-    }
-  );
-
-  if (!uploadResponse.ok) {
-    const errorText = await uploadResponse.text();
-    throw new Error(`Cloudinary upload failed: ${errorText}`);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Image conversion failed: ${errorText}`);
   }
 
-  const result = await uploadResponse.json();
-  const pngUrl = result.secure_url.replace('.svg', '.png');
+  const result = await response.json();
 
-  const pngResponse = await fetch(pngUrl);
-  const pngBytes = new Uint8Array(await pngResponse.arrayBuffer());
+  // The API returns base64 encoded PNG
+  const base64Data = result.image;
+  const binaryString = atob(base64Data);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
 
-  return pngBytes;
+  return bytes;
 }
 
 function getDateInTimezone(timezone: string): Date {
