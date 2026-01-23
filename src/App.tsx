@@ -184,7 +184,8 @@ function App() {
       const saveData = await saveResponse.json();
       const configId = saveData.id;
 
-      const pngUrl = `https://dotsdaily.app/w/${configId}`;
+      const baseUrl = window.location.origin;
+      const pngUrl = `${baseUrl}/w/${configId}`;
       setShortUrl(pngUrl);
     } catch (error) {
       console.error('Erreur:', error);
