@@ -646,7 +646,14 @@ async function convertSVGToPNG(svgContent: string): Promise<Uint8Array> {
   const base64Content = btoa(svgContent);
   const dataUri = `data:image/svg+xml;base64,${base64Content}`;
 
-  const stringToSign = `timestamp=${timestamp}${apiSecret}`;
+  const params: Record<string, string> = {
+    timestamp: timestamp.toString(),
+    format: 'png'
+  };
+
+  const sortedParams = Object.keys(params).sort().map(key => `${key}=${params[key]}`).join('&');
+  const stringToSign = `${sortedParams}${apiSecret}`;
+
   const encoder = new TextEncoder();
   const data = encoder.encode(stringToSign);
   const hashBuffer = await crypto.subtle.digest('SHA-1', data);
