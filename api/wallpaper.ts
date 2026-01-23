@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import sharp from 'sharp';
+import { Resvg } from '@resvg/resvg-js';
 
 interface WallpaperConfig {
   mode: string;
@@ -628,12 +628,21 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 </svg>`;
 }
 
-async function convertSVGToPNG(svgContent: string): Promise<Buffer> {
-  return await sharp(Buffer.from(svgContent), {
-    density: 300
-  })
-    .png({ quality: 100, compressionLevel: 9 })
-    .toBuffer();
+async function convertSVGToPNG(svgContent: string, width: number, height: number): Promise<Buffer> {
+  const resvg = new Resvg(svgContent, {
+    fitTo: {
+      mode: 'width',
+      value: width * 3,
+    },
+    font: {
+      fontFiles: [],
+      loadSystemFonts: true,
+      defaultFontFamily: 'Arial, Helvetica, sans-serif',
+    },
+  });
+
+  const pngData = resvg.render();
+  return pngData.asPng();
 }
 
 function getDateInTimezone(timezone: string): Date {
@@ -745,7 +754,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     const svgContent = generateSVG(config, modelSpecs, now);
-    const pngBuffer = await convertSVGToPNG(svgContent);
+    const pngBuffer = await convertSVGToPNG(svgContent, config.width, config.height);
 
     const nextMidnight = new Date(now);
     nextMidnight.setDate(nextMidnight.getDate() + 1);
