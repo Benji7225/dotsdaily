@@ -1,69 +1,44 @@
 # Déploiement DotsDaily
 
+## ✅ Configuration Supabase (DÉJÀ FAIT)
+
+Tout est déjà configuré et déployé :
+- ✅ Base de données créée avec les tables `wallpaper_configs` et `wallpaper_cache`
+- ✅ Edge Functions déployées :
+  - `save-wallpaper` : Sauvegarde les configurations
+  - `wallpaper` : Redirige vers Vercel pour la génération PNG
+- ✅ Aucune action manuelle requise
+
 ## Architecture
 
-DotsDaily utilise maintenant une architecture hybride :
+DotsDaily utilise une architecture hybride :
 
-- **Supabase** : Base de données PostgreSQL + Edge Function pour sauvegarder les configs
-- **Vercel** : API Node.js pour la génération des images PNG
+- **Supabase** : Base de données PostgreSQL + Edge Functions pour sauvegarder les configs et rediriger
+- **Vercel** : API Node.js pour la génération des images PNG avec Sharp
 
-### Pourquoi ce changement ?
+## Ce qu'il reste à faire : Déployer sur Vercel
 
-L'architecture précédente utilisait Supabase Edge Functions (Deno) pour tout, mais la conversion SVG → PNG dans Deno est problématique :
-- Bibliothèques natives non supportées
-- APIs externes coûteuses et fragiles (API Ninjas)
-- Limitations de l'environnement Edge
+### 1. Connecter le repo à Vercel
 
-**Solution** : Utiliser Node.js (Vercel) pour la conversion d'images avec `sharp`, une bibliothèque robuste et battle-tested.
+Depuis le dashboard Vercel (vercel.com) :
+1. Clique sur "Add New Project"
+2. Importe ton repo GitHub/GitLab
+3. Vercel détectera automatiquement la configuration
 
-## Structure du projet
+### 2. Configurer les variables d'environnement
 
-```
-/api/wallpaper.ts          → API Vercel (Node) - Génération PNG
-/supabase/functions/
-  save-wallpaper/          → Edge Function - Sauvegarde config
-  wallpaper/               → ❌ SUPPRIMÉ (obsolète)
-```
+Dans les settings du projet Vercel, ajoute ces 4 variables :
 
-## Déploiement sur Vercel
+| Variable | Valeur |
+|----------|--------|
+| `SUPABASE_URL` | `https://rgmiykvhddqwyqhprvkf.supabase.co` |
+| `SUPABASE_ANON_KEY` | Ta clé Supabase (dans le fichier `.env`) |
+| `VITE_SUPABASE_URL` | `https://rgmiykvhddqwyqhprvkf.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | La même clé Supabase |
 
-1. **Connecter le repo à Vercel**
-   ```bash
-   vercel
-   ```
+### 3. Déployer
 
-2. **Variables d'environnement**
-
-   Dans le dashboard Vercel, configurer :
-   - `SUPABASE_URL` : URL de votre projet Supabase (ex: `https://xxx.supabase.co`)
-   - `SUPABASE_ANON_KEY` : Clé anonyme Supabase
-   - `VITE_SUPABASE_URL` : Même URL (pour le frontend)
-   - `VITE_SUPABASE_ANON_KEY` : Même clé (pour le frontend)
-
-3. **Déployer**
-   ```bash
-   vercel --prod
-   ```
-
-## Configuration Supabase
-
-### Edge Function à déployer
-
-Seule la fonction `save-wallpaper` doit être déployée :
-
-```bash
-# Si l'ancienne fonction wallpaper est encore déployée, la supprimer
-supabase functions delete wallpaper
-
-# Déployer save-wallpaper
-supabase functions deploy save-wallpaper
-```
-
-### Base de données
-
-Les tables nécessaires sont déjà créées via les migrations :
-- `wallpaper_configs` : Configuration des wallpapers
-- `wallpaper_cache` : Cache des PNG générés (1 par jour par config)
+Vercel déploiera automatiquement à chaque push. Le premier déploiement se lance dès que tu cliques sur "Deploy".
 
 ## Comment ça fonctionne
 
@@ -111,23 +86,11 @@ Le frontend sera sur `http://localhost:5173` mais les URLs générées pointeron
 
 ## Troubleshooting
 
-### Erreur "API Ninjas key not configured"
+### L'URL ne fonctionne pas encore
 
-Cela signifie que l'ancienne Edge Function `wallpaper` est encore déployée sur Supabase. Pour résoudre :
+Si tu vois une erreur en testant l'URL, c'est normal ! Le wallpaper ne fonctionnera que quand :
+1. Le code sera déployé sur Vercel
+2. Les variables d'environnement seront configurées
+3. Le domaine `dotsdaily.app` pointera vers Vercel
 
-```bash
-supabase functions delete wallpaper
-```
-
-### L'image ne se génère pas
-
-1. Vérifier que l'API Vercel est bien déployée
-2. Vérifier les variables d'environnement Vercel
-3. Checker les logs Vercel : `vercel logs`
-
-### Cache ne fonctionne pas
-
-Vérifier que la table `wallpaper_cache` existe :
-```sql
-SELECT * FROM wallpaper_cache LIMIT 1;
-```
+En attendant, Supabase est déjà configuré et prêt.
