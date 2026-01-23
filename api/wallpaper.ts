@@ -664,14 +664,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { id } = req.query;
 
     if (!id || typeof id !== 'string') {
-      return res.status(400).json({ error: 'Invalid wallpaper ID' });
+      return res.status(400).json({ error: 'Invalid wallpaper ID', received: id });
     }
 
     const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
     const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-      return res.status(500).json({ error: 'Supabase configuration missing' });
+      return res.status(500).json({
+        error: 'Supabase configuration missing',
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseKey
+      });
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -682,8 +686,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .eq('id', id)
       .maybeSingle();
 
-    if (error || !config) {
-      return res.status(404).json({ error: 'Configuration not found' });
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(404).json({
+        error: 'Configuration not found',
+        details: error.message,
+        id: id
+      });
+    }
+
+    if (!config) {
+      return res.status(404).json({
+        error: 'Configuration not found',
+        id: id,
+        details: 'No config data returned'
+      });
     }
 
     const timezone = config.timezone || 'UTC';
