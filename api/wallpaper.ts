@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import { Resvg } from '@resvg/resvg-js';
-import { getRobotoRegular } from './fonts';
+import { getRobotoRegular } from './fonts.js';
 
 interface WallpaperConfig {
   mode: string;
