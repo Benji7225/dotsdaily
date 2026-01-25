@@ -37,6 +37,7 @@ export default function Generator() {
   const { isPremium } = useSubscription();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [config, setConfig] = useState<WallpaperConfig>({
     mode: 'year',
     granularity: 'day',
@@ -222,6 +223,31 @@ export default function Generator() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleUpgradeToPremium = async () => {
+    setLoadingCheckout(true);
+    try {
+      const response = await fetch(`${apiUrl}/functions/v1/create-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Erreur lors de la création de la session de paiement');
+      setLoadingCheckout(false);
+      setShowPremiumModal(false);
+    }
+  };
+
   const modes = [
     { id: 'year' as WallpaperMode, name: t('generator.modes.year.name'), icon: Calendar, desc: t('generator.modes.year.desc') },
     { id: 'life' as WallpaperMode, name: t('generator.modes.life.name'), icon: Heart, desc: t('generator.modes.life.desc') },
@@ -391,17 +417,25 @@ export default function Generator() {
             </div>
 
             <div className="space-y-3">
-              <Link
-                to="/pricing"
-                className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+              <button
+                onClick={handleUpgradeToPremium}
+                disabled={loadingCheckout}
+                className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Crown className="w-5 h-5" />
+                {loadingCheckout ? 'Chargement...' : 'Passer à Premium'}
+              </button>
+
+              <Link
+                to="/pricing"
+                className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center"
+              >
                 Voir les Tarifs
               </Link>
 
               <button
                 onClick={() => setShowPremiumModal(false)}
-                className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                className="w-full bg-white text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors border-2 border-gray-200"
               >
                 {t('auth.cancel')}
               </button>
