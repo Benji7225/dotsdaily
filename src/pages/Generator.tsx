@@ -1,0 +1,310 @@
+import { useState, useEffect } from 'react';
+import { Calendar, Heart, Target, Copy, Check } from 'lucide-react';
+import WallpaperPreview from '../components/WallpaperPreview';
+import ConfigPanel from '../components/ConfigPanel';
+import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from '../utils/iPhoneModels';
+
+export type WallpaperMode = 'year' | 'life' | 'countdown';
+export type Granularity = 'day' | 'week' | 'month' | 'year';
+export type Grouping = 'none' | 'week' | 'month' | 'quarter' | 'year';
+export type ThemeType = 'dark' | 'light' | 'custom' | 'image';
+
+export interface WallpaperConfig {
+  mode: WallpaperMode;
+  granularity: Granularity;
+  grouping: Grouping;
+  targetDate?: string;
+  startDate?: string;
+  birthDate?: string;
+  lifeExpectancy?: number;
+  theme: 'dark' | 'light';
+  themeType: ThemeType;
+  customColor?: string;
+  backgroundImage?: string;
+  dotColor?: string;
+  customText?: string;
+  generation: string;
+  variant: Variant;
+}
+
+export default function Generator() {
+  const [config, setConfig] = useState<WallpaperConfig>({
+    mode: 'year',
+    granularity: 'day',
+    grouping: 'month',
+    theme: 'dark',
+    themeType: 'dark',
+    generation: defaultGeneration.id,
+    variant: defaultVariant,
+  });
+
+  const [copied, setCopied] = useState(false);
+  const [shortUrl, setShortUrl] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    setShortUrl('');
+  }, [config]);
+
+  const getDefaultGranularity = (mode: WallpaperMode): Granularity => {
+    switch (mode) {
+      case 'year': return 'day';
+      case 'life': return 'year';
+      case 'countdown': return 'day';
+    }
+  };
+
+  const getDefaultGrouping = (mode: WallpaperMode): Grouping => {
+    return mode === 'year' ? 'month' : 'none';
+  };
+
+  const handleModeChange = (newMode: WallpaperMode) => {
+    setConfig({
+      ...config,
+      mode: newMode,
+      granularity: getDefaultGranularity(newMode),
+      grouping: getDefaultGrouping(newMode)
+    });
+  };
+
+  const modelSpecs = getModelSpecs(config.generation, config.variant);
+  const apiUrl = import.meta.env.VITE_SUPABASE_URL;
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+
+  useEffect(() => {
+    if (!modelSpecs) return;
+
+    let cancelled = false;
+    let currentPreviewUrl: string | null = null;
+
+    const generatePreview = async () => {
+      try {
+        const { generateSVG } = await import('../utils/svgGenerator');
+        const svgContent = generateSVG(config, modelSpecs);
+
+        const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+        const svgUrl = URL.createObjectURL(svgBlob);
+
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = svgUrl;
+        });
+
+        const scale = 3;
+        const canvas = document.createElement('canvas');
+        canvas.width = modelSpecs.width * scale;
+        canvas.height = modelSpecs.height * scale;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas non disponible');
+
+        ctx.scale(scale, scale);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(svgUrl);
+
+        const pngBlob = await new Promise<Blob>((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Conversion PNG échouée'));
+          }, 'image/png');
+        });
+
+        if (!cancelled) {
+          const pngUrl = URL.createObjectURL(pngBlob);
+          currentPreviewUrl = pngUrl;
+          setPreviewUrl(pngUrl);
+        }
+      } catch (error) {
+        console.error('Erreur génération aperçu:', error);
+      }
+    };
+
+    generatePreview();
+
+    return () => {
+      cancelled = true;
+      if (currentPreviewUrl) {
+        URL.revokeObjectURL(currentPreviewUrl);
+      }
+    };
+  }, [config, modelSpecs]);
+
+  const generateShortUrl = async () => {
+    if (!modelSpecs) return;
+
+    setIsGenerating(true);
+    try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      const payload = {
+        mode: config.mode,
+        granularity: config.granularity,
+        grouping: config.grouping,
+        theme: config.theme,
+        themeType: config.themeType,
+        customColor: config.customColor,
+        backgroundImage: config.backgroundImage,
+        dotColor: config.dotColor,
+        customText: config.customText,
+        targetDate: config.targetDate,
+        startDate: config.startDate,
+        birthDate: config.birthDate,
+        lifeExpectancy: config.lifeExpectancy,
+        width: modelSpecs.width,
+        height: modelSpecs.height,
+        safeTop: modelSpecs.safeArea.top,
+        safeBottom: modelSpecs.safeArea.bottom,
+        safeLeft: modelSpecs.safeArea.left,
+        safeRight: modelSpecs.safeArea.right,
+        timezone,
+      };
+
+      const saveResponse = await fetch(`${apiUrl}/functions/v1/save-wallpaper`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!saveResponse.ok) {
+        throw new Error('Sauvegarde config échouée');
+      }
+
+      const saveData = await saveResponse.json();
+      const configId = saveData.id;
+
+      const baseUrl = window.location.origin;
+      const pngUrl = `${baseUrl}/w/${configId}`;
+      setShortUrl(pngUrl);
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur lors de la génération du fond d\'écran');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyUrl = async () => {
+    if (!shortUrl) return;
+    await navigator.clipboard.writeText(shortUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const modes = [
+    { id: 'year' as WallpaperMode, name: 'Year', icon: Calendar, desc: 'Track every day of the year' },
+    { id: 'life' as WallpaperMode, name: 'Life', icon: Heart, desc: 'Visualize your entire life' },
+    { id: 'countdown' as WallpaperMode, name: 'Goal', icon: Target, desc: 'Countdown to a target date' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-black mb-3">
+            Wallpaper Generator
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Customize your daily-updating iPhone wallpaper
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
+          {modes.map((mode) => (
+            <button
+              key={mode.id}
+              onClick={() => handleModeChange(mode.id)}
+              className={`p-6 rounded-xl transition-all border-2 ${
+                config.mode === mode.id
+                  ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
+                  : 'bg-white text-black border-gray-200 hover:border-orange-500'
+              }`}
+            >
+              <mode.icon className="w-8 h-8 mb-3 mx-auto" />
+              <h3 className="text-lg font-semibold mb-1">{mode.name}</h3>
+              <p className={`text-sm ${config.mode === mode.id ? 'text-orange-100' : 'text-gray-500'}`}>
+                {mode.desc}
+              </p>
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+          <div>
+            <ConfigPanel config={config} setConfig={setConfig} />
+
+            <div className="bg-white border-2 border-gray-100 rounded-xl p-6 mt-6">
+              <h3 className="text-lg font-semibold text-black mb-4">
+                Your Wallpaper URL
+              </h3>
+
+              <div className="flex gap-3 mb-4">
+                <button
+                  onClick={generateShortUrl}
+                  disabled={isGenerating}
+                  className="flex-1 bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {isGenerating ? 'Generating...' : shortUrl ? 'Regenerate URL' : 'Generate URL'}
+                </button>
+                {shortUrl && (
+                  <button
+                    onClick={copyUrl}
+                    className="px-6 py-3 rounded-lg font-semibold border-2 border-orange-500 text-orange-500 hover:bg-orange-50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-5 h-5" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-5 h-5" />
+                        Copy
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {shortUrl ? (
+                <div className="bg-gray-50 rounded-lg p-4 mb-4 break-all text-sm text-gray-700 font-mono">
+                  {shortUrl}
+                </div>
+              ) : (
+                <div className="p-4 bg-gray-50 rounded-lg mb-4">
+                  <p className="text-sm text-gray-600">
+                    Click to generate a permanent URL. Your wallpaper will automatically update daily at midnight in your timezone.
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <h4 className="font-semibold text-black mb-2">
+                  Apple Shortcuts Setup
+                </h4>
+                <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
+                  <li>Open the Shortcuts app on your iPhone</li>
+                  <li>Create a new shortcut</li>
+                  <li>Add the "Get Contents of URL" action</li>
+                  <li>Paste your generated URL above</li>
+                  <li>Add the "Set Wallpaper" action</li>
+                  <li>Set up a daily automation to run after midnight</li>
+                </ol>
+                <p className="text-xs text-gray-600 mt-3">
+                  Your wallpaper will update automatically every day at midnight in your timezone.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <WallpaperPreview url={shortUrl || previewUrl} modelSpecs={modelSpecs} theme={config.theme} generation={config.generation} variant={config.variant} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
