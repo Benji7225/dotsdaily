@@ -168,28 +168,44 @@ function App() {
         timezone,
       };
 
-      const saveResponse = await fetch(`${apiUrl}/functions/v1/save-wallpaper`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
 
-      if (!saveResponse.ok) {
-        throw new Error('Sauvegarde config échouée');
+      try {
+        const saveResponse = await fetch(`${apiUrl}/functions/v1/save-wallpaper`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeout);
+
+        if (!saveResponse.ok) {
+          const errorData = await saveResponse.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Sauvegarde config échouée');
+        }
+
+        const saveData = await saveResponse.json();
+        const configId = saveData.id;
+
+        const baseUrl = window.location.origin;
+        const pngUrl = `${baseUrl}/w/${configId}`;
+        setShortUrl(pngUrl);
+      } catch (fetchError: any) {
+        clearTimeout(timeout);
+        if (fetchError.name === 'AbortError') {
+          throw new Error('Requête trop longue (timeout 30s). Veuillez réessayer.');
+        }
+        throw fetchError;
       }
-
-      const saveData = await saveResponse.json();
-      const configId = saveData.id;
-
-      const baseUrl = window.location.origin;
-      const pngUrl = `${baseUrl}/w/${configId}`;
-      setShortUrl(pngUrl);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur:', error);
-      alert('Erreur lors de la génération du fond d\'écran');
+      const message = error.message || 'Erreur lors de la génération du fond d\'écran';
+      alert(message);
     } finally {
       setIsGenerating(false);
     }
