@@ -271,6 +271,21 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
         </div>
 
         <div>
+          <label htmlFor="customText" className="block text-sm font-medium text-slate-700 mb-2">
+            Texte personnalisé (affiché à gauche du pourcentage)
+          </label>
+          <input
+            id="customText"
+            type="text"
+            maxLength={20}
+            placeholder="Ex: 2025"
+            value={config.customText || ''}
+            onChange={(e) => setConfig({ ...config, customText: e.target.value })}
+            className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
+          />
+        </div>
+
+        <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
             {availableGroupings.length > 0 ? 'Points et affichage' : 'Points'}
           </label>

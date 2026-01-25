@@ -13,6 +13,7 @@ interface WallpaperConfig {
   custom_color: string | null;
   background_image: string | null;
   dot_color: string | null;
+  custom_text: string | null;
   target_date: string | null;
   start_date: string | null;
   birth_date: string | null;
@@ -617,14 +618,31 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
     textBottomY = lastDotY + percentageGapFromLastDot;
   }
 
+  const currentDotColor = config.dot_color || '#ff6b35';
+
+  let percentageText = '';
+  if (config.custom_text) {
+    percentageText = `
+  <text x="${width / 2}" y="${textBottomY}" font-family="Roboto, sans-serif" font-size="14" font-weight="400" fill="${currentDotColor}" text-anchor="end">
+    ${config.custom_text}
+  </text>
+  <text x="${width / 2 + 8}" y="${textBottomY}" font-family="Roboto, sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="start">
+    ${percentage}%
+  </text>`;
+  } else {
+    percentageText = `
+  <text x="${width / 2}" y="${textBottomY}" font-family="Roboto, sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">
+    ${percentage}%
+  </text>`;
+  }
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   ${backgroundDef}
   <rect width="${width}" height="${height}" fill="${bgColor}"/>
 
   ${dots}
-
-  <text x="${width / 2}" y="${textBottomY}" font-family="Roboto, sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">${percentage}%</text>
+${percentageText}
 </svg>`;
 }
 

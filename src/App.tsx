@@ -22,6 +22,7 @@ export interface WallpaperConfig {
   customColor?: string;
   backgroundImage?: string;
   dotColor?: string;
+  customText?: string;
   generation: string;
   variant: Variant;
 }
@@ -155,6 +156,7 @@ function App() {
         customColor: config.customColor,
         backgroundImage: config.backgroundImage,
         dotColor: config.dotColor,
+        customText: config.customText,
         targetDate: config.targetDate,
         startDate: config.startDate,
         birthDate: config.birthDate,

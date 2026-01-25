@@ -593,15 +593,30 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
     textBottomY = lastDotY + percentageGapFromLastDot;
   }
 
+  const currentDotColor = config.dotColor || '#ff6b35';
+
+  let percentageText = '';
+  if (config.customText) {
+    percentageText = `
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" fill="${currentDotColor}" text-anchor="end">
+    ${config.customText}
+  </text>
+  <text x="${width / 2 + 8}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="start">
+    ${percentage}%
+  </text>`;
+  } else {
+    percentageText = `
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">
+    ${percentage}%
+  </text>`;
+  }
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   ${backgroundDef}
   <rect width="${width}" height="${height}" fill="${bgColor}"/>
 
   ${dots}
-
-  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">
-    ${percentage}%
-  </text>
+${percentageText}
 </svg>`;
 }
