@@ -598,11 +598,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   let percentageText = '';
   if (config.customText) {
     percentageText = `
-  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" fill="${currentDotColor}" text-anchor="end">
-    ${config.customText}
-  </text>
-  <text x="${width / 2 + 8}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="start">
-    ${percentage}%
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" text-anchor="middle">
+    <tspan fill="${currentDotColor}">${config.customText}</tspan><tspan fill="${subTextColor}"> ${percentage}%</tspan>
   </text>`;
   } else {
     percentageText = `

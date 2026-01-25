@@ -623,11 +623,8 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
   let percentageText = '';
   if (config.custom_text) {
     percentageText = `
-  <text x="${width / 2}" y="${textBottomY}" font-family="Roboto, sans-serif" font-size="14" font-weight="400" fill="${currentDotColor}" text-anchor="end">
-    ${config.custom_text}
-  </text>
-  <text x="${width / 2 + 8}" y="${textBottomY}" font-family="Roboto, sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="start">
-    ${percentage}%
+  <text x="${width / 2}" y="${textBottomY}" font-family="Roboto, sans-serif" font-size="14" font-weight="400" text-anchor="middle">
+    <tspan fill="${currentDotColor}">${config.custom_text}</tspan><tspan fill="${subTextColor}"> ${percentage}%</tspan>
   </text>`;
   } else {
     percentageText = `
