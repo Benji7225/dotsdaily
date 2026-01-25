@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import { Resvg } from '@resvg/resvg-js';
-import { getRobotoRegular } from './fonts.js';
+import { getRobotoRegular } from './fonts-base64.js';
 
 interface WallpaperConfig {
   mode: string;
@@ -623,9 +623,7 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 
   ${dots}
 
-  <text x="${width / 2}" y="${textBottomY}" font-family="Roboto, sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">
-    ${percentage}%
-  </text>
+  <text x="${width / 2}" y="${textBottomY}" font-family="Roboto, sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">${percentage}%</text>
 </svg>`;
 }
 
