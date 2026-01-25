@@ -272,7 +272,7 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
 
         <div>
           <label htmlFor="customText" className="block text-sm font-medium text-slate-700 mb-2">
-            Texte personnalisé (affiché à gauche du pourcentage)
+            Texte personnalisé 
           </label>
           <input
             id="customText"
