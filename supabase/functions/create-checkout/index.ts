@@ -16,9 +16,14 @@ Deno.serve(async (req: Request) => {
 
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    const stripePriceId = Deno.env.get("STRIPE_PRICE_ID");
 
     if (!stripeKey) {
       throw new Error("STRIPE_SECRET_KEY not configured");
+    }
+
+    if (!stripePriceId) {
+      throw new Error("STRIPE_PRICE_ID not configured");
     }
 
     const authHeader = req.headers.get("Authorization");
@@ -36,6 +41,7 @@ Deno.serve(async (req: Request) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
+      console.error("Auth error:", userError);
       throw new Error("Unauthorized");
     }
 
@@ -54,7 +60,7 @@ Deno.serve(async (req: Request) => {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: Deno.env.get("STRIPE_PRICE_ID"),
+          price: stripePriceId,
           quantity: 1,
         },
       ],
@@ -77,7 +83,7 @@ Deno.serve(async (req: Request) => {
     if (!stripeResponse.ok) {
       const error = await stripeResponse.text();
       console.error("Stripe error:", error);
-      throw new Error("Failed to create checkout session");
+      throw new Error(`Stripe API error: ${error}`);
     }
 
     const session = await stripeResponse.json();
