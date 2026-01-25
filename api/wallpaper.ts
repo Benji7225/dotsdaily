@@ -634,13 +634,6 @@ async function convertSVGToPNG(svgContent: string, width: number, height: number
     const robotoRegular = join(fontDir, 'Roboto-Regular.ttf');
     const robotoMedium = join(fontDir, 'Roboto-Medium.ttf');
 
-    const svgLength = svgContent.length;
-    console.log(`SVG content length: ${svgLength} bytes`);
-
-    if (svgLength > 10 * 1024 * 1024) {
-      throw new Error('SVG content too large (>10MB). Background image may be too large.');
-    }
-
     const opts: any = {
       fitTo: {
         mode: 'width' as const,
@@ -661,7 +654,6 @@ async function convertSVGToPNG(svgContent: string, width: number, height: number
     return pngBuffer;
   } catch (error: any) {
     console.error('SVG to PNG conversion error:', error);
-    console.error('Error stack:', error.stack);
     throw new Error(`Failed to convert SVG to PNG: ${error.message}`);
   }
 }
@@ -763,25 +755,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.send(pngBuffer);
     }
 
-    if (config.theme_type === 'image' && config.background_image) {
-      const imageSize = config.background_image.length;
-      console.log(`Background image size: ${imageSize} bytes`);
-
-      if (imageSize > 5 * 1024 * 1024) {
-        console.error('Background image too large:', imageSize);
-        return res.status(400).json({
-          error: 'Background image is too large (>5MB). Please use a smaller image.'
-        });
-      }
-
-      if (!config.background_image.startsWith('data:image/')) {
-        console.error('Invalid background image format');
-        return res.status(400).json({
-          error: 'Invalid background image format. Must be a data URL.'
-        });
-      }
-    }
-
     const modelSpecs: ModelSpecs = {
       width: config.width,
       height: config.height,
@@ -793,7 +766,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     };
 
-    console.log(`Generating SVG for config ${id}, theme: ${config.theme_type}`);
     const svgContent = generateSVG(config, modelSpecs, now);
 
     const textCount = (svgContent.match(/<text/g) || []).length;
@@ -806,9 +778,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.send(svgContent);
     }
 
-    console.log(`Converting SVG to PNG (${config.width}x${config.height})`);
     const pngBuffer = await convertSVGToPNG(svgContent, config.width, config.height);
-    console.log(`PNG conversion successful: ${pngBuffer.length} bytes`);
 
     const nextMidnight = new Date(now);
     nextMidnight.setDate(nextMidnight.getDate() + 1);
@@ -828,18 +798,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     return res.send(pngBuffer);
   } catch (error: any) {
-    console.error('Wallpaper generation error:', error);
-    console.error('Error stack:', error.stack);
-
-    const errorResponse: any = {
-      error: error.message || 'Unknown error occurred',
-      timestamp: new Date().toISOString(),
-    };
-
-    if (error.message?.includes('SVG')) {
-      errorResponse.hint = 'SVG rendering failed. If using a background image, try a smaller or different image format (JPEG recommended).';
-    }
-
-    return res.status(500).json(errorResponse);
+    console.error('Error:', error);
+    return res.status(500).json({ error: error.message });
   }
 }

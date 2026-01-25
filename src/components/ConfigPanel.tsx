@@ -79,37 +79,13 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-
-    const maxSize = 3 * 1024 * 1024;
-    if (file.size > maxSize) {
-      alert('Image too large. Please use an image smaller than 3MB.');
-      e.target.value = '';
-      return;
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleThemeChange('image', undefined, reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      alert('Invalid image format. Please use JPEG, PNG, or WebP.');
-      e.target.value = '';
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      if (result.length > 4 * 1024 * 1024) {
-        alert('Image data too large after encoding. Please use a smaller or more compressed image.');
-        e.target.value = '';
-        return;
-      }
-      handleThemeChange('image', undefined, result);
-    };
-    reader.onerror = () => {
-      alert('Failed to read image file. Please try another image.');
-      e.target.value = '';
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleBgColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
