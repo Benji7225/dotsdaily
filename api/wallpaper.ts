@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import { Resvg } from '@resvg/resvg-js';
+import { join } from 'path';
+import { readFileSync } from 'fs';
 
 interface WallpaperConfig {
   mode: string;
@@ -628,18 +630,23 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 
 async function convertSVGToPNG(svgContent: string, width: number, height: number): Promise<Buffer> {
   try {
+    const fontDir = join(process.cwd(), 'api');
+    const robotoRegular = join(fontDir, 'Roboto-Regular.ttf');
+    const robotoMedium = join(fontDir, 'Roboto-Medium.ttf');
+
     const opts: any = {
       fitTo: {
         mode: 'width' as const,
         value: width * 3,
       },
       font: {
-        loadSystemFonts: true,
-        defaultFontFamily: 'sans-serif',
+        fontFiles: [robotoRegular, robotoMedium],
+        loadSystemFonts: false,
+        defaultFontFamily: 'Roboto',
       },
     };
 
-    console.log('Rendering PNG with system fonts');
+    console.log('Rendering PNG with Roboto fonts from:', fontDir);
     const resvg = new Resvg(svgContent, opts);
     const pngData = resvg.render();
     const pngBuffer = pngData.asPng();
