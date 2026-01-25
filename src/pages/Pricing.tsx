@@ -5,11 +5,11 @@ import { useState } from 'react';
 
 export default function Pricing() {
   const { t } = useLanguage();
-  const { user, signInWithGoogle } = useAuth();
+  const { user, session, signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handleSubscribe = async () => {
-    if (!user) {
+    if (!user || !session) {
       await signInWithGoogle();
       return;
     }
@@ -20,12 +20,14 @@ export default function Pricing() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create checkout session');
+        const errorData = await response.json();
+        console.error('Checkout error:', errorData);
+        throw new Error(errorData.error || 'Failed to create checkout session');
       }
 
       const { url } = await response.json();
