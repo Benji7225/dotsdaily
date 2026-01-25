@@ -628,23 +628,39 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 }
 
 async function convertSVGToPNG(svgContent: string, width: number, height: number): Promise<Buffer> {
-  const fontBuffer = getRobotoRegular();
+  try {
+    let fontBuffer: Buffer | undefined;
+    try {
+      fontBuffer = getRobotoRegular();
+      console.log(`Font loaded: ${fontBuffer.length} bytes`);
+    } catch (fontError) {
+      console.error('Failed to load custom font, using system fonts:', fontError);
+    }
 
-  const opts: any = {
-    fitTo: {
-      mode: 'width' as const,
-      value: width * 3,
-    },
-    font: {
-      fontFiles: [fontBuffer],
-      loadSystemFonts: false,
-      defaultFontFamily: 'Roboto',
-    },
-  };
+    const opts: any = {
+      fitTo: {
+        mode: 'width' as const,
+        value: width * 3,
+      },
+      font: fontBuffer ? {
+        fontFiles: [fontBuffer],
+        loadSystemFonts: true,
+        defaultFontFamily: 'Roboto',
+      } : {
+        loadSystemFonts: true,
+        defaultFontFamily: 'sans-serif',
+      },
+    };
 
-  const resvg = new Resvg(svgContent, opts);
-  const pngData = resvg.render();
-  return pngData.asPng();
+    const resvg = new Resvg(svgContent, opts);
+    const pngData = resvg.render();
+    const pngBuffer = pngData.asPng();
+    console.log(`PNG generated: ${pngBuffer.length} bytes with ${fontBuffer ? 'custom' : 'system'} fonts`);
+    return pngBuffer;
+  } catch (error: any) {
+    console.error('SVG to PNG conversion error:', error);
+    throw new Error(`Failed to convert SVG to PNG: ${error.message}`);
+  }
 }
 
 function getDateInTimezone(timezone: string): Date {
@@ -756,6 +772,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     const svgContent = generateSVG(config, modelSpecs, now);
+
+    const textCount = (svgContent.match(/<text/g) || []).length;
+    console.log(`SVG generated with ${textCount} text elements`);
+
     const pngBuffer = await convertSVGToPNG(svgContent, config.width, config.height);
 
     const nextMidnight = new Date(now);
