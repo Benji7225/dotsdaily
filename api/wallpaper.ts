@@ -1,8 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import { Resvg } from '@resvg/resvg-js';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 
 interface WallpaperConfig {
   mode: string;
@@ -630,34 +628,18 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 
 async function convertSVGToPNG(svgContent: string, width: number, height: number): Promise<Buffer> {
   try {
-    let fontBuffer: Buffer | undefined;
-    let fontSource = 'none';
-
-    try {
-      const fontPath = join(process.cwd(), 'api', 'Roboto-Regular.ttf');
-      fontBuffer = readFileSync(fontPath);
-      fontSource = `ttf file (${fontBuffer.length} bytes)`;
-      console.log(`Font loaded from TTF: ${fontBuffer.length} bytes`);
-    } catch (fontError) {
-      console.error('Failed to load TTF font:', fontError);
-    }
-
     const opts: any = {
       fitTo: {
         mode: 'width' as const,
         value: width * 3,
       },
-      font: fontBuffer ? {
-        fontFiles: [fontBuffer],
-        loadSystemFonts: true,
-        defaultFontFamily: 'Roboto',
-      } : {
+      font: {
         loadSystemFonts: true,
         defaultFontFamily: 'sans-serif',
       },
     };
 
-    console.log(`Rendering PNG with font: ${fontSource}`);
+    console.log('Rendering PNG with system fonts');
     const resvg = new Resvg(svgContent, opts);
     const pngData = resvg.render();
     const pngBuffer = pngData.asPng();
