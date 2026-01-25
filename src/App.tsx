@@ -168,6 +168,10 @@ function App() {
         timezone,
       };
 
+      if (config.backgroundImage) {
+        throw new Error('Les images de fond ne sont pas supportées pour les URLs sauvegardées. Utilisez un thème de couleur pour générer une URL.');
+      }
+
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000);
 
