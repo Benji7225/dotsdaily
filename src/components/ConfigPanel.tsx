@@ -234,7 +234,7 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            Couleur des points
+  Couleur du point
           </label>
           <div className="flex items-center gap-3">
             <button
