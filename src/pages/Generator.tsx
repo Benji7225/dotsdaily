@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Heart, Target, Copy, Check } from 'lucide-react';
+import { Calendar, Heart, Target, Copy, Check, LogIn } from 'lucide-react';
 import WallpaperPreview from '../components/WallpaperPreview';
 import ConfigPanel from '../components/ConfigPanel';
 import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from '../utils/iPhoneModels';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 export type WallpaperMode = 'year' | 'life' | 'countdown';
 export type Granularity = 'day' | 'week' | 'month' | 'year';
@@ -30,6 +31,8 @@ export interface WallpaperConfig {
 
 export default function Generator() {
   const { t } = useLanguage();
+  const { user, signInWithGoogle } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [config, setConfig] = useState<WallpaperConfig>({
     mode: 'year',
     granularity: 'day',
@@ -133,6 +136,11 @@ export default function Generator() {
   }, [config, modelSpecs]);
 
   const generateShortUrl = async () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
     if (!modelSpecs) return;
 
     setIsGenerating(true);
@@ -307,6 +315,47 @@ export default function Generator() {
           </div>
         </div>
       </div>
+
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-8 max-w-md w-full">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <LogIn className="w-8 h-8 text-orange-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-black mb-2">
+                {t('auth.signInRequired')}
+              </h3>
+              <p className="text-gray-600">
+                {t('auth.signInMessage')}
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={async () => {
+                  try {
+                    await signInWithGoogle();
+                  } catch (error) {
+                    console.error('Sign in error:', error);
+                  }
+                }}
+                className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+              >
+                <LogIn className="w-5 h-5" />
+                {t('auth.signInButton')}
+              </button>
+
+              <button
+                onClick={() => setShowAuthModal(false)}
+                className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+              >
+                {t('auth.cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

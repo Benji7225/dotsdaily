@@ -55,7 +55,17 @@ const translations = {
     nav: {
       home: 'Accueil',
       generator: 'Générateur',
-      getStarted: 'Commencer'
+      getStarted: 'Commencer',
+      signIn: 'Se Connecter',
+      signOut: 'Se Déconnecter'
+    },
+    auth: {
+      signInWithGoogle: 'Continuer avec Google',
+      signInRequired: 'Connexion Requise',
+      signInMessage: 'Tu dois être connecté pour générer une URL de fond d\'écran.',
+      signInButton: 'Se Connecter avec Google',
+      welcome: 'Bienvenue',
+      cancel: 'Annuler'
     },
     home: {
       hero: {
@@ -196,7 +206,17 @@ const translations = {
     nav: {
       home: 'Home',
       generator: 'Generator',
-      getStarted: 'Get Started'
+      getStarted: 'Get Started',
+      signIn: 'Sign In',
+      signOut: 'Sign Out'
+    },
+    auth: {
+      signInWithGoogle: 'Continue with Google',
+      signInRequired: 'Sign In Required',
+      signInMessage: 'You need to be signed in to generate a wallpaper URL.',
+      signInButton: 'Sign In with Google',
+      welcome: 'Welcome',
+      cancel: 'Cancel'
     },
     home: {
       hero: {
