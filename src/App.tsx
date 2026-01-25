@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Generator from './pages/Generator';
+import Pricing from './pages/Pricing';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/generator" element={<Generator />} />
+            <Route path="/pricing" element={<Pricing />} />
           </Routes>
         </main>
         <Footer />

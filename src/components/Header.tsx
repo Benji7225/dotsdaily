@@ -39,6 +39,9 @@ export default function Header() {
             <Link to="/generator" className="text-gray-700 hover:text-black transition-colors">
               {t('nav.generator')}
             </Link>
+            <Link to="/pricing" className="text-gray-700 hover:text-black transition-colors">
+              {t('nav.pricing')}
+            </Link>
 
             <div className="flex items-center gap-2 border-l border-gray-200 pl-6">
               <button

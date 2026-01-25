@@ -55,6 +55,7 @@ const translations = {
     nav: {
       home: 'Accueil',
       generator: 'Générateur',
+      pricing: 'Tarifs',
       getStarted: 'Commencer',
       signIn: 'Se Connecter',
       signOut: 'Se Déconnecter'
@@ -66,6 +67,54 @@ const translations = {
       signInButton: 'Se Connecter avec Google',
       welcome: 'Bienvenue',
       cancel: 'Annuler'
+    },
+    pricing: {
+      title: 'Tarifs Simples et Transparents',
+      subtitle: 'Commence gratuitement, passe au premium pour débloquer toutes les fonctionnalités.',
+      free: {
+        name: 'Gratuit',
+        period: 'pour toujours',
+        description: 'Parfait pour commencer avec les fonctionnalités essentielles.',
+        cta: 'Plan Actuel',
+        features: [
+          'Modes année, vie et compte à rebours',
+          'Tous les modèles d\'iPhone',
+          'Thèmes sombre et clair',
+          'Mise à jour automatique quotidienne',
+          'Groupement par mois',
+        ]
+      },
+      premium: {
+        name: 'Premium',
+        period: 'par mois',
+        badge: 'Populaire',
+        description: 'Débloque toutes les fonctionnalités pour personnaliser à fond.',
+        cta: 'Passer à Premium',
+        ctaLoading: 'Chargement...',
+        features: [
+          'Toutes les fonctionnalités gratuites',
+          'Texte personnalisé sur le fond d\'écran',
+          'Groupement par trimestre',
+          'Couleurs personnalisées avec pipette',
+          'Couleur des points personnalisable',
+          'Support prioritaire',
+        ]
+      },
+      comparison: {
+        title: 'Comparaison Détaillée',
+        feature: 'Fonctionnalité',
+        items: [
+          { name: 'Modes année, vie et objectif', free: true, premium: false },
+          { name: 'Tous les modèles d\'iPhone', free: true, premium: false },
+          { name: 'Thèmes sombre et clair', free: true, premium: false },
+          { name: 'Mise à jour automatique', free: true, premium: false },
+          { name: 'Groupement par mois', free: true, premium: false },
+          { name: 'Texte personnalisé', free: false, premium: true },
+          { name: 'Groupement par trimestre', free: false, premium: true },
+          { name: 'Pipette de couleur personnalisée', free: false, premium: true },
+          { name: 'Couleur des points personnalisable', free: false, premium: true },
+        ]
+      }
     },
     home: {
       hero: {
@@ -206,6 +255,7 @@ const translations = {
     nav: {
       home: 'Home',
       generator: 'Generator',
+      pricing: 'Pricing',
       getStarted: 'Get Started',
       signIn: 'Sign In',
       signOut: 'Sign Out'
@@ -217,6 +267,54 @@ const translations = {
       signInButton: 'Sign In with Google',
       welcome: 'Welcome',
       cancel: 'Cancel'
+    },
+    pricing: {
+      title: 'Simple and Transparent Pricing',
+      subtitle: 'Start for free, upgrade to premium to unlock all features.',
+      free: {
+        name: 'Free',
+        period: 'forever',
+        description: 'Perfect to get started with essential features.',
+        cta: 'Current Plan',
+        features: [
+          'Year, life and countdown modes',
+          'All iPhone models',
+          'Dark and light themes',
+          'Daily automatic update',
+          'Monthly grouping',
+        ]
+      },
+      premium: {
+        name: 'Premium',
+        period: 'per month',
+        badge: 'Popular',
+        description: 'Unlock all features for full customization.',
+        cta: 'Upgrade to Premium',
+        ctaLoading: 'Loading...',
+        features: [
+          'All free features',
+          'Custom text on wallpaper',
+          'Quarterly grouping',
+          'Custom colors with picker',
+          'Customizable dot color',
+          'Priority support',
+        ]
+      },
+      comparison: {
+        title: 'Detailed Comparison',
+        feature: 'Feature',
+        items: [
+          { name: 'Year, life and goal modes', free: true, premium: false },
+          { name: 'All iPhone models', free: true, premium: false },
+          { name: 'Dark and light themes', free: true, premium: false },
+          { name: 'Automatic updates', free: true, premium: false },
+          { name: 'Monthly grouping', free: true, premium: false },
+          { name: 'Custom text', free: false, premium: true },
+          { name: 'Quarterly grouping', free: false, premium: true },
+          { name: 'Custom color picker', free: false, premium: true },
+          { name: 'Customizable dot color', free: false, premium: true },
+        ]
+      }
     },
     home: {
       hero: {

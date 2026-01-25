@@ -1,10 +1,13 @@
-import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType } from '../App';
+import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType } from '../pages/Generator';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
-import { Pipette, Upload } from 'lucide-react';
+import { Pipette, Upload, Lock } from 'lucide-react';
+import { useSubscription } from '../hooks/useSubscription';
+import { useState } from 'react';
 
 interface ConfigPanelProps {
   config: WallpaperConfig;
   setConfig: (config: WallpaperConfig) => void;
+  onShowPremiumModal: () => void;
 }
 
 const granularityOptions: Record<WallpaperMode, { value: Granularity; label: string }[]> = {
@@ -35,7 +38,8 @@ const groupingOptions: Record<WallpaperMode, { value: Grouping; label: string }[
   countdown: [],
 };
 
-export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
+export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: ConfigPanelProps) {
+  const { isPremium } = useSubscription();
   const today = new Date().toISOString().split('T')[0];
   const availableVariants = getAvailableVariants(config.generation);
   const availableGranularities = granularityOptions[config.mode];
@@ -112,11 +116,35 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
   };
 
   const handleBgColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isPremium) {
+      e.preventDefault();
+      onShowPremiumModal();
+      return;
+    }
     handleThemeChange('custom', e.target.value);
   };
 
   const handleDotColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isPremium) {
+      e.preventDefault();
+      onShowPremiumModal();
+      return;
+    }
     setConfig({ ...config, dotColor: e.target.value });
+  };
+
+  const handleCustomColorClick = () => {
+    if (!isPremium) {
+      onShowPremiumModal();
+    }
+  };
+
+  const handleCustomTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isPremium && e.target.value) {
+      onShowPremiumModal();
+      return;
+    }
+    setConfig({ ...config, customText: e.target.value });
   };
 
   return (
@@ -182,25 +210,31 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
               title="Fond blanc"
             />
             <label
-              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
+              onClick={handleCustomColorClick}
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
                 config.themeType === 'custom'
                   ? 'border-slate-900 shadow-lg scale-110'
                   : 'border-slate-200 hover:border-slate-300'
-              }`}
+              } ${!isPremium ? 'opacity-60' : ''}`}
               style={{
                 backgroundColor: config.themeType === 'custom' ? config.customColor : '#888888'
               }}
-              title="Couleur personnalisée"
+              title={isPremium ? "Couleur personnalisée" : "Premium requis"}
             >
-              {config.themeType !== 'custom' && (
+              {!isPremium && (
+                <Lock className="w-4 h-4 text-white absolute" />
+              )}
+              {config.themeType !== 'custom' && isPremium && (
                 <Pipette className="w-5 h-5 text-white" />
               )}
-              <input
-                type="color"
-                value={config.customColor || '#888888'}
-                onChange={handleBgColorChange}
-                className="w-0 h-0 opacity-0 absolute"
-              />
+              {isPremium && (
+                <input
+                  type="color"
+                  value={config.customColor || '#888888'}
+                  onChange={handleBgColorChange}
+                  className="w-0 h-0 opacity-0 absolute"
+                />
+              )}
             </label>
             <label
               className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
@@ -232,8 +266,9 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-  Couleur du point
+          <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+            Couleur du point
+            {!isPremium && <Lock className="w-4 h-4 text-orange-500" />}
           </label>
           <div className="flex items-center gap-3">
             <button
@@ -246,42 +281,53 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
               title="Orange (par défaut)"
             />
             <label
-              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
+              onClick={() => !isPremium && onShowPremiumModal()}
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
                 config.dotColor
                   ? 'border-slate-900 shadow-lg scale-110'
                   : 'border-slate-200 hover:border-slate-300'
-              }`}
+              } ${!isPremium ? 'opacity-60' : ''}`}
               style={{
                 backgroundColor: config.dotColor || '#888888'
               }}
-              title="Couleur personnalisée"
+              title={isPremium ? "Couleur personnalisée" : "Premium requis"}
             >
-              {!config.dotColor && (
+              {!isPremium && (
+                <Lock className="w-4 h-4 text-white absolute" />
+              )}
+              {!config.dotColor && isPremium && (
                 <Pipette className="w-5 h-5 text-white" />
               )}
-              <input
-                type="color"
-                value={config.dotColor || '#f97316'}
-                onChange={handleDotColorChange}
-                className="w-0 h-0 opacity-0 absolute"
-              />
+              {isPremium && (
+                <input
+                  type="color"
+                  value={config.dotColor || '#f97316'}
+                  onChange={handleDotColorChange}
+                  className="w-0 h-0 opacity-0 absolute"
+                />
+              )}
             </label>
           </div>
         </div>
 
         <div>
-          <label htmlFor="customText" className="block text-sm font-medium text-slate-700 mb-2">
-            Texte personnalisé 
+          <label htmlFor="customText" className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+            Texte personnalisé
+            {!isPremium && <Lock className="w-4 h-4 text-orange-500" />}
           </label>
-          <input
-            id="customText"
-            type="text"
-            maxLength={20}
-            placeholder="Ex: 2025"
-            value={config.customText || ''}
-            onChange={(e) => setConfig({ ...config, customText: e.target.value })}
-            className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
-          />
+          <div className="relative">
+            <input
+              id="customText"
+              type="text"
+              maxLength={20}
+              placeholder="Ex: 2025"
+              value={config.customText || ''}
+              onChange={handleCustomTextChange}
+              disabled={!isPremium}
+              onClick={() => !isPremium && onShowPremiumModal()}
+              className={`w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors ${!isPremium ? 'bg-gray-50 cursor-pointer' : ''}`}
+            />
+          </div>
         </div>
 
         <div>
@@ -313,12 +359,19 @@ export default function ConfigPanel({ config, setConfig }: ConfigPanelProps) {
               <div>
                 <select
                   value={config.grouping}
-                  onChange={(e) => setConfig({ ...config, grouping: e.target.value as Grouping })}
+                  onChange={(e) => {
+                    const newGrouping = e.target.value as Grouping;
+                    if (newGrouping === 'quarter' && !isPremium) {
+                      onShowPremiumModal();
+                      return;
+                    }
+                    setConfig({ ...config, grouping: newGrouping });
+                  }}
                   className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
                 >
                   {availableGroupings.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
+                    <option key={option.value} value={option.value} disabled={option.value === 'quarter' && !isPremium}>
+                      {option.label}{option.value === 'quarter' && !isPremium ? ' 🔒' : ''}
                     </option>
                   ))}
                 </select>

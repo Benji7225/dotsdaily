@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Heart, Target, Copy, Check, LogIn } from 'lucide-react';
+import { Calendar, Heart, Target, Copy, Check, LogIn, Crown } from 'lucide-react';
 import WallpaperPreview from '../components/WallpaperPreview';
 import ConfigPanel from '../components/ConfigPanel';
 import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from '../utils/iPhoneModels';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../hooks/useSubscription';
+import { Link } from 'react-router-dom';
 
 export type WallpaperMode = 'year' | 'life' | 'countdown';
 export type Granularity = 'day' | 'week' | 'month' | 'year';
@@ -32,7 +34,9 @@ export interface WallpaperConfig {
 export default function Generator() {
   const { t } = useLanguage();
   const { user, signInWithGoogle } = useAuth();
+  const { isPremium } = useSubscription();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [config, setConfig] = useState<WallpaperConfig>({
     mode: 'year',
     granularity: 'day',
@@ -135,9 +139,23 @@ export default function Generator() {
     };
   }, [config, modelSpecs]);
 
+  const usesPremiumFeatures = () => {
+    return (
+      config.themeType === 'custom' ||
+      config.dotColor !== undefined ||
+      (config.customText && config.customText.length > 0) ||
+      config.grouping === 'quarter'
+    );
+  };
+
   const generateShortUrl = async () => {
     if (!user) {
       setShowAuthModal(true);
+      return;
+    }
+
+    if (usesPremiumFeatures() && !isPremium) {
+      setShowPremiumModal(true);
       return;
     }
 
@@ -244,7 +262,7 @@ export default function Generator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
           <div>
-            <ConfigPanel config={config} setConfig={setConfig} />
+            <ConfigPanel config={config} setConfig={setConfig} onShowPremiumModal={() => setShowPremiumModal(true)} />
 
             <div className="bg-white border-2 border-gray-100 rounded-xl p-6 mt-6">
               <h3 className="text-lg font-semibold text-black mb-4">
@@ -348,6 +366,41 @@ export default function Generator() {
 
               <button
                 onClick={() => setShowAuthModal(false)}
+                className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+              >
+                {t('auth.cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPremiumModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-8 max-w-md w-full">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Crown className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-black mb-2">
+                Fonctionnalité Premium
+              </h3>
+              <p className="text-gray-600">
+                Cette fonctionnalité nécessite un abonnement Premium. Débloquez toutes les fonctionnalités pour 2,99€/mois.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <Link
+                to="/pricing"
+                className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+              >
+                <Crown className="w-5 h-5" />
+                Voir les Tarifs
+              </Link>
+
+              <button
+                onClick={() => setShowPremiumModal(false)}
                 className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
               >
                 {t('auth.cancel')}
