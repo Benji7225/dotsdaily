@@ -764,6 +764,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const textCount = (svgContent.match(/<text/g) || []).length;
     console.log(`SVG generated with ${textCount} text elements`);
 
+    if (req.query.format === 'svg') {
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      return res.send(svgContent);
+    }
+
     const pngBuffer = await convertSVGToPNG(svgContent, config.width, config.height);
 
     const nextMidnight = new Date(now);
