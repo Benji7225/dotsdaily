@@ -629,7 +629,6 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 }
 
 async function convertSVGToPNG(svgContent: string, width: number, height: number): Promise<Buffer> {
-  const startTime = Date.now();
   try {
     const fontDir = join(process.cwd(), 'api');
     const robotoRegular = join(fontDir, 'Roboto-Regular.ttf');
@@ -642,11 +641,10 @@ async function convertSVGToPNG(svgContent: string, width: number, height: number
       throw new Error('SVG content too large (>10MB). Background image may be too large.');
     }
 
-    const targetWidth = width * 2;
     const opts: any = {
       fitTo: {
         mode: 'width' as const,
-        value: targetWidth,
+        value: width * 3,
       },
       font: {
         fontFiles: [robotoRegular, robotoMedium],
@@ -655,23 +653,14 @@ async function convertSVGToPNG(svgContent: string, width: number, height: number
       },
     };
 
-    console.log(`Rendering PNG at ${targetWidth}px width (${(Date.now() - startTime)}ms)`);
-    const resvgStart = Date.now();
+    console.log('Rendering PNG with Roboto fonts from:', fontDir);
     const resvg = new Resvg(svgContent, opts);
-    console.log(`Resvg initialized (${(Date.now() - resvgStart)}ms)`);
-
-    const renderStart = Date.now();
     const pngData = resvg.render();
-    console.log(`PNG rendered (${(Date.now() - renderStart)}ms)`);
-
-    const pngStart = Date.now();
     const pngBuffer = pngData.asPng();
-    console.log(`PNG buffer created: ${pngBuffer.length} bytes (${(Date.now() - pngStart)}ms)`);
-    console.log(`Total conversion time: ${(Date.now() - startTime)}ms`);
-
+    console.log(`PNG generated: ${pngBuffer.length} bytes`);
     return pngBuffer;
   } catch (error: any) {
-    console.error(`SVG to PNG conversion error after ${(Date.now() - startTime)}ms:`, error);
+    console.error('SVG to PNG conversion error:', error);
     console.error('Error stack:', error.stack);
     throw new Error(`Failed to convert SVG to PNG: ${error.message}`);
   }
@@ -696,8 +685,6 @@ function getDateInTimezone(timezone: string): Date {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const requestStart = Date.now();
-
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -707,7 +694,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const { id } = req.query;
-    console.log(`[${id}] Request started at ${new Date().toISOString()}`);
 
     if (!id || typeof id !== 'string') {
       return res.status(400).json({ error: 'Invalid wallpaper ID', received: id });
@@ -726,13 +712,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log(`[${id}] Fetching config from DB (${Date.now() - requestStart}ms)`);
     const { data: config, error } = await supabase
       .from('wallpaper_configs')
       .select('*')
       .eq('id', id)
       .maybeSingle();
-    console.log(`[${id}] Config fetched (${Date.now() - requestStart}ms)`);
 
     if (error) {
       console.error('Supabase error:', error);
@@ -755,7 +739,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const now = getDateInTimezone(timezone);
     const dateKey = now.toISOString().split('T')[0];
 
-    console.log(`[${id}] Checking cache for ${dateKey} (${Date.now() - requestStart}ms)`);
     const { data: cachedPng } = await supabase
       .from('wallpaper_cache')
       .select('*')
@@ -764,7 +747,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .maybeSingle();
 
     if (cachedPng && cachedPng.png_data) {
-      console.log(`[${id}] Cache hit! Returning cached PNG (${Date.now() - requestStart}ms)`);
       let pngBuffer: Buffer;
       if (typeof cachedPng.png_data === 'string') {
         pngBuffer = Buffer.from(cachedPng.png_data, 'base64');
@@ -811,11 +793,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     };
 
-    console.log(`[${id}] Cache miss. Generating SVG (theme: ${config.theme_type}) (${Date.now() - requestStart}ms)`);
-    const svgStart = Date.now();
+    console.log(`Generating SVG for config ${id}, theme: ${config.theme_type}`);
     const svgContent = generateSVG(config, modelSpecs, now);
+
     const textCount = (svgContent.match(/<text/g) || []).length;
-    console.log(`[${id}] SVG generated with ${textCount} text elements in ${Date.now() - svgStart}ms`);
+    console.log(`SVG generated with ${textCount} text elements`);
 
     if (req.query.format === 'svg') {
       res.setHeader('Content-Type', 'image/svg+xml');
@@ -824,15 +806,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.send(svgContent);
     }
 
-    console.log(`[${id}] Converting SVG to PNG (${config.width}x${config.height}) (${Date.now() - requestStart}ms)`);
+    console.log(`Converting SVG to PNG (${config.width}x${config.height})`);
     const pngBuffer = await convertSVGToPNG(svgContent, config.width, config.height);
-    console.log(`[${id}] PNG conversion successful: ${pngBuffer.length} bytes (${Date.now() - requestStart}ms)`);
+    console.log(`PNG conversion successful: ${pngBuffer.length} bytes`);
 
     const nextMidnight = new Date(now);
     nextMidnight.setDate(nextMidnight.getDate() + 1);
     nextMidnight.setHours(0, 0, 0, 0);
 
-    console.log(`[${id}] Saving to cache (${Date.now() - requestStart}ms)`);
     await supabase
       .from('wallpaper_cache')
       .upsert({
@@ -840,22 +821,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         png_data: pngBuffer.toString('base64'),
         expires_at: nextMidnight.toISOString(),
       });
-    console.log(`[${id}] Cache saved (${Date.now() - requestStart}ms)`);
 
     res.setHeader('Content-Type', 'image/png');
     res.setHeader('Content-Length', pngBuffer.length.toString());
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    console.log(`[${id}] Request completed successfully in ${Date.now() - requestStart}ms`);
     return res.send(pngBuffer);
   } catch (error: any) {
-    console.error(`Wallpaper generation error after ${Date.now() - requestStart}ms:`, error);
+    console.error('Wallpaper generation error:', error);
     console.error('Error stack:', error.stack);
 
     const errorResponse: any = {
       error: error.message || 'Unknown error occurred',
       timestamp: new Date().toISOString(),
-      processingTime: `${Date.now() - requestStart}ms`,
     };
 
     if (error.message?.includes('SVG')) {

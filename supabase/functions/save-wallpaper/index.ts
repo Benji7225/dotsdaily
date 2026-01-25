@@ -93,21 +93,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (backgroundImage) {
-      return new Response(
-        JSON.stringify({
-          error: 'Background images are not supported for saved wallpapers. Please use a color theme instead.'
-        }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-    }
-
     const id = await generateUniqueId(supabase);
 
     const { error } = await supabase
@@ -120,7 +105,7 @@ Deno.serve(async (req: Request) => {
         theme: theme || 'dark',
         theme_type: themeType || 'dark',
         custom_color: customColor || null,
-        background_image: null,
+        background_image: backgroundImage || null,
         dot_color: dotColor || null,
         target_date: targetDate || null,
         start_date: startDate || null,

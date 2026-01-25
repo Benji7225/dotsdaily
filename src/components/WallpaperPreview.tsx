@@ -13,8 +13,6 @@ interface WallpaperPreviewProps {
 export default function WallpaperPreview({ url, modelSpecs, theme, generation, variant }: WallpaperPreviewProps) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
-  const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -23,24 +21,10 @@ export default function WallpaperPreview({ url, modelSpecs, theme, generation, v
 
   useEffect(() => {
     setRefreshKey((prev) => prev + 1);
-    setImageStatus('loading');
-    setErrorMessage('');
   }, [url, modelSpecs, theme]);
 
   const refresh = () => {
     setRefreshKey((prev) => prev + 1);
-    setImageStatus('loading');
-    setErrorMessage('');
-  };
-
-  const handleImageLoad = () => {
-    setImageStatus('loaded');
-    setErrorMessage('');
-  };
-
-  const handleImageError = () => {
-    setImageStatus('error');
-    setErrorMessage('La génération a échoué. Cliquez sur actualiser pour réessayer ou essayez une configuration plus simple.');
   };
 
   if (!modelSpecs) {
@@ -110,34 +94,19 @@ export default function WallpaperPreview({ url, modelSpecs, theme, generation, v
                 >
                   <div className={`relative w-full h-full ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
                     {url ? (
-                      <>
-                        <img
-                          key={refreshKey}
-                          src={url.startsWith('blob:') ? url : `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`}
-                          alt="Aperçu du fond d'écran"
-                          className={`w-full h-full object-cover ${imageStatus === 'error' ? 'hidden' : ''}`}
-                          onLoad={handleImageLoad}
-                          onError={handleImageError}
-                        />
-                        {imageStatus === 'loading' && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50">
-                            <div className="flex flex-col items-center gap-2">
-                              <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
-                              <div className="text-white text-xs font-medium">Génération...</div>
-                            </div>
-                          </div>
-                        )}
-                        {imageStatus === 'error' && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-red-900/50 p-4">
-                            <div className="text-white text-xs text-center font-medium max-w-[80%]">
-                              {errorMessage}
-                            </div>
-                          </div>
-                        )}
-                      </>
+                      <img
+                        key={refreshKey}
+                        src={url.startsWith('blob:') ? url : `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`}
+                        alt="Aperçu du fond d'écran"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">
-                        Configurez et générez votre fond d'écran
+                        Chargement...
                       </div>
                     )}
 

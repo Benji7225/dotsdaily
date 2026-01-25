@@ -168,48 +168,28 @@ function App() {
         timezone,
       };
 
-      if (config.backgroundImage) {
-        throw new Error('Les images de fond ne sont pas supportées pour les URLs sauvegardées. Utilisez un thème de couleur pour générer une URL.');
+      const saveResponse = await fetch(`${apiUrl}/functions/v1/save-wallpaper`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!saveResponse.ok) {
+        throw new Error('Sauvegarde config échouée');
       }
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
+      const saveData = await saveResponse.json();
+      const configId = saveData.id;
 
-      try {
-        const saveResponse = await fetch(`${apiUrl}/functions/v1/save-wallpaper`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeout);
-
-        if (!saveResponse.ok) {
-          const errorData = await saveResponse.json().catch(() => ({}));
-          throw new Error(errorData.error || 'Sauvegarde config échouée');
-        }
-
-        const saveData = await saveResponse.json();
-        const configId = saveData.id;
-
-        const baseUrl = window.location.origin;
-        const pngUrl = `${baseUrl}/w/${configId}`;
-        setShortUrl(pngUrl);
-      } catch (fetchError: any) {
-        clearTimeout(timeout);
-        if (fetchError.name === 'AbortError') {
-          throw new Error('Requête trop longue (timeout 30s). Veuillez réessayer.');
-        }
-        throw fetchError;
-      }
-    } catch (error: any) {
+      const baseUrl = window.location.origin;
+      const pngUrl = `${baseUrl}/w/${configId}`;
+      setShortUrl(pngUrl);
+    } catch (error) {
       console.error('Erreur:', error);
-      const message = error.message || 'Erreur lors de la génération du fond d\'écran';
-      alert(message);
+      alert('Erreur lors de la génération du fond d\'écran');
     } finally {
       setIsGenerating(false);
     }
