@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, Heart, Target, Copy, Check } from 'lucide-react';
+import { Calendar, Heart, Target, Copy, Check } from 'lucide-react';
 import WallpaperPreview from './components/WallpaperPreview';
 import ConfigPanel from './components/ConfigPanel';
 import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from './utils/iPhoneModels';

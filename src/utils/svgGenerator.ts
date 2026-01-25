@@ -168,28 +168,6 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
       break;
     }
 
-    case 'month': {
-      if (config.granularity === 'day') {
-        const dayOfMonth = now.getDate();
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        return {
-          current: dayOfMonth,
-          total: daysInMonth,
-          label: `Jour ${dayOfMonth} / ${daysInMonth}`
-        };
-      } else if (config.granularity === 'week') {
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-        const currentWeek = Math.ceil((now.getDate() + firstDay.getDay()) / 7);
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        const totalWeeks = Math.ceil((daysInMonth + firstDay.getDay()) / 7);
-        return {
-          current: currentWeek,
-          total: totalWeeks,
-          label: `Semaine ${currentWeek} / ${totalWeeks}`
-        };
-      }
-      break;
-    }
 
     case 'life': {
       if (!config.birthDate) {
@@ -311,7 +289,6 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
     bgColor = 'url(#bgImage)';
   }
 
-  const textColor = isDark ? '#ffffff' : '#1a1a1a';
   const subTextColor = isDark ? '#999999' : '#666666';
   const labelColor = isDark ? '#666666' : '#999999';
 
@@ -424,22 +401,18 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
       const groupDotArea = groupHeight - labelHeight;
 
       let dotCols: number;
-      let dotRows: number;
       let firstDayOffset = 0;
 
       if (group.isCalendarLayout && group.firstDayOfWeek !== undefined) {
         dotCols = 7;
         firstDayOffset = group.firstDayOfWeek;
-        dotRows = Math.ceil((dotsInGroup + firstDayOffset) / 7);
       } else {
         dotCols = Math.ceil(Math.sqrt(dotsInGroup * (groupWidth / groupDotArea)));
-        dotRows = Math.ceil(dotsInGroup / dotCols);
       }
 
       const dotSize = globalDotSize;
 
       const gridWidth = (dotCols - 1) * (dotSize * dotSpacing) + dotSize;
-      const gridHeight = (dotRows - 1) * (dotSize * dotSpacing) + dotSize;
 
       const dotStartX = groupX + (groupWidth - gridWidth) / 2;
       const dotStartY = groupY + labelHeight;
@@ -486,19 +459,15 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
     const lastGroupDotArea = groupHeight - labelHeight;
 
     let lastDotCols: number;
-    let lastDotRows: number;
     let lastFirstDayOffset = 0;
 
     if (lastGroup.isCalendarLayout && lastGroup.firstDayOfWeek !== undefined) {
       lastDotCols = 7;
       lastFirstDayOffset = lastGroup.firstDayOfWeek;
-      lastDotRows = Math.ceil((lastGroupDotsCount + lastFirstDayOffset) / 7);
     } else {
       lastDotCols = Math.ceil(Math.sqrt(lastGroupDotsCount * (groupWidth / lastGroupDotArea)));
-      lastDotRows = Math.ceil(lastGroupDotsCount / lastDotCols);
     }
 
-    const lastGridHeight = (lastDotRows - 1) * (globalDotSize * dotSpacing) + globalDotSize;
     const lastDotStartY = lastGroupY + labelHeight;
 
     const lastDotIndex = lastGroupDotsCount - 1;
