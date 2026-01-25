@@ -3,6 +3,7 @@ import { Calendar, Heart, Target, Copy, Check } from 'lucide-react';
 import WallpaperPreview from '../components/WallpaperPreview';
 import ConfigPanel from '../components/ConfigPanel';
 import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from '../utils/iPhoneModels';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export type WallpaperMode = 'year' | 'life' | 'countdown';
 export type Granularity = 'day' | 'week' | 'month' | 'year';
@@ -28,6 +29,7 @@ export interface WallpaperConfig {
 }
 
 export default function Generator() {
+  const { t } = useLanguage();
   const [config, setConfig] = useState<WallpaperConfig>({
     mode: 'year',
     granularity: 'day',
@@ -195,9 +197,9 @@ export default function Generator() {
   };
 
   const modes = [
-    { id: 'year' as WallpaperMode, name: 'Year', icon: Calendar, desc: 'Track every day of the year' },
-    { id: 'life' as WallpaperMode, name: 'Life', icon: Heart, desc: 'Visualize your entire life' },
-    { id: 'countdown' as WallpaperMode, name: 'Goal', icon: Target, desc: 'Countdown to a target date' },
+    { id: 'year' as WallpaperMode, name: t('generator.modes.year.name'), icon: Calendar, desc: t('generator.modes.year.desc') },
+    { id: 'life' as WallpaperMode, name: t('generator.modes.life.name'), icon: Heart, desc: t('generator.modes.life.desc') },
+    { id: 'countdown' as WallpaperMode, name: t('generator.modes.goal.name'), icon: Target, desc: t('generator.modes.goal.desc') },
   ];
 
   return (
@@ -205,10 +207,10 @@ export default function Generator() {
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-black mb-3">
-            Wallpaper Generator
+            {t('generator.title')}
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Customize your daily-updating iPhone wallpaper
+            {t('generator.subtitle')}
           </p>
         </div>
 
@@ -238,7 +240,7 @@ export default function Generator() {
 
             <div className="bg-white border-2 border-gray-100 rounded-xl p-6 mt-6">
               <h3 className="text-lg font-semibold text-black mb-4">
-                Your Wallpaper URL
+                {t('generator.url.title')}
               </h3>
 
               <div className="flex gap-3 mb-4">
@@ -247,7 +249,7 @@ export default function Generator() {
                   disabled={isGenerating}
                   className="flex-1 bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                  {isGenerating ? 'Generating...' : shortUrl ? 'Regenerate URL' : 'Generate URL'}
+                  {isGenerating ? t('generator.url.generating') : shortUrl ? t('generator.url.regenerate') : t('generator.url.generate')}
                 </button>
                 {shortUrl && (
                   <button
@@ -257,12 +259,12 @@ export default function Generator() {
                     {copied ? (
                       <>
                         <Check className="w-5 h-5" />
-                        Copied!
+                        {t('generator.url.copied')}
                       </>
                     ) : (
                       <>
                         <Copy className="w-5 h-5" />
-                        Copy
+                        {t('generator.url.copy')}
                       </>
                     )}
                   </button>
@@ -276,25 +278,25 @@ export default function Generator() {
               ) : (
                 <div className="p-4 bg-gray-50 rounded-lg mb-4">
                   <p className="text-sm text-gray-600">
-                    Click to generate a permanent URL. Your wallpaper will automatically update daily at midnight in your timezone.
+                    {t('generator.url.placeholder')}
                   </p>
                 </div>
               )}
 
               <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
                 <h4 className="font-semibold text-black mb-2">
-                  Apple Shortcuts Setup
+                  {t('generator.url.setup.title')}
                 </h4>
                 <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
-                  <li>Open the Shortcuts app on your iPhone</li>
-                  <li>Create a new shortcut</li>
-                  <li>Add the "Get Contents of URL" action</li>
-                  <li>Paste your generated URL above</li>
-                  <li>Add the "Set Wallpaper" action</li>
-                  <li>Set up a daily automation to run after midnight</li>
+                  <li>{t('generator.url.setup.step1')}</li>
+                  <li>{t('generator.url.setup.step2')}</li>
+                  <li>{t('generator.url.setup.step3')}</li>
+                  <li>{t('generator.url.setup.step4')}</li>
+                  <li>{t('generator.url.setup.step5')}</li>
+                  <li>{t('generator.url.setup.step6')}</li>
                 </ol>
                 <p className="text-xs text-gray-600 mt-3">
-                  Your wallpaper will update automatically every day at midnight in your timezone.
+                  {t('generator.url.setup.note')}
                 </p>
               </div>
             </div>

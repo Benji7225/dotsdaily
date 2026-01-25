@@ -1,8 +1,10 @@
 import { Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-white border-t border-gray-100 mt-20">
@@ -14,42 +16,42 @@ export default function Footer() {
               <span className="text-xl font-bold text-black">DotsDaily</span>
             </div>
             <p className="text-gray-600 text-sm max-w-md">
-              Turn your time, goals, and life progress into a daily-updating iPhone wallpaper powered by a simple PNG URL and Apple Shortcuts.
+              {t('footer.tagline')}
             </p>
           </div>
 
           <div>
-            <h3 className="font-semibold text-black mb-3">Product</h3>
+            <h3 className="font-semibold text-black mb-3">{t('footer.product')}</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link to="/generator" className="text-gray-600 hover:text-black transition-colors">
-                  Generator
+                  {t('footer.generator')}
                 </Link>
               </li>
               <li>
                 <a href="#features" className="text-gray-600 hover:text-black transition-colors">
-                  Features
+                  {t('footer.features')}
                 </a>
               </li>
               <li>
                 <a href="#how-it-works" className="text-gray-600 hover:text-black transition-colors">
-                  How It Works
+                  {t('footer.howItWorks')}
                 </a>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold text-black mb-3">Support</h3>
+            <h3 className="font-semibold text-black mb-3">{t('footer.support')}</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <a href="#faq" className="text-gray-600 hover:text-black transition-colors">
-                  FAQ
+                  {t('footer.faq')}
                 </a>
               </li>
               <li>
                 <a href="mailto:hello@dotsdaily.app" className="text-gray-600 hover:text-black transition-colors">
-                  Contact
+                  {t('footer.contact')}
                 </a>
               </li>
             </ul>
@@ -57,7 +59,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-100 mt-8 pt-8 text-center text-sm text-gray-500">
-          <p>&copy; {currentYear} DotsDaily. All rights reserved.</p>
+          <p>&copy; {currentYear} DotsDaily. {t('footer.rights')}</p>
         </div>
       </div>
     </footer>
