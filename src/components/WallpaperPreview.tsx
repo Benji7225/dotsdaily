@@ -92,16 +92,7 @@ export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPr
                         >
                           <div></div>
                           <div className="flex items-center gap-1.5">
-                            <svg width="17" height="12" viewBox="0 0 17 12" fill="none" className="drop-shadow-md">
-                              <path d="M15.5 0.5H1.5C0.947715 0.5 0.5 0.947715 0.5 1.5V10.5C0.5 11.0523 0.947715 11.5 1.5 11.5H15.5C16.0523 11.5 16.5 11.0523 16.5 10.5V1.5C16.5 0.947715 16.0523 0.5 15.5 0.5Z" fill={iconColor}/>
-                              <path d="M0.5 3.5H16.5" stroke={iconColor} strokeWidth="0.5"/>
-                              <path d="M0.5 5.5H16.5" stroke={iconColor} strokeWidth="0.5"/>
-                              <path d="M0.5 7.5H16.5" stroke={iconColor} strokeWidth="0.5"/>
-                            </svg>
-                            <svg width="25" height="12" viewBox="0 0 25 12" fill="none" className="drop-shadow-md">
-                              <rect x="0.5" y="0.5" width="18" height="11" rx="2" stroke={iconColor} strokeWidth="1" fill="none"/>
-                              <rect x="2" y="2" width="14" height="8" rx="1" fill={iconColor}/>
-                              <rect x="19" y="4" width="2" height="4" rx="1" fill={iconColor}/>
+                            
                             </svg>
                           </div>
                         </div>
