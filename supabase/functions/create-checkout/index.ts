@@ -55,25 +55,24 @@ Deno.serve(async (req: Request) => {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    let customerId = subscription?.stripe_customer_id;
-
+    const customerId = subscription?.stripe_customer_id;
     const baseUrl = req.headers.get("origin") || "https://dotsdaily.com";
 
-    const stripeBody = {
-      mode: "subscription",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price: stripePriceId,
-          quantity: 1,
-        },
-      ],
-      success_url: `${baseUrl}/generator?success=true`,
-      cancel_url: `${baseUrl}/pricing?canceled=true`,
-      client_reference_id: user.id,
-      customer: customerId || undefined,
-      customer_email: customerId ? undefined : user.email,
+    const stripeBody: Record<string, string> = {
+      "mode": "subscription",
+      "payment_method_types[0]": "card",
+      "line_items[0][price]": stripePriceId,
+      "line_items[0][quantity]": "1",
+      "success_url": `${baseUrl}/generator?success=true`,
+      "cancel_url": `${baseUrl}/pricing?canceled=true`,
+      "client_reference_id": user.id,
     };
+
+    if (customerId) {
+      stripeBody["customer"] = customerId;
+    } else if (user.email) {
+      stripeBody["customer_email"] = user.email;
+    }
 
     const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
@@ -81,7 +80,7 @@ Deno.serve(async (req: Request) => {
         "Authorization": `Bearer ${stripeKey}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams(stripeBody as any).toString(),
+      body: new URLSearchParams(stripeBody).toString(),
     });
 
     if (!stripeResponse.ok) {
