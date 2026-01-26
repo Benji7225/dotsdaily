@@ -18,10 +18,19 @@ Deno.serve(async (req: Request) => {
     const signature = req.headers.get("stripe-signature");
     const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
-    if (!signature || !webhookSecret) {
+    if (!signature) {
+      console.error("Missing Stripe signature");
       return new Response(
-        JSON.stringify({ error: "Missing signature or webhook secret" }),
+        JSON.stringify({ error: "Missing stripe signature" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!webhookSecret) {
+      console.error("STRIPE_WEBHOOK_SECRET not configured in Supabase");
+      return new Response(
+        JSON.stringify({ error: "Webhook secret not configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -55,20 +64,25 @@ Deno.serve(async (req: Request) => {
         const paymentStatus = session.payment_status;
 
         if (userId && customerId && paymentStatus === "paid") {
-          const { error } = await supabase
+          console.log("Processing lifetime payment for user:", userId);
+          const { data, error } = await supabase
             .from("user_subscriptions")
             .upsert({
               user_id: userId,
               stripe_customer_id: customerId,
               stripe_subscription_id: null,
               status: "lifetime",
+              plan: "lifetime",
               updated_at: new Date().toISOString(),
             }, {
               onConflict: "user_id"
-            });
+            })
+            .select();
 
           if (error) {
             console.error("Error updating lifetime access:", error);
+          } else {
+            console.log("Successfully granted lifetime access:", data);
           }
         }
         break;
