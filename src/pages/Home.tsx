@@ -32,11 +32,11 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-2xl p-6 sm:p-8 md:p-12 shadow-lg">
+          <div className="w-full max-w-4xl mx-auto">
             <img
-              src="/hero_1.webp"
+              src="/hero.webp"
               alt="DotsDaily wallpaper examples on iPhone"
-              className="w-full max-w-4xl mx-auto"
+              className="w-full"
             />
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function Home() {
                 <img
                   src="/mode_1.webp"
                   alt="Year visualization mode"
-                  className="w-full max-w-[280px] rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-300"
+                  className="w-full max-w-[200px] hover:scale-105 transition-transform duration-300"
                 />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-black mb-3">{t('home.modes.year.title')}</h3>
@@ -106,7 +106,7 @@ export default function Home() {
                 <img
                   src="/mode_2.webp"
                   alt="Life visualization mode"
-                  className="w-full max-w-[280px] rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-300"
+                  className="w-full max-w-[200px] hover:scale-105 transition-transform duration-300"
                 />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-black mb-3">{t('home.modes.life.title')}</h3>
@@ -120,7 +120,7 @@ export default function Home() {
                 <img
                   src="/mode_3.webp"
                   alt="Goal countdown mode"
-                  className="w-full max-w-[280px] rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-300"
+                  className="w-full max-w-[200px] hover:scale-105 transition-transform duration-300"
                 />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-black mb-3">{t('home.modes.goal.title')}</h3>
@@ -141,12 +141,9 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div className="order-2 lg:order-1">
               <ImageCarousel
-                images={[]}
+                images={['/tuto-1.webp', '/tuto-2.webp', '/tuto-3.webp', '/tuto-4.webp']}
                 altPrefix="How it works step"
               />
-              <p className="text-center text-sm text-gray-500 mt-4 italic">
-                Images à venir - Utilisez les flèches pour naviguer
-              </p>
             </div>
 
             <div className="order-1 lg:order-2 space-y-6 sm:space-y-8">
