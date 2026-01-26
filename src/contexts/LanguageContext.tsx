@@ -234,7 +234,7 @@ const translations = {
           step3: 'Nouvelle automatisation',
           step4: 'Ajoute "Obtenir le contenu de l\'URL" → colle ton URL',
           step5: 'Ajoute "Définir la photo de fond d\'écran"',
-          step6: '> → Désactive "Recadrer sur le sujet" et "Afficher l\'aperçu"',
+          step6: 'Désactive "Recadrer sur le sujet" et "Afficher l\'aperçu"',
           step7: 'Lance avec le bouton ▶︎ en bas à droite',
           note: 'Ton fond d\'écran se mettra à jour automatiquement chaque jour à minuit dans ton fuseau horaire.'
         }
