@@ -293,8 +293,8 @@ export default function Generator() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto items-start">
-          <div className="order-2 lg:order-1 lg:justify-self-start w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 max-w-7xl mx-auto items-start px-4">
+          <div className="order-2 lg:order-1">
             <ConfigPanel config={config} setConfig={setConfig} onShowPremiumModal={() => setShowPremiumModal(true)} />
 
             <div className="bg-white border-2 border-gray-100 rounded-xl p-6 mt-6">
@@ -362,7 +362,7 @@ export default function Generator() {
             </div>
           </div>
 
-          <div className="order-1 lg:order-2 lg:justify-self-end">
+          <div className="order-1 lg:order-2">
             <WallpaperPreview url={shortUrl || previewUrl} modelSpecs={modelSpecs} theme={config.theme} />
           </div>
         </div>
