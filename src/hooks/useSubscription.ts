@@ -1,51 +1,48 @@
 import { useState, useEffect } from 'react';
-import { getUserSubscription } from '../lib/stripe';
-import { useAuth } from './useAuth';
-
-interface Subscription {
-  id: string;
-  user_id: string;
-  stripe_customer_id: string | null;
-  stripe_subscription_id: string | null;
-  status: string;
-  plan: string;
-  current_period_end: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { useAuth, supabase } from '../contexts/AuthContext';
 
 export function useSubscription() {
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const [isPremium, setIsPremium] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
-      setSubscription(null);
-      setLoading(false);
-      return;
-    }
+    async function checkSubscription() {
+      if (!user) {
+        setIsPremium(false);
+        setLoading(false);
+        return;
+      }
 
-    const fetchSubscription = async () => {
       try {
-        const data = await getUserSubscription();
-        setSubscription(data);
+        const { data, error } = await supabase
+          .from('user_subscriptions')
+          .select('status, plan, current_period_end')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error fetching subscription:', error);
+          setIsPremium(false);
+        } else if (data) {
+          const hasLifetimeAccess = data.status === 'lifetime' && data.plan === 'lifetime';
+          const hasActiveSubscription = data.status === 'active' &&
+                                       data.current_period_end &&
+                                       new Date(data.current_period_end) > new Date();
+          setIsPremium(hasLifetimeAccess || hasActiveSubscription);
+        } else {
+          setIsPremium(false);
+        }
       } catch (error) {
-        console.error('Error fetching subscription:', error);
-        setSubscription(null);
+        console.error('Error checking subscription:', error);
+        setIsPremium(false);
       } finally {
         setLoading(false);
       }
-    };
+    }
 
-    fetchSubscription();
+    checkSubscription();
   }, [user]);
 
-  const isPremium = subscription?.status === 'lifetime' || subscription?.plan === 'lifetime';
-
-  return {
-    subscription,
-    loading,
-    isPremium,
-  };
+  return { isPremium, loading };
 }
