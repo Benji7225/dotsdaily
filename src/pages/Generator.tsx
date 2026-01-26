@@ -48,6 +48,10 @@ export default function Generator() {
     themeType: 'dark',
     generation: defaultGeneration.id,
     variant: defaultVariant,
+    birthDate: '2000-01-26',
+    lifeExpectancy: 80,
+    startDate: '2026-01-26',
+    targetDate: '2026-02-09',
   });
 
   const [copied, setCopied] = useState(false);
