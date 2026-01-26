@@ -142,7 +142,7 @@ const translations = {
         title: 'Plusieurs Modes de Visualisation',
         year: {
           title: 'Progression Annuelle',
-          desc: 'Suis chaque jour de l\'année avec un calendrier visuel en points. Vois ta progression à travers 2025 en un coup d\'œil.'
+          desc: 'Suis chaque jour de l\'année avec un calendrier visuel en points. Vois ta progression à travers 2026 en un coup d\'œil.'
         },
         life: {
           title: 'Calendrier de Vie',
