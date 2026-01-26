@@ -144,7 +144,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div className="order-2 lg:order-1">
               <ImageCarousel
-                images={['/tuto-1.webp', '/tuto-2.webp', '/tuto-3.webp', '/tuto-4.webp']}
+                images={['/comment_1.webp', '/comment_2.webp', '/comment_3.webp', '/comment_4.webp']}
                 altPrefix="How it works step"
                 onIndexChange={setActiveStep}
               />
