@@ -26,26 +26,29 @@ Deno.serve(async (req: Request) => {
       throw new Error("STRIPE_PRICE_ID not configured");
     }
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("No authorization header");
-    }
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
     const { createClient } = await import("npm:@supabase/supabase-js@2.57.4");
 
-    // JWT is already validated by Supabase (verifyJWT: true)
-    // Use service role key to get user and perform database operations
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Get and validate user from Authorization header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("Missing authorization header");
+    }
+
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser(token);
 
     if (userError || !user) {
       console.error("Auth error:", userError);
       throw new Error("Unauthorized");
     }
+
+    // Use service role for database operations
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const { data: subscription } = await supabase
       .from("user_subscriptions")
       .select("*")
