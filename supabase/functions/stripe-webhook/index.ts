@@ -15,42 +15,10 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const signature = req.headers.get("stripe-signature");
-    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-
-    if (!signature) {
-      console.error("Missing Stripe signature");
-      return new Response(
-        JSON.stringify({ error: "Missing stripe signature" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!webhookSecret) {
-      console.error("STRIPE_WEBHOOK_SECRET not configured in Supabase");
-      return new Response(
-        JSON.stringify({ error: "Webhook secret not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const body = await req.text();
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-
-    const verifyResponse = await fetch("https://api.stripe.com/v1/events", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${stripeKey}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({ limit: "1" }).toString(),
-    });
-
-    if (!verifyResponse.ok) {
-      throw new Error("Failed to verify webhook");
-    }
-
     const event = JSON.parse(body);
+
+    console.log("Received webhook event:", event.type, "ID:", event.id);
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const { createClient } = await import("npm:@supabase/supabase-js@2.57.4");
