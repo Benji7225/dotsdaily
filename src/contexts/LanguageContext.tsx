@@ -432,10 +432,11 @@ const translations = {
           title: 'Apple Shortcuts Setup',
           step1: 'Shortcuts → Automation → + → Time of Day',
           step2: 'Set to 00:00 → Daily → Run Immediately',
-          step3: 'Add "Get Contents of URL" → paste your URL',
-          step4: 'Add "Set Wallpaper" → Lock Screen',
-          step5: 'Tap → to disable "Crop to Subject" and "Show Preview"',
-          step6: '',
+          step3: 'New automation',
+          step4: 'Add "Get Contents of URL" → paste your URL',
+          step5: 'Add "Set Wallpaper"',
+          step6: '> → Disable "Crop to Subject" and "Show Preview"',
+          step7: 'Run with the ▶︎ button at bottom right',
           note: 'Your wallpaper will update automatically every day at midnight in your timezone.'
         }
       }
