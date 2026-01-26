@@ -86,9 +86,9 @@ const translations = {
       },
       premium: {
         name: 'Premium',
-        period: 'par mois',
+        period: 'à vie',
         badge: 'Populaire',
-        description: 'Débloque toutes les fonctionnalités pour personnaliser à fond.',
+        description: 'Débloque toutes les fonctionnalités avec un paiement unique.',
         cta: 'Passer à Premium',
         ctaLoading: 'Chargement...',
         features: [
@@ -268,14 +268,14 @@ const translations = {
         intro: 'Nous collectons les informations suivantes :',
         item1: 'Informations de compte (email, nom) si tu crées un compte',
         item2: 'Paramètres de configuration de fond d\'écran (dates, couleurs, préférences)',
-        item3: 'Informations de paiement via Stripe pour les abonnements premium',
+        item3: 'Informations de paiement via Stripe pour l\'accès premium',
         item4: 'Données d\'utilisation et analytics pour améliorer notre service'
       },
       howWeUse: {
         title: 'Comment Nous Utilisons Tes Données',
         item1: 'Générer et fournir tes fonds d\'écran personnalisés',
         item2: 'Gérer ton compte et tes préférences',
-        item3: 'Traiter les paiements et gérer les abonnements',
+        item3: 'Traiter les paiements',
         item4: 'Améliorer notre service et développer de nouvelles fonctionnalités'
       },
       dataStorage: {
@@ -336,8 +336,8 @@ const translations = {
         content: 'DotsDaily et tout son contenu sont protégés par les lois sur le droit d\'auteur. Les fonds d\'écran générés t\'appartiennent, mais notre plateforme et notre technologie restent notre propriété.'
       },
       payment: {
-        title: 'Paiements et Abonnements',
-        content: 'Les abonnements premium sont facturés mensuellement via Stripe. Tu peux annuler à tout moment. Les remboursements sont traités au cas par cas.'
+        title: 'Paiements',
+        content: 'L\'accès Premium est un paiement unique de 2,99€ via Stripe qui te donne un accès à vie aux fonctionnalités premium. Les remboursements sont traités au cas par cas dans les 14 jours suivant l\'achat.'
       },
       limitation: {
         title: 'Limitation de Responsabilité',
@@ -446,8 +446,8 @@ const translations = {
         a: 'Le plan gratuit inclut tous les modes (année, vie, objectif), tous les modèles d\'iPhone, et les thèmes. Le Premium ajoute du texte personnalisé, le groupement par trimestre, une pipette de couleurs, et la couleur des points personnalisable.'
       },
       q9: {
-        q: 'Comment annuler mon abonnement Premium ?',
-        a: 'Tu peux annuler ton abonnement à tout moment depuis ton compte. L\'accès Premium restera actif jusqu\'à la fin de ta période de facturation.'
+        q: 'Puis-je obtenir un remboursement ?',
+        a: 'Les remboursements sont possibles dans les 14 jours suivant l\'achat. Contacte-nous à hello@dotsdaily.app avec ta demande.'
       },
       q10: {
         q: 'Les fonds d\'écran sont-ils optimisés pour tous les modèles d\'iPhone ?',
@@ -515,9 +515,9 @@ const translations = {
       },
       premium: {
         name: 'Premium',
-        period: 'per month',
+        period: 'lifetime',
         badge: 'Popular',
-        description: 'Unlock all features for full customization.',
+        description: 'Unlock all features with a one-time payment.',
         cta: 'Upgrade to Premium',
         ctaLoading: 'Loading...',
         features: [
@@ -697,14 +697,14 @@ const translations = {
         intro: 'We collect the following information:',
         item1: 'Account information (email, name) if you create an account',
         item2: 'Wallpaper configuration settings (dates, colors, preferences)',
-        item3: 'Payment information via Stripe for premium subscriptions',
+        item3: 'Payment information via Stripe for premium access',
         item4: 'Usage data and analytics to improve our service'
       },
       howWeUse: {
         title: 'How We Use Your Data',
         item1: 'Generate and provide your personalized wallpapers',
         item2: 'Manage your account and preferences',
-        item3: 'Process payments and manage subscriptions',
+        item3: 'Process payments',
         item4: 'Improve our service and develop new features'
       },
       dataStorage: {
@@ -765,8 +765,8 @@ const translations = {
         content: 'DotsDaily and all its content are protected by copyright laws. Generated wallpapers belong to you, but our platform and technology remain our property.'
       },
       payment: {
-        title: 'Payments and Subscriptions',
-        content: 'Premium subscriptions are billed monthly via Stripe. You can cancel at any time. Refunds are processed on a case-by-case basis.'
+        title: 'Payments',
+        content: 'Premium access is a one-time payment of €2.99 via Stripe that gives you lifetime access to premium features. Refunds are processed on a case-by-case basis within 14 days of purchase.'
       },
       limitation: {
         title: 'Limitation of Liability',
@@ -875,8 +875,8 @@ const translations = {
         a: 'The free plan includes all modes (year, life, goal), all iPhone models, and themes. Premium adds custom text, quarterly grouping, a color picker, and customizable dot color.'
       },
       q9: {
-        q: 'How do I cancel my Premium subscription?',
-        a: 'You can cancel your subscription at any time from your account. Premium access will remain active until the end of your billing period.'
+        q: 'Can I get a refund?',
+        a: 'Refunds are possible within 14 days of purchase. Contact us at hello@dotsdaily.app with your request.'
       },
       q10: {
         q: 'Are wallpapers optimized for all iPhone models?',

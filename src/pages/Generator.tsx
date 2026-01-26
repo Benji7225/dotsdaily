@@ -440,43 +440,59 @@ export default function Generator() {
 
       {showPremiumModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-8 max-w-md w-full">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Crown className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-black mb-2">
-                Fonctionnalité Premium
+          <div className="bg-white rounded-xl p-8 max-w-md w-full relative">
+            <button
+              onClick={() => setShowPremiumModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="mb-6">
+              <h3 className="text-2xl font-bold text-black mb-4">
+                Fonctionnalités Premium
               </h3>
-              <p className="text-gray-600">
-                Cette fonctionnalité nécessite un abonnement Premium. Débloquez toutes les fonctionnalités pour 2,99€/mois.
-              </p>
+              <div className="text-3xl font-bold text-orange-500 mb-6">
+                2,99€ à vie
+              </div>
+
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Texte personnalisé sur le fond d'écran</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Groupement par trimestre</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Couleurs personnalisées avec pipette</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Couleur des points personnalisable</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Formes de points (cercle, carré, cœur)</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Support prioritaire</span>
+                </li>
+              </ul>
             </div>
 
-            <div className="space-y-3">
-              <button
-                onClick={handleUpgradeToPremium}
-                disabled={loadingCheckout}
-                className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Crown className="w-5 h-5" />
-                {loadingCheckout ? 'Chargement...' : 'Passer à Premium'}
-              </button>
-
-              <Link
-                to="/pricing"
-                className="w-full bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center"
-              >
-                Voir les Tarifs
-              </Link>
-
-              <button
-                onClick={() => setShowPremiumModal(false)}
-                className="w-full bg-white text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors border-2 border-gray-200"
-              >
-                {t('auth.cancel')}
-              </button>
-            </div>
+            <button
+              onClick={handleUpgradeToPremium}
+              disabled={loadingCheckout}
+              className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loadingCheckout ? 'Chargement...' : 'Paiement'}
+            </button>
           </div>
         </div>
       )}
