@@ -293,7 +293,7 @@ export default function Generator() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 max-w-7xl mx-auto items-start px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 max-w-4xl mx-auto items-start justify-center">
           <div className="order-2 lg:order-1">
             <ConfigPanel config={config} setConfig={setConfig} onShowPremiumModal={() => setShowPremiumModal(true)} />
 
