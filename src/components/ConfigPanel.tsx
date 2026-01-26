@@ -124,15 +124,15 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6">
-      <h3 className="text-lg font-semibold text-slate-900 mb-4">Configuration</h3>
+    <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
+      <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">Configuration</h3>
 
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
             Modèle d'iPhone
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <select
                 value={config.generation}
@@ -218,7 +218,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
               />
             </label>
             <label
-              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
+              className={`relative w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
                 config.themeType === 'image'
                   ? 'border-slate-900 shadow-lg scale-110'
                   : 'border-slate-200 hover:border-slate-300'
@@ -233,6 +233,11 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
               }}
               title="Image personnalisée"
             >
+              {!isPremium && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg z-10">
+                  <Lock className="w-3 h-3 text-white" />
+                </div>
+              )}
               {config.themeType !== 'image' && (
                 <Upload className="w-5 h-5 text-white" />
               )}
@@ -373,10 +378,10 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Affichage supplémentaire
             </label>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setConfig({ ...config, additionalDisplay: 'percentage' })}
-                className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 px-2 sm:px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-1 sm:gap-2 ${
                   (!config.additionalDisplay || config.additionalDisplay === 'percentage')
                     ? 'border-slate-900 bg-slate-50'
                     : 'border-slate-200 hover:border-slate-400'
@@ -388,14 +393,8 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
               </button>
 
               <button
-                onClick={() => {
-                  if (!isPremium) {
-                    onShowPremiumModal();
-                    return;
-                  }
-                  setConfig({ ...config, additionalDisplay: 'timeRemaining' });
-                }}
-                className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                onClick={() => setConfig({ ...config, additionalDisplay: 'timeRemaining' })}
+                className={`relative flex-1 px-2 sm:px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-1 sm:gap-2 ${
                   config.additionalDisplay === 'timeRemaining'
                     ? 'border-slate-900 bg-slate-50'
                     : 'border-slate-200 hover:border-slate-400'
@@ -408,12 +407,12 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                   </div>
                 )}
                 <Clock className="w-4 h-4" />
-                <span className="text-sm">Temps</span>
+                <span className="text-xs sm:text-sm">Temps</span>
               </button>
 
               <button
                 onClick={() => setConfig({ ...config, additionalDisplay: 'none' })}
-                className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                className={`flex-1 px-2 sm:px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-1 sm:gap-2 ${
                   config.additionalDisplay === 'none'
                     ? 'border-slate-900 bg-slate-50'
                     : 'border-slate-200 hover:border-slate-400'
@@ -421,7 +420,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                 title="Aucun affichage supplémentaire"
               >
                 <X className="w-4 h-4" />
-                <span className="text-sm">Rien</span>
+                <span className="text-xs sm:text-sm">Rien</span>
               </button>
             </div>
           </div>
@@ -431,7 +430,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
           <label className="block text-sm font-medium text-slate-700 mb-2">
             {availableGroupings.length > 0 ? 'Points et affichage' : 'Points'}
           </label>
-          <div className={availableGroupings.length > 0 ? 'grid grid-cols-2 gap-3' : ''}>
+          <div className={availableGroupings.length > 0 ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : ''}>
             <div>
               <select
                 value={config.granularity}

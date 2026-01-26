@@ -165,6 +165,7 @@ export default function Generator() {
   const usesPremiumFeatures = () => {
     return (
       config.themeType === 'custom' ||
+      config.themeType === 'image' ||
       config.dotColor !== undefined ||
       (config.customText && config.customText.length > 0) ||
       config.grouping === 'quarter' ||
@@ -289,30 +290,30 @@ export default function Generator() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-black mb-3">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-3">
             {t('generator.title')}
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             {t('generator.subtitle')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto">
           {modes.map((mode) => (
             <button
               key={mode.id}
               onClick={() => handleModeChange(mode.id)}
-              className={`p-6 rounded-xl transition-all border-2 ${
+              className={`p-4 sm:p-6 rounded-xl transition-all border-2 ${
                 config.mode === mode.id
                   ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
                   : 'bg-white text-black border-gray-200 hover:border-orange-500'
               }`}
             >
-              <mode.icon className="w-8 h-8 mb-3 mx-auto" />
-              <h3 className="text-lg font-semibold mb-1">{mode.name}</h3>
-              <p className={`text-sm ${config.mode === mode.id ? 'text-orange-100' : 'text-gray-500'}`}>
+              <mode.icon className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 mx-auto" />
+              <h3 className="text-base sm:text-lg font-semibold mb-1">{mode.name}</h3>
+              <p className={`text-xs sm:text-sm ${config.mode === mode.id ? 'text-orange-100' : 'text-gray-500'}`}>
                 {mode.desc}
               </p>
             </button>
@@ -323,12 +324,12 @@ export default function Generator() {
           <div className="order-2 lg:order-1">
             <ConfigPanel config={config} setConfig={setConfig} onShowPremiumModal={() => setShowPremiumModal(true)} />
 
-            <div className="bg-white border-2 border-gray-100 rounded-xl p-6 mt-6">
-              <h3 className="text-lg font-semibold text-black mb-4">
+            <div className="bg-white border-2 border-gray-100 rounded-xl p-4 sm:p-6 mt-6">
+              <h3 className="text-base sm:text-lg font-semibold text-black mb-4">
                 {t('generator.url.title')}
               </h3>
 
-              <div className="flex gap-3 mb-4">
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <button
                   onClick={generateShortUrl}
                   disabled={isGenerating}
@@ -344,12 +345,14 @@ export default function Generator() {
                     {copied ? (
                       <>
                         <Check className="w-5 h-5" />
-                        {t('generator.url.copied')}
+                        <span className="hidden sm:inline">{t('generator.url.copied')}</span>
+                        <span className="sm:hidden">Copié</span>
                       </>
                     ) : (
                       <>
                         <Copy className="w-5 h-5" />
-                        {t('generator.url.copy')}
+                        <span className="hidden sm:inline">{t('generator.url.copy')}</span>
+                        <span className="sm:hidden">Copier</span>
                       </>
                     )}
                   </button>
