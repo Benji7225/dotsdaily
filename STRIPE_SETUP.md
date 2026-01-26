@@ -61,7 +61,7 @@ Cochez ces événements :
 3. Copiez le secret (commence par `whsec_...`)
 4. Ajoutez-le dans votre fichier `.env` :
    ```
-   STRIPE_WEBHOOK_SECRET=whsec_VOTRE_SECRET
+  
    ```
 
 ## Fonctionnement
