@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Flashlight, Camera } from 'lucide-react';
+import { Flashlight, Camera, Circle } from 'lucide-react';
 import { ModelSpecs } from '../utils/iPhoneModels';
 
 interface WallpaperPreviewProps {
@@ -25,17 +25,9 @@ export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPr
   }
 
   const aspectRatio = (modelSpecs.height / modelSpecs.width) * 100;
-  const hasDynamicIsland = modelSpecs.safeArea.top >= 100;
-  const hasNotch = modelSpecs.safeArea.top >= 140 && !hasDynamicIsland;
   const hasHomeButton = modelSpecs.safeArea.top < 100;
 
   const displayWidth = Math.round((modelSpecs.width / 430) * 280);
-
-  const scaleFactor = displayWidth / 280;
-  const dynamicIslandWidth = Math.round(90 * scaleFactor);
-  const dynamicIslandHeight = Math.round(28 * scaleFactor);
-  const notchWidth = Math.round(150 * scaleFactor);
-  const notchHeight = Math.round(26 * scaleFactor);
 
   const textColor = theme === 'dark' ? 'white' : '#1e293b';
   const iconColor = theme === 'dark' ? 'white' : '#334155';
@@ -83,14 +75,17 @@ export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPr
                         <div
                           className="absolute top-0 left-0 right-0 px-6 flex items-center justify-between z-20"
                           style={{
-                            paddingTop: hasDynamicIsland ? '14px' : hasNotch ? '12px' : '10px',
+                            paddingTop: '14px',
                             fontSize: '15px',
                             fontWeight: '600',
                             textShadow: theme === 'dark' ? '0 1px 3px rgba(0,0,0,0.5)' : '0 1px 3px rgba(255,255,255,0.8)',
                             color: textColor
                           }}
                         >
-                          <div>Dotsdd</div>
+                          <div className="flex items-center gap-1.5">
+                            <Circle className="w-3 h-3 fill-orange-500 text-orange-500" style={{ strokeWidth: 0 }} />
+                            <span>DotsDaily</span>
+                          </div>
                           <div className="flex items-center gap-1.5">
                             <svg width="17" height="12" viewBox="0 0 17 12" fill="none" className="drop-shadow-md">
                               <path d="M15.5 0.5H1.5C0.947715 0.5 0.5 0.947715 0.5 1.5V10.5C0.5 11.0523 0.947715 11.5 1.5 11.5H15.5C16.0523 11.5 16.5 11.0523 16.5 10.5V1.5C16.5 0.947715 16.0523 0.5 15.5 0.5Z" fill={iconColor}/>
@@ -109,7 +104,7 @@ export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPr
                         <div
                           className="absolute left-0 right-0 text-center"
                           style={{
-                            top: hasDynamicIsland ? '80px' : hasNotch ? '70px' : '55px',
+                            top: '55px',
                             textShadow: theme === 'dark' ? '0 2px 8px rgba(0,0,0,0.6)' : '0 2px 8px rgba(255,255,255,0.8)',
                             color: textColor
                           }}
@@ -186,33 +181,6 @@ export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPr
                         )}
                       </div>
                     </div>
-
-                    {hasDynamicIsland && (
-                      <div className="absolute top-[1.8%] left-1/2 transform -translate-x-1/2 z-30">
-                        <div
-                          className="bg-black rounded-full"
-                          style={{
-                            width: `${dynamicIslandWidth}px`,
-                            height: `${dynamicIslandHeight}px`,
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.8)',
-                          }}
-                        />
-                      </div>
-                    )}
-
-                    {hasNotch && (
-                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-30">
-                        <div
-                          className="bg-black"
-                          style={{
-                            width: `${notchWidth}px`,
-                            height: `${notchHeight}px`,
-                            borderBottomLeftRadius: `${Math.round(16 * scaleFactor)}px`,
-                            borderBottomRightRadius: `${Math.round(16 * scaleFactor)}px`,
-                          }}
-                        />
-                      </div>
-                    )}
                   </div>
                 </div>
 
