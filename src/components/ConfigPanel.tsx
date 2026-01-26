@@ -296,71 +296,59 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+          <label className="block text-sm font-medium text-slate-700 mb-2">
             Forme des points
-            {!isPremium && config.dotShape && config.dotShape !== 'circle' && (
-              <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
-                <Lock className="w-3 h-3" />
-                Premium
-              </span>
-            )}
           </label>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setConfig({ ...config, dotShape: 'circle' })}
-              className={`w-12 h-12 rounded-lg border-4 transition-all flex items-center justify-center ${
+              className={`transition-all ${
                 (!config.dotShape || config.dotShape === 'circle')
-                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
-                  : 'border-slate-200 hover:border-slate-300 bg-white'
+                  ? 'scale-110'
+                  : 'opacity-60 hover:opacity-100'
               }`}
               title="Rond"
             >
-              <Circle className="w-6 h-6 text-slate-700" fill="currentColor" />
+              <Circle className="w-8 h-8 text-slate-700" fill="currentColor" />
             </button>
-            <button
-              onClick={() => {
-                if (!isPremium) {
-                  onShowPremiumModal();
-                  return;
-                }
-                setConfig({ ...config, dotShape: 'square' });
-              }}
-              className={`w-12 h-12 rounded-lg border-4 transition-all flex items-center justify-center relative ${
-                config.dotShape === 'square'
-                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
-                  : 'border-slate-200 hover:border-slate-300 bg-white'
-              }`}
-              title="Carré"
-            >
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setConfig({ ...config, dotShape: 'square' })}
+                className={`transition-all ${
+                  config.dotShape === 'square'
+                    ? 'scale-110'
+                    : 'opacity-60 hover:opacity-100'
+                }`}
+                title="Carré"
+              >
+                <Square className="w-8 h-8 text-slate-700" fill="currentColor" />
+              </button>
               {!isPremium && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Lock className="w-3 h-3 text-white" />
-                </div>
+                <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-1 rounded-full">
+                  <Lock className="w-3 h-3" />
+                  Premium
+                </span>
               )}
-              <Square className="w-6 h-6 text-slate-700" fill="currentColor" />
-            </button>
-            <button
-              onClick={() => {
-                if (!isPremium) {
-                  onShowPremiumModal();
-                  return;
-                }
-                setConfig({ ...config, dotShape: 'heart' });
-              }}
-              className={`w-12 h-12 rounded-lg border-4 transition-all flex items-center justify-center relative ${
-                config.dotShape === 'heart'
-                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
-                  : 'border-slate-200 hover:border-slate-300 bg-white'
-              }`}
-              title="Cœur"
-            >
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setConfig({ ...config, dotShape: 'heart' })}
+                className={`transition-all ${
+                  config.dotShape === 'heart'
+                    ? 'scale-110'
+                    : 'opacity-60 hover:opacity-100'
+                }`}
+                title="Cœur"
+              >
+                <Heart className="w-8 h-8 text-slate-700" fill="currentColor" />
+              </button>
               {!isPremium && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Lock className="w-3 h-3 text-white" />
-                </div>
+                <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-1 rounded-full">
+                  <Lock className="w-3 h-3" />
+                  Premium
+                </span>
               )}
-              <Heart className="w-6 h-6 text-slate-700" fill="currentColor" />
-            </button>
+            </div>
           </div>
         </div>
 
