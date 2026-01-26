@@ -447,7 +447,7 @@ const translations = {
       },
       q9: {
         q: 'Puis-je obtenir un remboursement ?',
-        a: 'Les remboursements sont possibles dans les 14 jours suivant l\'achat. Contacte-nous à hello@dotsdaily.app avec ta demande.'
+        a: 'Les remboursements sont possibles dans les 14 jours suivant l\'achat. Contacte-nous à contact@dotsdaily.app avec ta demande.'
       },
       q10: {
         q: 'Les fonds d\'écran sont-ils optimisés pour tous les modèles d\'iPhone ?',
@@ -876,7 +876,7 @@ const translations = {
       },
       q9: {
         q: 'Can I get a refund?',
-        a: 'Refunds are possible within 14 days of purchase. Contact us at hello@dotsdaily.app with your request.'
+        a: 'Refunds are possible within 14 days of purchase. Contact us at contact@dotsdaily.app with your request.'
       },
       q10: {
         q: 'Are wallpapers optimized for all iPhone models?',
