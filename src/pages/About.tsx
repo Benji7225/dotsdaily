@@ -60,7 +60,7 @@ export default function About() {
             </h2>
             <p className="text-gray-700 leading-relaxed mb-4">{t('about.community.content')}</p>
             <p className="text-gray-700 leading-relaxed">
-              {t('about.community.contact')} <a href="mailto:hello@dotsdaily.app" className="text-orange-600 hover:text-orange-700 underline">hello@dotsdaily.app</a>
+              {t('about.community.contact')} <a href="mailto:contact@dotsdaily.app" className="text-orange-600 hover:text-orange-700 underline">contact@dotsdaily.app</a>
             </p>
           </section>
         </div>
