@@ -460,7 +460,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                   </div>
                 )}
                 <Clock className="w-4 h-4" />
-                <span className="text-xs sm:text-sm">Temps</span>
+               
               </button>
 
               <button
