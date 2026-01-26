@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Calendar, Heart, Target, Zap, Smartphone, Sparkles } from 'lucide-react';
+import { Zap, Smartphone, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import ImageCarousel from '../components/ImageCarousel';
 
 export default function Home() {
   const { t } = useLanguage();
@@ -33,9 +34,9 @@ export default function Home() {
 
           <div className="bg-gray-50 rounded-2xl p-6 sm:p-8 md:p-12 shadow-lg">
             <img
-              src="/dotsdaily_logo.webp"
-              alt="DotsDaily wallpaper example"
-              className="w-full max-w-md mx-auto rounded-xl shadow-2xl"
+              src="/hero_1.webp"
+              alt="DotsDaily wallpaper examples on iPhone"
+              className="w-full max-w-4xl mx-auto"
             />
           </div>
         </div>
@@ -85,10 +86,14 @@ export default function Home() {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black text-center mb-12 sm:mb-16">
             {t('home.modes.title')}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            <div className="text-center p-6 sm:p-8">
-              <div className="bg-orange-500 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
+            <div className="text-center">
+              <div className="mb-6 flex justify-center">
+                <img
+                  src="/mode_1.webp"
+                  alt="Year visualization mode"
+                  className="w-full max-w-[280px] rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-300"
+                />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-black mb-3">{t('home.modes.year.title')}</h3>
               <p className="text-gray-600">
@@ -96,9 +101,13 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="text-center p-6 sm:p-8">
-              <div className="bg-orange-500 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Heart className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+            <div className="text-center">
+              <div className="mb-6 flex justify-center">
+                <img
+                  src="/mode_2.webp"
+                  alt="Life visualization mode"
+                  className="w-full max-w-[280px] rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-300"
+                />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-black mb-3">{t('home.modes.life.title')}</h3>
               <p className="text-gray-600">
@@ -106,9 +115,13 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="text-center p-6 sm:p-8">
-              <div className="bg-orange-500 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+            <div className="text-center">
+              <div className="mb-6 flex justify-center">
+                <img
+                  src="/mode_3.webp"
+                  alt="Goal countdown mode"
+                  className="w-full max-w-[280px] rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-300"
+                />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-black mb-3">{t('home.modes.goal.title')}</h3>
               <p className="text-gray-600">
@@ -120,56 +133,69 @@ export default function Home() {
       </section>
 
       <section id="how-it-works" className="py-12 sm:py-20 bg-gray-50">
-        <div className="container mx-auto max-w-4xl px-4">
+        <div className="container mx-auto max-w-7xl px-4">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black text-center mb-12 sm:mb-16">
             {t('home.howItWorks.title')}
           </h2>
-          <div className="space-y-6 sm:space-y-8">
-            <div className="flex gap-4 sm:gap-6 items-start">
-              <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
-                1
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-black mb-2">{t('home.howItWorks.step1.title')}</h3>
-                <p className="text-gray-600">
-                  {t('home.howItWorks.step1.desc')}
-                </p>
-              </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+            <div className="order-2 lg:order-1">
+              <ImageCarousel
+                images={[]}
+                altPrefix="How it works step"
+              />
+              <p className="text-center text-sm text-gray-500 mt-4 italic">
+                Images à venir - Utilisez les flèches pour naviguer
+              </p>
             </div>
 
-            <div className="flex gap-6 items-start">
-              <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
-                2
+            <div className="order-1 lg:order-2 space-y-6 sm:space-y-8">
+              <div className="flex gap-4 sm:gap-6 items-start">
+                <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                  1
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-black mb-2">{t('home.howItWorks.step1.title')}</h3>
+                  <p className="text-gray-600">
+                    {t('home.howItWorks.step1.desc')}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-black mb-2">{t('home.howItWorks.step2.title')}</h3>
-                <p className="text-gray-600">
-                  {t('home.howItWorks.step2.desc')}
-                </p>
-              </div>
-            </div>
 
-            <div className="flex gap-6 items-start">
-              <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
-                3
+              <div className="flex gap-6 items-start">
+                <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                  2
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-black mb-2">{t('home.howItWorks.step2.title')}</h3>
+                  <p className="text-gray-600">
+                    {t('home.howItWorks.step2.desc')}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-black mb-2">{t('home.howItWorks.step3.title')}</h3>
-                <p className="text-gray-600">
-                  {t('home.howItWorks.step3.desc')}
-                </p>
-              </div>
-            </div>
 
-            <div className="flex gap-6 items-start">
-              <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
-                4
+              <div className="flex gap-6 items-start">
+                <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                  3
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-black mb-2">{t('home.howItWorks.step3.title')}</h3>
+                  <p className="text-gray-600">
+                    {t('home.howItWorks.step3.desc')}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-black mb-2">{t('home.howItWorks.step4.title')}</h3>
-                <p className="text-gray-600">
-                  {t('home.howItWorks.step4.desc')}
-                </p>
+
+              <div className="flex gap-6 items-start">
+                <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                  4
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-black mb-2">{t('home.howItWorks.step4.title')}</h3>
+                  <p className="text-gray-600">
+                    {t('home.howItWorks.step4.desc')}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
