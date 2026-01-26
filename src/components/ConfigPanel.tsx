@@ -2,6 +2,7 @@ import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType, DotSh
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
 import { Pipette, Upload, Lock, Circle, Square, Heart, Percent, Clock, X } from 'lucide-react';
 import { useSubscription } from '../hooks/useSubscription';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useState } from 'react';
 
 interface ConfigPanelProps {
@@ -10,36 +11,37 @@ interface ConfigPanelProps {
   onShowPremiumModal: () => void;
 }
 
-const granularityOptions: Record<WallpaperMode, { value: Granularity; label: string }[]> = {
-  year: [
-    { value: 'day', label: 'Jour' },
-    { value: 'week', label: 'Semaine' },
-  ],
-  life: [
-    { value: 'year', label: 'Année' },
-    { value: 'month', label: 'Mois' },
-    { value: 'week', label: 'Semaine' },
-  ],
-  countdown: [
-    { value: 'day', label: 'Jour' },
-    { value: 'week', label: 'Semaine' },
-    { value: 'month', label: 'Mois' },
-    { value: 'year', label: 'Année' },
-  ],
-};
-
-const groupingOptions: Record<WallpaperMode, { value: Grouping; label: string }[]> = {
-  year: [
-    { value: 'none', label: 'Aucun' },
-    { value: 'month', label: 'Mois' },
-    { value: 'quarter', label: 'Trimestre' },
-  ],
-  life: [],
-  countdown: [],
-};
-
 export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: ConfigPanelProps) {
   const { isPremium } = useSubscription();
+  const { t } = useLanguage();
+
+  const granularityOptions: Record<WallpaperMode, { value: Granularity; label: string }[]> = {
+    year: [
+      { value: 'day', label: t('config.granularity.day') },
+      { value: 'week', label: t('config.granularity.week') },
+    ],
+    life: [
+      { value: 'year', label: t('config.granularity.year') },
+      { value: 'month', label: t('config.granularity.month') },
+      { value: 'week', label: t('config.granularity.week') },
+    ],
+    countdown: [
+      { value: 'day', label: t('config.granularity.day') },
+      { value: 'week', label: t('config.granularity.week') },
+      { value: 'month', label: t('config.granularity.month') },
+      { value: 'year', label: t('config.granularity.year') },
+    ],
+  };
+
+  const groupingOptions: Record<WallpaperMode, { value: Grouping; label: string }[]> = {
+    year: [
+      { value: 'none', label: t('config.grouping.none') },
+      { value: 'month', label: t('config.grouping.month') },
+      { value: 'quarter', label: t('config.grouping.quarter') },
+    ],
+    life: [],
+    countdown: [],
+  };
   const today = new Date().toISOString().split('T')[0];
   const availableVariants = getAvailableVariants(config.generation);
   const availableGranularities = granularityOptions[config.mode];
@@ -125,12 +127,12 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
-      <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">Configuration</h3>
+      <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">{t('config.title')}</h3>
 
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            Modèle d'iPhone
+            {t('config.iphoneModel')}
           </label>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -165,7 +167,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
         <div className={availableGroupings.length > 0 ? 'grid grid-cols-2 gap-3' : ''}>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Points
+              {t('config.dots')}
             </label>
             <select
               value={config.granularity}
@@ -189,7 +191,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
           {availableGroupings.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Groupe
+                {t('config.group')}
               </label>
               <div className="relative">
                 <select
@@ -216,11 +218,11 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
-              Arrière plan
+              {t('config.background')}
               {!isPremium && config.themeType === 'custom' && (
                 <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
                   <Lock className="w-3 h-3" />
-                  Premium
+                  {t('config.premium')}
                 </span>
               )}
             </label>
@@ -232,7 +234,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                     ? 'border-slate-900 shadow-lg scale-110'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
-                title="Fond noir"
+                title={t('config.blackBackground')}
               />
               <button
                 onClick={() => handleThemeChange('light')}
@@ -241,7 +243,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                     ? 'border-slate-900 shadow-lg scale-110'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
-                title="Fond blanc"
+                title={t('config.whiteBackground')}
               />
               <label
                 className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
@@ -252,7 +254,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                 style={{
                   backgroundColor: config.themeType === 'custom' ? config.customColor : '#888888'
                 }}
-                title="Couleur personnalisée"
+                title={t('config.customColor')}
               >
                 {!isPremium && (
                   <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
@@ -283,7 +285,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                   backgroundPosition: 'center',
                   backgroundColor: config.themeType === 'image' ? 'transparent' : '#666666'
                 }}
-                title="Image personnalisée"
+                title={t('config.customImage')}
               >
                 {!isPremium && (
                   <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg z-10">
@@ -305,11 +307,11 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
-              Couleur du point
+              {t('config.dotColor')}
               {!isPremium && config.dotColor && (
                 <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
                   <Lock className="w-3 h-3" />
-                  Premium
+                  {t('config.premium')}
                 </span>
               )}
             </label>
@@ -321,7 +323,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                     ? 'border-slate-900 shadow-lg scale-110'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
-                title="Orange (par défaut)"
+                title={t('config.orangeDefault')}
               />
               <label
                 className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
@@ -355,7 +357,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            Forme
+            {t('config.shape')}
           </label>
           <div className="flex items-center gap-3">
             <button
@@ -365,7 +367,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                   ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
                   : 'border-slate-200 hover:border-slate-300'
               }`}
-              title="Rond"
+              title={t('config.circle')}
             >
               <Circle className="w-6 h-6 text-slate-700" fill="currentColor" />
             </button>
@@ -376,7 +378,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                   ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
                   : 'border-slate-200 hover:border-slate-300'
               }`}
-              title="Carré"
+              title={t('config.square')}
             >
               {!isPremium && (
                 <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
@@ -392,7 +394,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                   ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
                   : 'border-slate-200 hover:border-slate-300'
               }`}
-              title="Cœur"
+              title={t('config.heart')}
             >
               {!isPremium && (
                 <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
@@ -407,7 +409,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <label htmlFor="customText" className="block text-sm font-medium text-slate-700 mb-2">
-              Texte personnalisé
+              {t('config.customText')}
             </label>
             <div className="relative">
               <input
@@ -429,7 +431,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Affichage supplémentaire
+              {t('config.additionalDisplay')}
             </label>
             <div className="flex items-center gap-2">
               <button
@@ -439,7 +441,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                     ? 'border-slate-900 bg-slate-50'
                     : 'border-slate-200 hover:border-slate-400'
                 }`}
-                title="Afficher le pourcentage"
+                title={t('config.showPercentage')}
               >
                 <Percent className="w-4 h-4" />
                 
@@ -452,7 +454,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                     ? 'border-slate-900 bg-slate-50'
                     : 'border-slate-200 hover:border-slate-400'
                 }`}
-                title="Temps restant"
+                title={t('config.timeRemaining')}
               >
                 {!isPremium && (
                   <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
@@ -470,10 +472,10 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                     ? 'border-slate-900 bg-slate-50'
                     : 'border-slate-200 hover:border-slate-400'
                 }`}
-                title="Aucun affichage supplémentaire"
+                title={t('config.noDisplay')}
               >
-               
-                <span className="text-xs sm:text-sm">Rien</span>
+
+                <span className="text-xs sm:text-sm">{t('config.nothing')}</span>
               </button>
             </div>
           </div>
@@ -483,7 +485,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
           <>
             <div>
               <label htmlFor="birthDate" className="block text-sm font-medium text-slate-700 mb-2">
-                Date de naissance
+                {t('config.birthDate')}
               </label>
               <input
                 id="birthDate"
@@ -497,7 +499,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
 
             <div>
               <label htmlFor="lifeExpectancy" className="block text-sm font-medium text-slate-700 mb-2">
-                Espérance de vie (années)
+                {t('config.lifeExpectancy')}
               </label>
               <input
                 id="lifeExpectancy"
@@ -516,7 +518,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
           <>
             <div>
               <label htmlFor="startDate" className="block text-sm font-medium text-slate-700 mb-2">
-                Date de début
+                {t('config.startDate')}
               </label>
               <input
                 id="startDate"
@@ -529,7 +531,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
             </div>
             <div>
               <label htmlFor="targetDate" className="block text-sm font-medium text-slate-700 mb-2">
-                Date cible
+                {t('config.targetDate')}
               </label>
               <input
                 id="targetDate"
@@ -546,7 +548,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
         {config.mode === 'year' && (
           <div className="p-4 bg-slate-50 rounded-lg">
             <p className="text-sm text-slate-600">
-              Affiche la progression dans l'année en cours avec la granularité choisie.
+              {t('config.yearInfo')}
             </p>
           </div>
         )}

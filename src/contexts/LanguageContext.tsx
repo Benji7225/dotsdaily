@@ -71,6 +71,46 @@ const translations = {
         years: 'a restantes'
       }
     },
+    config: {
+      title: 'Configuration',
+      iphoneModel: 'Modèle d\'iPhone',
+      dots: 'Points',
+      group: 'Groupe',
+      background: 'Arrière plan',
+      premium: 'Premium',
+      blackBackground: 'Fond noir',
+      whiteBackground: 'Fond blanc',
+      customColor: 'Couleur personnalisée',
+      customImage: 'Image personnalisée',
+      dotColor: 'Couleur du point',
+      orangeDefault: 'Orange (par défaut)',
+      shape: 'Forme',
+      circle: 'Rond',
+      square: 'Carré',
+      heart: 'Cœur',
+      customText: 'Texte personnalisé',
+      additionalDisplay: 'Affichage supplémentaire',
+      showPercentage: 'Afficher le pourcentage',
+      timeRemaining: 'Temps restant',
+      noDisplay: 'Aucun affichage supplémentaire',
+      nothing: 'Rien',
+      birthDate: 'Date de naissance',
+      lifeExpectancy: 'Espérance de vie (années)',
+      startDate: 'Date de début',
+      targetDate: 'Date cible',
+      yearInfo: 'Affiche la progression dans l\'année en cours avec la granularité choisie.',
+      granularity: {
+        day: 'Jour',
+        week: 'Semaine',
+        month: 'Mois',
+        year: 'Année'
+      },
+      grouping: {
+        none: 'Aucun',
+        month: 'Mois',
+        quarter: 'Trimestre'
+      }
+    },
     nav: {
       home: 'Accueil',
       generator: 'Générateur',
@@ -508,6 +548,46 @@ const translations = {
         weeks: 'w left',
         months: 'm left',
         years: 'y left'
+      }
+    },
+    config: {
+      title: 'Configuration',
+      iphoneModel: 'iPhone Model',
+      dots: 'Dots',
+      group: 'Group',
+      background: 'Background',
+      premium: 'Premium',
+      blackBackground: 'Black background',
+      whiteBackground: 'White background',
+      customColor: 'Custom color',
+      customImage: 'Custom image',
+      dotColor: 'Dot color',
+      orangeDefault: 'Orange (default)',
+      shape: 'Shape',
+      circle: 'Circle',
+      square: 'Square',
+      heart: 'Heart',
+      customText: 'Custom text',
+      additionalDisplay: 'Additional display',
+      showPercentage: 'Show percentage',
+      timeRemaining: 'Time remaining',
+      noDisplay: 'No additional display',
+      nothing: 'Nothing',
+      birthDate: 'Birth date',
+      lifeExpectancy: 'Life expectancy (years)',
+      startDate: 'Start date',
+      targetDate: 'Target date',
+      yearInfo: 'Displays the progress in the current year with the chosen granularity.',
+      granularity: {
+        day: 'Day',
+        week: 'Week',
+        month: 'Month',
+        year: 'Year'
+      },
+      grouping: {
+        none: 'None',
+        month: 'Month',
+        quarter: 'Quarter'
       }
     },
     nav: {
