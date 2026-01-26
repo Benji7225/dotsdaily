@@ -311,56 +311,44 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
             >
               <Circle className="w-8 h-8 text-slate-700" fill="currentColor" />
             </button>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setConfig({ ...config, dotShape: 'square' })}
-                className={`transition-all ${
-                  config.dotShape === 'square'
-                    ? 'scale-110'
-                    : 'opacity-60 hover:opacity-100'
-                }`}
-                title="Carré"
-              >
-                <Square className="w-8 h-8 text-slate-700" fill="currentColor" />
-              </button>
+            <button
+              onClick={() => setConfig({ ...config, dotShape: 'square' })}
+              className={`transition-all relative ${
+                config.dotShape === 'square'
+                  ? 'scale-110'
+                  : 'opacity-60 hover:opacity-100'
+              }`}
+              title="Carré"
+            >
               {!isPremium && (
-                <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-1 rounded-full">
-                  <Lock className="w-3 h-3" />
-                  Premium
-                </span>
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Lock className="w-3 h-3 text-white" />
+                </div>
               )}
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setConfig({ ...config, dotShape: 'heart' })}
-                className={`transition-all ${
-                  config.dotShape === 'heart'
-                    ? 'scale-110'
-                    : 'opacity-60 hover:opacity-100'
-                }`}
-                title="Cœur"
-              >
-                <Heart className="w-8 h-8 text-slate-700" fill="currentColor" />
-              </button>
+              <Square className="w-8 h-8 text-slate-700" fill="currentColor" />
+            </button>
+            <button
+              onClick={() => setConfig({ ...config, dotShape: 'heart' })}
+              className={`transition-all relative ${
+                config.dotShape === 'heart'
+                  ? 'scale-110'
+                  : 'opacity-60 hover:opacity-100'
+              }`}
+              title="Cœur"
+            >
               {!isPremium && (
-                <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-1 rounded-full">
-                  <Lock className="w-3 h-3" />
-                  Premium
-                </span>
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Lock className="w-3 h-3 text-white" />
+                </div>
               )}
-            </div>
+              <Heart className="w-8 h-8 text-slate-700" fill="currentColor" />
+            </button>
           </div>
         </div>
 
         <div>
-          <label htmlFor="customText" className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+          <label htmlFor="customText" className="block text-sm font-medium text-slate-700 mb-2">
             Texte personnalisé
-            {!isPremium && config.customText && (
-              <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
-                <Lock className="w-3 h-3" />
-                Premium
-              </span>
-            )}
           </label>
           <div className="relative">
             <input
@@ -372,7 +360,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
               onChange={(e) => setConfig({ ...config, customText: e.target.value })}
               className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
             />
-            {!isPremium && config.customText && (
+            {!isPremium && (
               <div className="absolute top-1/2 right-3 -translate-y-1/2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
                 <Lock className="w-3 h-3 text-white" />
               </div>
