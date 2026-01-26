@@ -52,60 +52,44 @@ Deno.serve(async (req: Request) => {
         const session = event.data.object;
         const userId = session.client_reference_id;
         const customerId = session.customer;
-        const subscriptionId = session.subscription;
+        const paymentStatus = session.payment_status;
 
-        if (userId && customerId) {
+        if (userId && customerId && paymentStatus === "paid") {
           const { error } = await supabase
             .from("user_subscriptions")
             .upsert({
               user_id: userId,
               stripe_customer_id: customerId,
-              stripe_subscription_id: subscriptionId,
-              status: "active",
+              stripe_subscription_id: null,
+              status: "lifetime",
               updated_at: new Date().toISOString(),
             }, {
               onConflict: "user_id"
             });
 
           if (error) {
-            console.error("Error updating subscription:", error);
+            console.error("Error updating lifetime access:", error);
           }
         }
         break;
       }
 
-      case "customer.subscription.updated": {
-        const subscription = event.data.object;
-        const customerId = subscription.customer;
+      case "payment_intent.succeeded": {
+        const paymentIntent = event.data.object;
+        const customerId = paymentIntent.customer;
 
-        const { error } = await supabase
-          .from("user_subscriptions")
-          .update({
-            status: subscription.status,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("stripe_customer_id", customerId);
+        if (customerId) {
+          const { error } = await supabase
+            .from("user_subscriptions")
+            .update({
+              status: "lifetime",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("stripe_customer_id", customerId);
 
-        if (error) {
-          console.error("Error updating subscription status:", error);
-        }
-        break;
-      }
-
-      case "customer.subscription.deleted": {
-        const subscription = event.data.object;
-        const customerId = subscription.customer;
-
-        const { error } = await supabase
-          .from("user_subscriptions")
-          .update({
-            status: "canceled",
-            updated_at: new Date().toISOString(),
-          })
-          .eq("stripe_customer_id", customerId);
-
-        if (error) {
-          console.error("Error canceling subscription:", error);
+          if (error) {
+            console.error("Error updating payment status:", error);
+          }
         }
         break;
       }

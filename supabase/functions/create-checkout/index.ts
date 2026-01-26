@@ -75,7 +75,7 @@ Deno.serve(async (req: Request) => {
     const baseUrl = req.headers.get("origin") || "https://dotsdaily.com";
 
     const stripeBody: Record<string, string> = {
-      "mode": "subscription",
+      "mode": "payment",
       "payment_method_types[0]": "card",
       "line_items[0][price]": stripePriceId,
       "line_items[0][quantity]": "1",

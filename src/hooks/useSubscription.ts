@@ -25,11 +25,11 @@ export function useSubscription() {
           console.error('Error fetching subscription:', error);
           setIsPremium(false);
         } else if (data) {
-          const isActive = data.status === 'active' &&
-                          data.plan === 'premium' &&
-                          data.current_period_end &&
-                          new Date(data.current_period_end) > new Date();
-          setIsPremium(isActive);
+          const hasLifetimeAccess = data.status === 'lifetime' && data.plan === 'lifetime';
+          const hasActiveSubscription = data.status === 'active' &&
+                                       data.current_period_end &&
+                                       new Date(data.current_period_end) > new Date();
+          setIsPremium(hasLifetimeAccess || hasActiveSubscription);
         } else {
           setIsPremium(false);
         }
