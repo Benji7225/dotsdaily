@@ -19,7 +19,7 @@ export default function Legal() {
         </section>
 
         <section>
-          <Circle className="w-6 h-6 text-orange-500 fill-orange-500" />
+          
           <h2 className="text-2xl font-semibold text-black mb-4">{t('legal.hosting.title')}</h2>
           <div className="space-y-2">
             <p><strong>{t('legal.hosting.provider')}:</strong> Vercel Inc.</p>
