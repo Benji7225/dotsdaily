@@ -352,7 +352,6 @@ export default function Generator() {
                   <li>{t('generator.url.setup.step3')}</li>
                   <li>{t('generator.url.setup.step4')}</li>
                   <li>{t('generator.url.setup.step5')}</li>
-                  <li>{t('generator.url.setup.step6')}</li>
                 </ol>
                 <p className="text-xs text-gray-600 mt-3">
                   {t('generator.url.setup.note')}

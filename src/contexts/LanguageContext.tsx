@@ -229,12 +229,12 @@ const translations = {
         placeholder: 'Clique pour générer une URL permanente. Ton fond d\'écran se mettra automatiquement à jour chaque jour à minuit dans ton fuseau horaire.',
         setup: {
           title: 'Configuration Raccourcis Apple',
-          step1: 'Ouvre l\'app Raccourcis sur ton iPhone',
-          step2: 'Crée un nouveau raccourci',
-          step3: 'Ajoute l\'action "Obtenir le contenu de l\'URL"',
-          step4: 'Colle ton URL générée ci-dessus',
-          step5: 'Ajoute l\'action "Définir comme fond d\'écran"',
-          step6: 'Configure une automatisation quotidienne après minuit',
+          step1: 'Raccourcis → Automatisation → + → Heure de la journée',
+          step2: 'Règle sur 00:00 → Tous les jours → Exécuter immédiatement',
+          step3: 'Ajoute "Obtenir le contenu de l\'URL" → colle ton URL',
+          step4: 'Ajoute "Définir la photo de fond d\'écran" → Écran de verrouillage',
+          step5: 'Appuie sur → pour désactiver "Recadrer sur le sujet" et "Afficher l\'aperçu"',
+          step6: '',
           note: 'Ton fond d\'écran se mettra à jour automatiquement chaque jour à minuit dans ton fuseau horaire.'
         }
       }
@@ -429,12 +429,12 @@ const translations = {
         placeholder: 'Click to generate a permanent URL. Your wallpaper will automatically update daily at midnight in your timezone.',
         setup: {
           title: 'Apple Shortcuts Setup',
-          step1: 'Open the Shortcuts app on your iPhone',
-          step2: 'Create a new shortcut',
-          step3: 'Add the "Get Contents of URL" action',
-          step4: 'Paste your generated URL above',
-          step5: 'Add the "Set Wallpaper" action',
-          step6: 'Set up a daily automation to run after midnight',
+          step1: 'Shortcuts → Automation → + → Time of Day',
+          step2: 'Set to 00:00 → Daily → Run Immediately',
+          step3: 'Add "Get Contents of URL" → paste your URL',
+          step4: 'Add "Set Wallpaper" → Lock Screen',
+          step5: 'Tap → to disable "Crop to Subject" and "Show Preview"',
+          step6: '',
           note: 'Your wallpaper will update automatically every day at midnight in your timezone.'
         }
       }
