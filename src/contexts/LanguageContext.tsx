@@ -244,12 +244,240 @@ const translations = {
       tagline: 'Transforme ton temps, tes objectifs et ta progression de vie en un fond d\'écran iPhone qui se met à jour quotidiennement, propulsé par une simple URL PNG et Raccourcis Apple.',
       product: 'Produit',
       support: 'Support',
+      legal: 'Légal',
       generator: 'Générateur',
       features: 'Fonctionnalités',
       howItWorks: 'Comment ça Marche',
       faq: 'FAQ',
       contact: 'Contact',
+      about: 'À Propos',
+      privacy: 'Confidentialité',
+      terms: 'Conditions',
+      legalNotice: 'Mentions Légales',
       rights: 'Tous droits réservés.'
+    },
+    privacy: {
+      title: 'Politique de Confidentialité',
+      lastUpdated: 'Dernière mise à jour : 26 janvier 2026',
+      intro: {
+        title: 'Introduction',
+        content: 'Chez DotsDaily, nous prenons ta vie privée au sérieux. Cette politique de confidentialité explique comment nous collectons, utilisons et protégeons tes informations personnelles lorsque tu utilises notre service.'
+      },
+      dataCollected: {
+        title: 'Données Collectées',
+        intro: 'Nous collectons les informations suivantes :',
+        item1: 'Informations de compte (email, nom) si tu crées un compte',
+        item2: 'Paramètres de configuration de fond d\'écran (dates, couleurs, préférences)',
+        item3: 'Informations de paiement via Stripe pour les abonnements premium',
+        item4: 'Données d\'utilisation et analytics pour améliorer notre service'
+      },
+      howWeUse: {
+        title: 'Comment Nous Utilisons Tes Données',
+        item1: 'Générer et fournir tes fonds d\'écran personnalisés',
+        item2: 'Gérer ton compte et tes préférences',
+        item3: 'Traiter les paiements et gérer les abonnements',
+        item4: 'Améliorer notre service et développer de nouvelles fonctionnalités'
+      },
+      dataStorage: {
+        title: 'Stockage des Données',
+        content: 'Toutes tes données sont stockées de manière sécurisée sur Supabase, une plateforme de base de données conforme RGPD. Nous utilisons un chiffrement de bout en bout pour protéger tes informations.'
+      },
+      cookies: {
+        title: 'Cookies',
+        content: 'Nous utilisons des cookies essentiels pour maintenir ta session et mémoriser tes préférences linguistiques. Aucun cookie de suivi tiers n\'est utilisé.'
+      },
+      rights: {
+        title: 'Tes Droits',
+        item1: 'Accéder à tes données personnelles',
+        item2: 'Rectifier ou supprimer tes données',
+        item3: 'Exporter tes données',
+        item4: 'T\'opposer au traitement de tes données'
+      },
+      security: {
+        title: 'Sécurité',
+        content: 'Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger tes données contre tout accès, modification, divulgation ou destruction non autorisés.'
+      },
+      changes: {
+        title: 'Modifications',
+        content: 'Nous pouvons mettre à jour cette politique de temps en temps. Nous te notifierons de tout changement significatif par email ou via une notification sur le site.'
+      },
+      contact: {
+        title: 'Contact',
+        content: 'Pour toute question concernant cette politique de confidentialité, contacte-nous à'
+      }
+    },
+    terms: {
+      title: 'Conditions d\'Utilisation',
+      lastUpdated: 'Dernière mise à jour : 26 janvier 2026',
+      acceptance: {
+        title: 'Acceptation des Conditions',
+        content: 'En utilisant DotsDaily, tu acceptes ces conditions d\'utilisation. Si tu n\'es pas d\'accord avec ces conditions, n\'utilise pas notre service.'
+      },
+      service: {
+        title: 'Description du Service',
+        content: 'DotsDaily fournit un service de génération de fonds d\'écran iPhone personnalisés qui se mettent à jour automatiquement. Le service est accessible via une URL PNG et fonctionne avec Raccourcis Apple.'
+      },
+      account: {
+        title: 'Compte Utilisateur',
+        item1: 'Tu es responsable de maintenir la confidentialité de ton compte',
+        item2: 'Tu dois fournir des informations exactes et à jour',
+        item3: 'Tu es responsable de toute activité sur ton compte'
+      },
+      usage: {
+        title: 'Utilisation Acceptable',
+        intro: 'Tu acceptes de ne pas :',
+        item1: 'Utiliser le service à des fins illégales',
+        item2: 'Tenter de perturber ou surcharger nos serveurs',
+        item3: 'Copier, modifier ou distribuer notre contenu sans autorisation',
+        item4: 'Utiliser des bots ou scripts automatisés sans autorisation'
+      },
+      intellectual: {
+        title: 'Propriété Intellectuelle',
+        content: 'DotsDaily et tout son contenu sont protégés par les lois sur le droit d\'auteur. Les fonds d\'écran générés t\'appartiennent, mais notre plateforme et notre technologie restent notre propriété.'
+      },
+      payment: {
+        title: 'Paiements et Abonnements',
+        content: 'Les abonnements premium sont facturés mensuellement via Stripe. Tu peux annuler à tout moment. Les remboursements sont traités au cas par cas.'
+      },
+      limitation: {
+        title: 'Limitation de Responsabilité',
+        content: 'DotsDaily est fourni "tel quel" sans garantie. Nous ne sommes pas responsables des dommages résultant de l\'utilisation ou de l\'impossibilité d\'utiliser notre service.'
+      },
+      termination: {
+        title: 'Résiliation',
+        content: 'Nous nous réservons le droit de suspendre ou de résilier ton compte en cas de violation de ces conditions.'
+      },
+      changes: {
+        title: 'Modifications',
+        content: 'Nous pouvons modifier ces conditions à tout moment. Les modifications entrent en vigueur dès leur publication.'
+      },
+      contact: {
+        title: 'Contact',
+        content: 'Pour toute question concernant ces conditions, contacte-nous à'
+      }
+    },
+    legal: {
+      title: 'Mentions Légales',
+      subtitle: 'Informations légales conformément à la loi',
+      publisher: {
+        title: 'Éditeur du Site',
+        name: 'Nom',
+        email: 'Email',
+        website: 'Site Web'
+      },
+      hosting: {
+        title: 'Hébergement',
+        provider: 'Hébergeur',
+        address: 'Adresse',
+        website: 'Site Web'
+      },
+      database: {
+        title: 'Base de Données',
+        provider: 'Fournisseur',
+        website: 'Site Web'
+      },
+      intellectual: {
+        title: 'Propriété Intellectuelle',
+        content: 'L\'ensemble du contenu de ce site (textes, images, logos, design) est la propriété de DotsDaily et est protégé par les lois sur la propriété intellectuelle.'
+      },
+      personal: {
+        title: 'Données Personnelles',
+        content: 'Les données personnelles collectées sur ce site sont traitées conformément à notre Politique de Confidentialité et au RGPD.'
+      },
+      cookies: {
+        title: 'Cookies',
+        content: 'Ce site utilise des cookies essentiels pour son fonctionnement. En utilisant ce site, vous acceptez l\'utilisation de cookies.'
+      },
+      applicable: {
+        title: 'Droit Applicable',
+        content: 'Ces mentions légales sont régies par le droit français. Tout litige sera de la compétence exclusive des tribunaux français.'
+      }
+    },
+    about: {
+      title: 'À Propos de DotsDaily',
+      subtitle: 'Visualise ton temps, suis ta progression, reste motivé.',
+      mission: {
+        title: 'Notre Mission',
+        content: 'DotsDaily a été créé avec une mission simple : rendre le temps visible et la progression tangible. Nous croyons que voir ta progression quotidienne peut transformer ta motivation et t\'aider à atteindre tes objectifs.'
+      },
+      story: {
+        title: 'Notre Histoire',
+        content1: 'L\'idée de DotsDaily est née d\'une simple observation : nous regardons tous nos téléphones des dizaines de fois par jour. Et si chaque regard pouvait te rappeler le temps qui passe et la progression que tu fais ?',
+        content2: 'Nous avons construit DotsDaily pour être simple, élégant et efficace. Pas d\'application à télécharger, pas d\'abonnement forcé, juste une URL magique qui génère ton fond d\'écran personnalisé chaque jour.'
+      },
+      why: {
+        title: 'Pourquoi DotsDaily ?',
+        simple: {
+          title: 'Simplicité',
+          content: 'Une URL, Raccourcis Apple, et c\'est tout. Pas d\'app, pas de complications.'
+        },
+        effective: {
+          title: 'Efficacité',
+          content: 'Voir ta progression chaque fois que tu déverrouilles ton téléphone.'
+        },
+        private: {
+          title: 'Privé',
+          content: 'Tes données te restent privées. Nous ne suivons pas, ne vendons pas.'
+        },
+        free: {
+          title: 'Gratuit',
+          content: 'Les fonctionnalités essentielles sont et resteront toujours gratuites.'
+        }
+      },
+      community: {
+        title: 'Rejoins Notre Communauté',
+        content: 'DotsDaily est utilisé par des milliers de personnes qui veulent visualiser leur temps et suivre leurs objectifs. Rejoins-nous et transforme ton écran d\'accueil en outil de motivation quotidien.',
+        contact: 'Des questions ou des suggestions ? Contacte-nous à'
+      }
+    },
+    faq: {
+      title: 'Questions Fréquentes',
+      subtitle: 'Tout ce que tu dois savoir sur DotsDaily',
+      q6: {
+        q: 'Puis-je utiliser plusieurs fonds d\'écran différents ?',
+        a: 'Oui ! Tu peux générer autant d\'URLs que tu veux avec différents paramètres. Tu peux même créer différentes automatisations dans Raccourcis Apple pour alterner entre plusieurs fonds d\'écran.'
+      },
+      q7: {
+        q: 'Le fond d\'écran fonctionne-t-il hors ligne ?',
+        a: 'Une fois téléchargé par Raccourcis Apple, l\'image est stockée localement sur ton téléphone. Cependant, pour obtenir la mise à jour quotidienne, ton téléphone doit être connecté à Internet.'
+      },
+      q8: {
+        q: 'Quelles sont les différences entre Gratuit et Premium ?',
+        a: 'Le plan gratuit inclut tous les modes (année, vie, objectif), tous les modèles d\'iPhone, et les thèmes. Le Premium ajoute du texte personnalisé, le groupement par trimestre, une pipette de couleurs, et la couleur des points personnalisable.'
+      },
+      q9: {
+        q: 'Comment annuler mon abonnement Premium ?',
+        a: 'Tu peux annuler ton abonnement à tout moment depuis ton compte. L\'accès Premium restera actif jusqu\'à la fin de ta période de facturation.'
+      },
+      q10: {
+        q: 'Les fonds d\'écran sont-ils optimisés pour tous les modèles d\'iPhone ?',
+        a: 'Oui ! Nous supportons tous les modèles d\'iPhone récents avec les résolutions exactes pour chaque appareil, assurant un affichage parfait sans déformation.'
+      },
+      stillQuestions: 'Tu as encore des questions ?',
+      contactUs: 'N\'hésite pas à nous contacter, nous sommes là pour t\'aider !'
+    },
+    contact: {
+      title: 'Contacte-Nous',
+      subtitle: 'Une question, une suggestion, un problème ? Nous sommes là pour t\'aider.',
+      form: {
+        name: 'Nom',
+        namePlaceholder: 'Ton nom',
+        email: 'Email',
+        emailPlaceholder: 'ton@email.com',
+        subject: 'Sujet',
+        subjectPlaceholder: 'De quoi s\'agit-il ?',
+        message: 'Message',
+        messagePlaceholder: 'Écris ton message ici...',
+        send: 'Envoyer le Message',
+        sending: 'Envoi en cours...'
+      },
+      success: {
+        title: 'Message Envoyé !',
+        message: 'Nous avons bien reçu ton message et te répondrons dans les plus brefs délais.',
+        sendAnother: 'Envoyer un Autre Message'
+      },
+      error: 'Une erreur est survenue. Réessaye ou contacte-nous directement par email.',
+      alternative: 'Tu peux aussi nous écrire directement à :'
     }
   },
   en: {
@@ -445,12 +673,240 @@ const translations = {
       tagline: 'Turn your time, goals, and life progress into a daily-updating iPhone wallpaper powered by a simple PNG URL and Apple Shortcuts.',
       product: 'Product',
       support: 'Support',
+      legal: 'Legal',
       generator: 'Generator',
       features: 'Features',
       howItWorks: 'How It Works',
       faq: 'FAQ',
       contact: 'Contact',
+      about: 'About',
+      privacy: 'Privacy',
+      terms: 'Terms',
+      legalNotice: 'Legal Notice',
       rights: 'All rights reserved.'
+    },
+    privacy: {
+      title: 'Privacy Policy',
+      lastUpdated: 'Last updated: January 26, 2026',
+      intro: {
+        title: 'Introduction',
+        content: 'At DotsDaily, we take your privacy seriously. This privacy policy explains how we collect, use, and protect your personal information when you use our service.'
+      },
+      dataCollected: {
+        title: 'Data Collected',
+        intro: 'We collect the following information:',
+        item1: 'Account information (email, name) if you create an account',
+        item2: 'Wallpaper configuration settings (dates, colors, preferences)',
+        item3: 'Payment information via Stripe for premium subscriptions',
+        item4: 'Usage data and analytics to improve our service'
+      },
+      howWeUse: {
+        title: 'How We Use Your Data',
+        item1: 'Generate and provide your personalized wallpapers',
+        item2: 'Manage your account and preferences',
+        item3: 'Process payments and manage subscriptions',
+        item4: 'Improve our service and develop new features'
+      },
+      dataStorage: {
+        title: 'Data Storage',
+        content: 'All your data is securely stored on Supabase, a GDPR-compliant database platform. We use end-to-end encryption to protect your information.'
+      },
+      cookies: {
+        title: 'Cookies',
+        content: 'We use essential cookies to maintain your session and remember your language preferences. No third-party tracking cookies are used.'
+      },
+      rights: {
+        title: 'Your Rights',
+        item1: 'Access your personal data',
+        item2: 'Rectify or delete your data',
+        item3: 'Export your data',
+        item4: 'Object to data processing'
+      },
+      security: {
+        title: 'Security',
+        content: 'We implement appropriate technical and organizational security measures to protect your data against unauthorized access, modification, disclosure, or destruction.'
+      },
+      changes: {
+        title: 'Changes',
+        content: 'We may update this policy from time to time. We will notify you of any significant changes by email or through a notification on the site.'
+      },
+      contact: {
+        title: 'Contact',
+        content: 'For any questions regarding this privacy policy, contact us at'
+      }
+    },
+    terms: {
+      title: 'Terms of Service',
+      lastUpdated: 'Last updated: January 26, 2026',
+      acceptance: {
+        title: 'Acceptance of Terms',
+        content: 'By using DotsDaily, you agree to these terms of service. If you do not agree with these terms, do not use our service.'
+      },
+      service: {
+        title: 'Service Description',
+        content: 'DotsDaily provides an automatically-updating iPhone wallpaper generation service. The service is accessible via a PNG URL and works with Apple Shortcuts.'
+      },
+      account: {
+        title: 'User Account',
+        item1: 'You are responsible for maintaining the confidentiality of your account',
+        item2: 'You must provide accurate and up-to-date information',
+        item3: 'You are responsible for all activity on your account'
+      },
+      usage: {
+        title: 'Acceptable Use',
+        intro: 'You agree not to:',
+        item1: 'Use the service for illegal purposes',
+        item2: 'Attempt to disrupt or overload our servers',
+        item3: 'Copy, modify, or distribute our content without permission',
+        item4: 'Use bots or automated scripts without permission'
+      },
+      intellectual: {
+        title: 'Intellectual Property',
+        content: 'DotsDaily and all its content are protected by copyright laws. Generated wallpapers belong to you, but our platform and technology remain our property.'
+      },
+      payment: {
+        title: 'Payments and Subscriptions',
+        content: 'Premium subscriptions are billed monthly via Stripe. You can cancel at any time. Refunds are processed on a case-by-case basis.'
+      },
+      limitation: {
+        title: 'Limitation of Liability',
+        content: 'DotsDaily is provided "as is" without warranty. We are not responsible for damages resulting from the use or inability to use our service.'
+      },
+      termination: {
+        title: 'Termination',
+        content: 'We reserve the right to suspend or terminate your account in case of violation of these terms.'
+      },
+      changes: {
+        title: 'Changes',
+        content: 'We may modify these terms at any time. Changes take effect upon publication.'
+      },
+      contact: {
+        title: 'Contact',
+        content: 'For any questions regarding these terms, contact us at'
+      }
+    },
+    legal: {
+      title: 'Legal Notice',
+      subtitle: 'Legal information in accordance with the law',
+      publisher: {
+        title: 'Site Publisher',
+        name: 'Name',
+        email: 'Email',
+        website: 'Website'
+      },
+      hosting: {
+        title: 'Hosting',
+        provider: 'Provider',
+        address: 'Address',
+        website: 'Website'
+      },
+      database: {
+        title: 'Database',
+        provider: 'Provider',
+        website: 'Website'
+      },
+      intellectual: {
+        title: 'Intellectual Property',
+        content: 'All content on this site (texts, images, logos, design) is the property of DotsDaily and is protected by intellectual property laws.'
+      },
+      personal: {
+        title: 'Personal Data',
+        content: 'Personal data collected on this site is processed in accordance with our Privacy Policy and GDPR.'
+      },
+      cookies: {
+        title: 'Cookies',
+        content: 'This site uses essential cookies for its operation. By using this site, you accept the use of cookies.'
+      },
+      applicable: {
+        title: 'Applicable Law',
+        content: 'These legal notices are governed by French law. Any dispute will be under the exclusive jurisdiction of French courts.'
+      }
+    },
+    about: {
+      title: 'About DotsDaily',
+      subtitle: 'Visualize your time, track your progress, stay motivated.',
+      mission: {
+        title: 'Our Mission',
+        content: 'DotsDaily was created with a simple mission: make time visible and progress tangible. We believe that seeing your daily progress can transform your motivation and help you achieve your goals.'
+      },
+      story: {
+        title: 'Our Story',
+        content1: 'The idea for DotsDaily was born from a simple observation: we all look at our phones dozens of times a day. What if every glance could remind you of time passing and the progress you\'re making?',
+        content2: 'We built DotsDaily to be simple, elegant, and effective. No app to download, no forced subscription, just a magic URL that generates your personalized wallpaper every day.'
+      },
+      why: {
+        title: 'Why DotsDaily?',
+        simple: {
+          title: 'Simplicity',
+          content: 'One URL, Apple Shortcuts, and that\'s it. No app, no complications.'
+        },
+        effective: {
+          title: 'Effectiveness',
+          content: 'See your progress every time you unlock your phone.'
+        },
+        private: {
+          title: 'Private',
+          content: 'Your data stays private. We don\'t track, we don\'t sell.'
+        },
+        free: {
+          title: 'Free',
+          content: 'Essential features are and will always remain free.'
+        }
+      },
+      community: {
+        title: 'Join Our Community',
+        content: 'DotsDaily is used by thousands of people who want to visualize their time and track their goals. Join us and transform your home screen into a daily motivation tool.',
+        contact: 'Questions or suggestions? Contact us at'
+      }
+    },
+    faq: {
+      title: 'Frequently Asked Questions',
+      subtitle: 'Everything you need to know about DotsDaily',
+      q6: {
+        q: 'Can I use multiple different wallpapers?',
+        a: 'Yes! You can generate as many URLs as you want with different settings. You can even create different automations in Apple Shortcuts to alternate between multiple wallpapers.'
+      },
+      q7: {
+        q: 'Does the wallpaper work offline?',
+        a: 'Once downloaded by Apple Shortcuts, the image is stored locally on your phone. However, to get the daily update, your phone must be connected to the Internet.'
+      },
+      q8: {
+        q: 'What are the differences between Free and Premium?',
+        a: 'The free plan includes all modes (year, life, goal), all iPhone models, and themes. Premium adds custom text, quarterly grouping, a color picker, and customizable dot color.'
+      },
+      q9: {
+        q: 'How do I cancel my Premium subscription?',
+        a: 'You can cancel your subscription at any time from your account. Premium access will remain active until the end of your billing period.'
+      },
+      q10: {
+        q: 'Are wallpapers optimized for all iPhone models?',
+        a: 'Yes! We support all recent iPhone models with exact resolutions for each device, ensuring perfect display without distortion.'
+      },
+      stillQuestions: 'Still have questions?',
+      contactUs: 'Feel free to contact us, we\'re here to help!'
+    },
+    contact: {
+      title: 'Contact Us',
+      subtitle: 'A question, suggestion, or problem? We\'re here to help.',
+      form: {
+        name: 'Name',
+        namePlaceholder: 'Your name',
+        email: 'Email',
+        emailPlaceholder: 'your@email.com',
+        subject: 'Subject',
+        subjectPlaceholder: 'What is this about?',
+        message: 'Message',
+        messagePlaceholder: 'Write your message here...',
+        send: 'Send Message',
+        sending: 'Sending...'
+      },
+      success: {
+        title: 'Message Sent!',
+        message: 'We received your message and will respond as soon as possible.',
+        sendAnother: 'Send Another Message'
+      },
+      error: 'An error occurred. Please try again or contact us directly by email.',
+      alternative: 'You can also write to us directly at:'
     }
   }
 };

@@ -9,7 +9,7 @@ export default function Footer() {
   return (
     <footer className="bg-white border-t border-gray-100 mt-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <Circle className="w-6 h-6 text-orange-500 fill-orange-500" />
@@ -29,13 +29,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="#features" className="text-gray-600 hover:text-black transition-colors">
-                  {t('footer.features')}
-                </a>
+                <Link to="/pricing" className="text-gray-600 hover:text-black transition-colors">
+                  {t('nav.pricing')}
+                </Link>
               </li>
               <li>
-                <a href="#how-it-works" className="text-gray-600 hover:text-black transition-colors">
-                  {t('footer.howItWorks')}
+                <a href="/#features" className="text-gray-600 hover:text-black transition-colors">
+                  {t('footer.features')}
                 </a>
               </li>
             </ul>
@@ -45,14 +45,40 @@ export default function Footer() {
             <h3 className="font-semibold text-black mb-3">{t('footer.support')}</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#faq" className="text-gray-600 hover:text-black transition-colors">
+                <Link to="/faq" className="text-gray-600 hover:text-black transition-colors">
                   {t('footer.faq')}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="mailto:hello@dotsdaily.app" className="text-gray-600 hover:text-black transition-colors">
+                <Link to="/contact" className="text-gray-600 hover:text-black transition-colors">
                   {t('footer.contact')}
-                </a>
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="text-gray-600 hover:text-black transition-colors">
+                  {t('footer.about')}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-black mb-3">{t('footer.legal')}</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/privacy" className="text-gray-600 hover:text-black transition-colors">
+                  {t('footer.privacy')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="text-gray-600 hover:text-black transition-colors">
+                  {t('footer.terms')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/legal" className="text-gray-600 hover:text-black transition-colors">
+                  {t('footer.legalNotice')}
+                </Link>
               </li>
             </ul>
           </div>
