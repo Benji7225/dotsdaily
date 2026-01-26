@@ -37,7 +37,7 @@ export interface WallpaperConfig {
 }
 
 export default function Generator() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, session, signInWithGoogle } = useAuth();
   const { isPremium } = useSubscription();
   const { configs: savedConfigs, loading: loadingConfigs } = useSavedConfigs();
@@ -101,7 +101,17 @@ export default function Generator() {
     const generatePreview = async () => {
       try {
         const { generateSVG } = await import('../utils/svgGenerator');
-        const svgContent = generateSVG(config, modelSpecs);
+        const translations = {
+          months: t('wallpaper.months'),
+          quarters: t('wallpaper.quarters'),
+          timeRemaining: {
+            days: t('wallpaper.timeRemaining.days'),
+            weeks: t('wallpaper.timeRemaining.weeks'),
+            months: t('wallpaper.timeRemaining.months'),
+            years: t('wallpaper.timeRemaining.years')
+          }
+        };
+        const svgContent = generateSVG(config, modelSpecs, translations);
 
         if (cancelled) return;
 
@@ -163,7 +173,7 @@ export default function Generator() {
         URL.revokeObjectURL(currentPreviewUrl);
       }
     };
-  }, [config, modelSpecs]);
+  }, [config, modelSpecs, t]);
 
   const usesPremiumFeatures = () => {
     return (
@@ -217,6 +227,7 @@ export default function Generator() {
         safeLeft: modelSpecs.safeArea.left,
         safeRight: modelSpecs.safeArea.right,
         timezone,
+        language: language,
       };
 
       const saveResponse = await fetch(`${apiUrl}/functions/v1/save-wallpaper`, {
@@ -289,30 +300,7 @@ export default function Generator() {
       return;
     }
 
-    setLoadingCheckout(true);
-    try {
-      const response = await fetch(`${apiUrl}/functions/v1/create-checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Checkout error:', errorData);
-        throw new Error(errorData.error || 'Failed to create checkout session');
-      }
-
-      const { url } = await response.json();
-      window.location.href = url;
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Erreur lors de la création de la session de paiement');
-      setLoadingCheckout(false);
-      setShowPremiumModal(false);
-    }
+    window.location.href = 'https://buy.stripe.com/28E4gB8fDa1UfVzcpvfMA00';
   };
 
   const modes = [

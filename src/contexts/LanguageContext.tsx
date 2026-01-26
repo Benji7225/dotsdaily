@@ -13,7 +13,16 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem('language');
-    return (saved === 'en' || saved === 'fr') ? saved : 'fr';
+    if (saved === 'en' || saved === 'fr') {
+      return saved;
+    }
+
+    const browserLang = navigator.language.toLowerCase();
+    if (browserLang.startsWith('fr')) {
+      return 'fr';
+    }
+
+    return 'en';
   });
 
   useEffect(() => {
@@ -52,6 +61,16 @@ export function useLanguage() {
 
 const translations = {
   fr: {
+    wallpaper: {
+      months: ['Jan', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Jul', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+      quarters: ['T1', 'T2', 'T3', 'T4'],
+      timeRemaining: {
+        days: 'j restants',
+        weeks: 's restantes',
+        months: 'm restants',
+        years: 'a restantes'
+      }
+    },
     nav: {
       home: 'Accueil',
       generator: 'Générateur',
@@ -481,6 +500,16 @@ const translations = {
     }
   },
   en: {
+    wallpaper: {
+      months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      quarters: ['Q1', 'Q2', 'Q3', 'Q4'],
+      timeRemaining: {
+        days: 'd left',
+        weeks: 'w left',
+        months: 'm left',
+        years: 'y left'
+      }
+    },
     nav: {
       home: 'Home',
       generator: 'Generator',

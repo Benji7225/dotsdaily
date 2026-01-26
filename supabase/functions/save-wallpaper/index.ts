@@ -98,7 +98,8 @@ Deno.serve(async (req: Request) => {
       safeBottom,
       safeLeft,
       safeRight,
-      timezone
+      timezone,
+      language
     } = body;
 
     if (!mode || !granularity || !width || !height) {
@@ -142,7 +143,8 @@ Deno.serve(async (req: Request) => {
         safe_bottom: safeBottom,
         safe_left: safeLeft,
         safe_right: safeRight,
-        timezone: timezone || 'UTC'
+        timezone: timezone || 'UTC',
+        language: language || 'en'
       });
 
     if (error) {

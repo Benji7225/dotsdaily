@@ -14,30 +14,7 @@ export default function Pricing() {
       return;
     }
 
-    setLoading(true);
-    try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Checkout error:', errorData);
-        throw new Error(errorData.error || 'Failed to create checkout session');
-      }
-
-      const { url } = await response.json();
-      window.location.href = url;
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Erreur lors de la création de la session de paiement');
-    } finally {
-      setLoading(false);
-    }
+    window.location.href = 'https://buy.stripe.com/28E4gB8fDa1UfVzcpvfMA00';
   };
 
   return (

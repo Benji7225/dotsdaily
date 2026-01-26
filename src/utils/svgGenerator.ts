@@ -11,6 +11,17 @@ interface ModelSpecs {
   };
 }
 
+interface Translations {
+  months: string[];
+  quarters: string[];
+  timeRemaining: {
+    days: string;
+    weeks: string;
+    months: string;
+    years: string;
+  };
+}
+
 function getDayOfYear(date: Date): number {
   const start = new Date(date.getFullYear(), 0, 0);
   const diff = date.getTime() - start.getTime();
@@ -38,7 +49,7 @@ interface GroupInfo {
   isCalendarLayout?: boolean;
 }
 
-function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
+function calculateGroups(config: WallpaperConfig, total: number, translations: Translations): GroupInfo[] {
   if (!config.grouping || config.grouping === 'none' || config.mode !== 'year') {
     return [];
   }
@@ -47,7 +58,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
 
   if (config.granularity === 'day') {
     if (config.grouping === 'month') {
-      const monthNames = ['Jan', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Jul', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+      const monthNames = translations.months;
       const now = new Date();
       const year = now.getFullYear();
       let dayIndex = 0;
@@ -69,7 +80,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
         dayIndex += daysInMonth;
       }
     } else if (config.grouping === 'quarter') {
-      const quarters = ['T1', 'T2', 'T3', 'T4'];
+      const quarters = translations.quarters;
       const now = new Date();
       const year = now.getFullYear();
       let dayIndex = 0;
@@ -105,7 +116,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
     }
   } else if (config.granularity === 'week') {
     if (config.grouping === 'month') {
-      const monthNames = ['Jan', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Jul', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+      const monthNames = translations.months;
       let weekIndex = 0;
 
       for (let month = 0; month < 12; month++) {
@@ -122,7 +133,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
         }
       }
     } else if (config.grouping === 'quarter') {
-      const quarters = ['T1', 'T2', 'T3', 'T4'];
+      const quarters = translations.quarters;
       const weeksPerQuarter = 13;
 
       for (let q = 0; q < 4; q++) {
@@ -143,7 +154,7 @@ function calculateGroups(config: WallpaperConfig, total: number): GroupInfo[] {
   return groups;
 }
 
-function calculateProgress(config: WallpaperConfig): { current: number; total: number; label: string } {
+function calculateProgress(config: WallpaperConfig, translations: Translations): { current: number; total: number; label: string } {
   const now = new Date();
 
   switch (config.mode) {
@@ -155,7 +166,7 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
         return {
           current: dayOfYear,
           total: daysInYear,
-          label: `${daysLeft}j restants`
+          label: `${daysLeft} ${translations.timeRemaining.days}`
         };
       } else if (config.granularity === 'week') {
         const weekOfYear = getWeekOfYear(now);
@@ -164,7 +175,7 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
         return {
           current: weekOfYear,
           total: weeksInYear,
-          label: `${weeksLeft}s restantes`
+          label: `${weeksLeft} ${translations.timeRemaining.weeks}`
         };
       }
       break;
@@ -184,7 +195,7 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
         return {
           current: Math.min(ageInYears, expectancy),
           total: expectancy,
-          label: `${yearsLeft}a restantes`
+          label: `${yearsLeft} ${translations.timeRemaining.years}`
         };
       } else if (config.granularity === 'month') {
         const ageInMonths = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
@@ -193,7 +204,7 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
         return {
           current: Math.min(ageInMonths, totalMonths),
           total: totalMonths,
-          label: `${monthsLeft}m restants`
+          label: `${monthsLeft} ${translations.timeRemaining.months}`
         };
       } else if (config.granularity === 'week') {
         const ageInWeeks = Math.floor((now.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24 * 7));
@@ -202,7 +213,7 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
         return {
           current: Math.min(ageInWeeks, totalWeeks),
           total: totalWeeks,
-          label: `${weeksLeft}s restantes`
+          label: `${weeksLeft} ${translations.timeRemaining.weeks}`
         };
       }
       break;
@@ -222,7 +233,7 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
         return {
           current: Math.min(daysElapsed, totalDays),
           total: totalDays,
-          label: `${daysLeft}j restants`
+          label: `${daysLeft} ${translations.timeRemaining.days}`
         };
       } else if (config.granularity === 'week') {
         const totalWeeks = Math.ceil((target.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 7));
@@ -231,7 +242,7 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
         return {
           current: Math.min(weeksElapsed, totalWeeks),
           total: totalWeeks,
-          label: `${weeksLeft}s restantes`
+          label: `${weeksLeft} ${translations.timeRemaining.weeks}`
         };
       } else if (config.granularity === 'month') {
         const totalMonths = Math.ceil((target.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30));
@@ -240,7 +251,7 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
         return {
           current: Math.min(monthsElapsed, totalMonths),
           total: totalMonths,
-          label: `${monthsLeft}m restants`
+          label: `${monthsLeft} ${translations.timeRemaining.months}`
         };
       } else if (config.granularity === 'year') {
         const totalYears = Math.ceil((target.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365));
@@ -249,7 +260,7 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
         return {
           current: Math.min(yearsElapsed, totalYears),
           total: totalYears,
-          label: `${yearsLeft}a restantes`
+          label: `${yearsLeft} ${translations.timeRemaining.years}`
         };
       }
       break;
@@ -281,7 +292,7 @@ function generateDotShape(x: number, y: number, size: number, fill: string, shap
   }
 }
 
-export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): string {
+export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, translations: Translations): string {
   const { width, height, safeArea } = modelSpecs;
   const isDark = config.theme !== 'light';
 
@@ -290,7 +301,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   const safeLeft = safeArea.left  ;
   const safeRight = safeArea.right;
 
-  const { current, total, label } = calculateProgress(config);
+  const { current, total, label } = calculateProgress(config, translations);
   const percentage = Math.round((current / total) * 100);
 
   const textTopHeight = 0;
@@ -318,7 +329,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
 
   const percentageGapFromLastDot = 60;
 
-  const groups = calculateGroups(config, total);
+  const groups = calculateGroups(config, total, translations);
 
   let dots = '';
   let textBottomY = height - safeBottom - 25;
