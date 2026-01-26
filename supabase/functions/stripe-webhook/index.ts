@@ -31,18 +31,24 @@ Deno.serve(async (req: Request) => {
         const customerId = session.customer;
         const paymentStatus = session.payment_status;
 
-        if (userId && customerId && paymentStatus === "paid") {
-          console.log("Processing lifetime payment for user:", userId);
+        if (userId && paymentStatus === "paid") {
+          console.log("Processing lifetime payment for user:", userId, "customerId:", customerId);
+
+          const subscriptionData: any = {
+            user_id: userId,
+            stripe_subscription_id: null,
+            status: "lifetime",
+            plan: "lifetime",
+            updated_at: new Date().toISOString(),
+          };
+
+          if (customerId) {
+            subscriptionData.stripe_customer_id = customerId;
+          }
+
           const { data, error } = await supabase
             .from("user_subscriptions")
-            .upsert({
-              user_id: userId,
-              stripe_customer_id: customerId,
-              stripe_subscription_id: null,
-              status: "lifetime",
-              plan: "lifetime",
-              updated_at: new Date().toISOString(),
-            }, {
+            .upsert(subscriptionData, {
               onConflict: "user_id"
             })
             .select();
@@ -52,6 +58,8 @@ Deno.serve(async (req: Request) => {
           } else {
             console.log("Successfully granted lifetime access:", data);
           }
+        } else {
+          console.log("Skipping checkout - userId:", userId, "paymentStatus:", paymentStatus);
         }
         break;
       }
