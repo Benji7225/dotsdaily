@@ -21,6 +21,7 @@ export default function Legal() {
         <section>
           
           <h2 className="text-2xl font-semibold text-black mb-4">{t('legal.hosting.title')}</h2>
+          <Circle className="w-6 h-6 text-orange-500 fill-orange-500" />
           <div className="space-y-2">
             <p><strong>{t('legal.hosting.provider')}:</strong> Vercel Inc.</p>
             <p><strong>{t('legal.hosting.address')}:</strong> 440 N Barranca Ave #4133, Covina, CA 91723, USA</p>
