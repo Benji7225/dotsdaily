@@ -68,7 +68,7 @@ export default function Privacy() {
         <section>
           <h2 className="text-2xl font-semibold text-black mb-4">{t('privacy.contact.title')}</h2>
           <p className="leading-relaxed">
-            {t('privacy.contact.content')} <a href="mailto:hello@dotsdaily.app" className="text-orange-600 hover:text-orange-700 underline">hello@dotsdaily.app</a>
+            {t('privacy.contact.content')} <a href="mailto:contact@dotsdaily.app" className="text-orange-600 hover:text-orange-700 underline">contact@dotsdaily.app</a>
           </p>
         </section>
       </div>
