@@ -571,7 +571,7 @@ const translations = {
         title: 'Multiple Visualization Modes',
         year: {
           title: 'Year Progress',
-          desc: 'Track every day of the year with a visual dot calendar. See your progress through 2025 at a glance.'
+          desc: 'Track every day of the year with a visual dot calendar. See your progress through 2026 at a glance.'
         },
         life: {
           title: 'Life Calendar',
