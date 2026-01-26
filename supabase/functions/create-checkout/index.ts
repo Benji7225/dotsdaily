@@ -32,19 +32,23 @@ Deno.serve(async (req: Request) => {
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
     const { createClient } = await import("npm:@supabase/supabase-js@2.57.4");
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Create client with anon key to validate user JWT
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser(token);
 
     if (userError || !user) {
       console.error("Auth error:", userError);
       throw new Error("Unauthorized");
     }
 
+    // Create client with service role key for database operations
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const { data: subscription } = await supabase
       .from("user_subscriptions")
       .select("*")
