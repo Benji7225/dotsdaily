@@ -33,7 +33,7 @@ export default function ImageCarousel({ images, altPrefix, onIndexChange }: Imag
   }
 
   return (
-    <div className="relative w-full max-w-md mx-auto">
+<div className="relative w-full max-w-sm mx-auto">
       <div className="relative aspect-[9/19.5] bg-gray-100 rounded-2xl overflow-hidden shadow-2xl">
         <img
           src={images[currentIndex]}
