@@ -1,36 +1,25 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import Generator from './pages/Generator';
-import Pricing from './pages/Pricing';
-import Privacy from './pages/Privacy';
-import Terms from './pages/Terms';
-import Legal from './pages/Legal';
-import About from './pages/About';
-import FAQ from './pages/FAQ';
-import Contact from './pages/Contact';
+import { HomePage } from './pages/HomePage';
+import { PricingPage } from './pages/PricingPage';
+import { SuccessPage } from './pages/SuccessPage';
+import { ContactPage } from './pages/ContactPage';
+import { LoginForm } from './components/auth/LoginForm';
+import { SignupForm } from './components/auth/SignupForm';
 
-export default function App() {
+function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/generator" element={<Generator />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/legal" element={<Legal />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/contact" element={<Contact />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/success" element={<SuccessPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/signup" element={<SignupForm />} />
+      </Routes>
     </Router>
   );
 }
+
+export default App;
