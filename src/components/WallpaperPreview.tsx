@@ -56,6 +56,7 @@ export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPr
                   <div className={`relative w-full h-full ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
                     {url ? (
                       <img
+                        key={url}
                         src={url.startsWith('blob:') ? url : `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`}
                         alt="Aperçu du fond d'écran"
                         className="w-full h-full object-cover"

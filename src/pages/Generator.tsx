@@ -92,6 +92,8 @@ export default function Generator() {
         const { generateSVG } = await import('../utils/svgGenerator');
         const svgContent = generateSVG(config, modelSpecs);
 
+        if (cancelled) return;
+
         const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
         const svgUrl = URL.createObjectURL(svgBlob);
 
@@ -101,6 +103,11 @@ export default function Generator() {
           img.onerror = reject;
           img.src = svgUrl;
         });
+
+        if (cancelled) {
+          URL.revokeObjectURL(svgUrl);
+          return;
+        }
 
         const scale = 3;
         const canvas = document.createElement('canvas');
@@ -121,12 +128,19 @@ export default function Generator() {
         });
 
         if (!cancelled) {
-          const pngUrl = URL.createObjectURL(pngBlob);
-          currentPreviewUrl = pngUrl;
-          setPreviewUrl(pngUrl);
+          setPreviewUrl(oldUrl => {
+            if (oldUrl && oldUrl.startsWith('blob:')) {
+              URL.revokeObjectURL(oldUrl);
+            }
+            currentPreviewUrl = URL.createObjectURL(pngBlob);
+            return currentPreviewUrl;
+          });
         }
       } catch (error) {
         console.error('Erreur génération aperçu:', error);
+        if (!cancelled) {
+          setPreviewUrl('');
+        }
       }
     };
 
@@ -293,7 +307,7 @@ export default function Generator() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-5xl mx-auto items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 lg:gap-8 max-w-6xl mx-auto items-start">
           <div className="order-2 lg:order-1">
             <ConfigPanel config={config} setConfig={setConfig} onShowPremiumModal={() => setShowPremiumModal(true)} />
 
@@ -362,7 +376,7 @@ export default function Generator() {
             </div>
           </div>
 
-          <div className="order-1 lg:order-2">
+          <div className="order-1 lg:order-2 lg:sticky lg:top-4">
             <WallpaperPreview url={shortUrl || previewUrl} modelSpecs={modelSpecs} theme={config.theme} />
           </div>
         </div>
