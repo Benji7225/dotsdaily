@@ -442,7 +442,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                 title="Afficher le pourcentage"
               >
                 <Percent className="w-4 h-4" />
-                <span className="text-xs sm:text-sm">%</span>
+                
               </button>
 
               <button
