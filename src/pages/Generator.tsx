@@ -13,6 +13,7 @@ export type Granularity = 'day' | 'week' | 'month' | 'year';
 export type Grouping = 'none' | 'week' | 'month' | 'quarter' | 'year';
 export type ThemeType = 'dark' | 'light' | 'custom' | 'image';
 export type DotShape = 'circle' | 'square' | 'heart';
+export type AdditionalDisplay = 'percentage' | 'timeRemaining' | 'none';
 
 export interface WallpaperConfig {
   mode: WallpaperMode;
@@ -29,6 +30,7 @@ export interface WallpaperConfig {
   dotColor?: string;
   dotShape?: DotShape;
   customText?: string;
+  additionalDisplay?: AdditionalDisplay;
   generation: string;
   variant: Variant;
 }
@@ -166,7 +168,8 @@ export default function Generator() {
       config.dotColor !== undefined ||
       (config.customText && config.customText.length > 0) ||
       config.grouping === 'quarter' ||
-      (config.dotShape && config.dotShape !== 'circle')
+      (config.dotShape && config.dotShape !== 'circle') ||
+      config.additionalDisplay === 'timeRemaining'
     );
   };
 
@@ -198,6 +201,7 @@ export default function Generator() {
         dotColor: config.dotColor,
         dotShape: config.dotShape,
         customText: config.customText,
+        additionalDisplay: config.additionalDisplay,
         targetDate: config.targetDate,
         startDate: config.startDate,
         birthDate: config.birthDate,

@@ -1,6 +1,6 @@
-import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType, DotShape } from '../pages/Generator';
+import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType, DotShape, AdditionalDisplay } from '../pages/Generator';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
-import { Pipette, Upload, Lock, Circle, Square, Heart } from 'lucide-react';
+import { Pipette, Upload, Lock, Circle, Square, Heart, Percent, Clock, X } from 'lucide-react';
 import { useSubscription } from '../hooks/useSubscription';
 import { useState } from 'react';
 
@@ -346,25 +346,84 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
           </div>
         </div>
 
-        <div>
-          <label htmlFor="customText" className="block text-sm font-medium text-slate-700 mb-2">
-            Texte personnalisé
-          </label>
-          <div className="relative">
-            <input
-              id="customText"
-              type="text"
-              maxLength={20}
-              placeholder="Ex: 2025"
-              value={config.customText || ''}
-              onChange={(e) => setConfig({ ...config, customText: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
-            />
-            {!isPremium && (
-              <div className="absolute top-1/2 right-3 -translate-y-1/2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                <Lock className="w-3 h-3 text-white" />
-              </div>
-            )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="customText" className="block text-sm font-medium text-slate-700 mb-2">
+              Texte personnalisé
+            </label>
+            <div className="relative">
+              <input
+                id="customText"
+                type="text"
+                maxLength={20}
+                placeholder="Ex: 2025"
+                value={config.customText || ''}
+                onChange={(e) => setConfig({ ...config, customText: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
+              />
+              {!isPremium && (
+                <div className="absolute top-1/2 right-3 -translate-y-1/2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Lock className="w-3 h-3 text-white" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Affichage supplémentaire
+            </label>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setConfig({ ...config, additionalDisplay: 'percentage' })}
+                className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                  (!config.additionalDisplay || config.additionalDisplay === 'percentage')
+                    ? 'border-slate-900 bg-slate-50'
+                    : 'border-slate-200 hover:border-slate-400'
+                }`}
+                title="Afficher le pourcentage"
+              >
+                <Percent className="w-4 h-4" />
+                <span className="text-sm">%</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  if (!isPremium) {
+                    onShowPremiumModal();
+                    return;
+                  }
+                  setConfig({ ...config, additionalDisplay: 'timeRemaining' });
+                }}
+                className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                  config.additionalDisplay === 'timeRemaining'
+                    ? 'border-slate-900 bg-slate-50'
+                    : 'border-slate-200 hover:border-slate-400'
+                }`}
+                title="Temps restant"
+              >
+                {!isPremium && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                    <Lock className="w-3 h-3 text-white" />
+                  </div>
+                )}
+                <Clock className="w-4 h-4" />
+                <span className="text-sm">Temps</span>
+              </button>
+
+              <button
+                onClick={() => setConfig({ ...config, additionalDisplay: 'none' })}
+                className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                  config.additionalDisplay === 'none'
+                    ? 'border-slate-900 bg-slate-50'
+                    : 'border-slate-200 hover:border-slate-400'
+                }`}
+                title="Aucun affichage supplémentaire"
+              >
+                <X className="w-4 h-4" />
+                <span className="text-sm">Rien</span>
+              </button>
+            </div>
           </div>
         </div>
 

@@ -151,18 +151,20 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
       if (config.granularity === 'day') {
         const dayOfYear = getDayOfYear(now);
         const daysInYear = isLeapYear(now.getFullYear()) ? 366 : 365;
+        const daysLeft = daysInYear - dayOfYear;
         return {
           current: dayOfYear,
           total: daysInYear,
-          label: `Jour ${dayOfYear} / ${daysInYear}`
+          label: `${daysLeft}j restants`
         };
       } else if (config.granularity === 'week') {
         const weekOfYear = getWeekOfYear(now);
         const weeksInYear = 52;
+        const weeksLeft = weeksInYear - weekOfYear;
         return {
           current: weekOfYear,
           total: weeksInYear,
-          label: `Semaine ${weekOfYear} / ${weeksInYear}`
+          label: `${weeksLeft}s restantes`
         };
       }
       break;
@@ -178,26 +180,29 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
 
       if (config.granularity === 'year') {
         const ageInYears = now.getFullYear() - birth.getFullYear();
+        const yearsLeft = Math.max(0, expectancy - ageInYears);
         return {
           current: Math.min(ageInYears, expectancy),
           total: expectancy,
-          label: `${ageInYears} ans / ${expectancy} ans`
+          label: `${yearsLeft}a restantes`
         };
       } else if (config.granularity === 'month') {
         const ageInMonths = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
         const totalMonths = expectancy * 12;
+        const monthsLeft = Math.max(0, totalMonths - ageInMonths);
         return {
           current: Math.min(ageInMonths, totalMonths),
           total: totalMonths,
-          label: `${ageInMonths} mois / ${totalMonths} mois`
+          label: `${monthsLeft}m restants`
         };
       } else if (config.granularity === 'week') {
         const ageInWeeks = Math.floor((now.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24 * 7));
         const totalWeeks = expectancy * 52;
+        const weeksLeft = Math.max(0, totalWeeks - ageInWeeks);
         return {
           current: Math.min(ageInWeeks, totalWeeks),
           total: totalWeeks,
-          label: `${ageInWeeks} semaines / ${totalWeeks} semaines`
+          label: `${weeksLeft}s restantes`
         };
       }
       break;
@@ -285,7 +290,7 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   const safeLeft = safeArea.left  ;
   const safeRight = safeArea.right;
 
-  const { current, total } = calculateProgress(config);
+  const { current, total, label } = calculateProgress(config);
   const percentage = Math.round((current / total) * 100);
 
   const textTopHeight = 0;
@@ -584,16 +589,29 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
   const currentDotColor = config.dotColor || '#ff6b35';
 
   let percentageText = '';
-  if (config.customText) {
-    percentageText = `
-  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" text-anchor="middle">
-    <tspan fill="${currentDotColor}">${config.customText}</tspan><tspan fill="${subTextColor}"> ${percentage}%</tspan>
+  const additionalDisplay = config.additionalDisplay || 'percentage';
+
+  if (additionalDisplay === 'none') {
+    if (config.customText) {
+      percentageText = `
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" fill="${currentDotColor}" text-anchor="middle">
+    ${config.customText}
   </text>`;
+    }
   } else {
-    percentageText = `
-  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">
-    ${percentage}%
+    const displayValue = additionalDisplay === 'percentage' ? `${percentage}%` : label;
+
+    if (config.customText) {
+      percentageText = `
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" text-anchor="middle">
+    <tspan fill="${currentDotColor}">${config.customText}</tspan><tspan fill="${subTextColor}"> ${displayValue}</tspan>
   </text>`;
+    } else {
+      percentageText = `
+  <text x="${width / 2}" y="${textBottomY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="400" fill="${subTextColor}" text-anchor="middle">
+    ${displayValue}
+  </text>`;
+    }
   }
 
   return `<?xml version="1.0" encoding="UTF-8"?>
