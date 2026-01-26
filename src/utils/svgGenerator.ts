@@ -1,4 +1,4 @@
-import { WallpaperConfig } from '../App';
+import { WallpaperConfig } from '../pages/Generator';
 
 interface ModelSpecs {
   width: number;
@@ -257,6 +257,25 @@ function calculateProgress(config: WallpaperConfig): { current: number; total: n
   throw new Error('Invalid granularity for mode');
 }
 
+function generateDotShape(x: number, y: number, size: number, fill: string, shape?: string): string {
+  const dotShape = shape || 'circle';
+
+  switch (dotShape) {
+    case 'square': {
+      const halfSize = size / 2;
+      return `<rect x="${x - halfSize}" y="${y - halfSize}" width="${size}" height="${size}" fill="${fill}" rx="${size * 0.15}" />`;
+    }
+    case 'heart': {
+      const scale = size / 20;
+      const heartPath = 'M10,6 C10,3.8 8.2,2 6,2 C3.8,2 2,3.8 2,6 C2,10 6,14 10,18 C14,14 18,10 18,6 C18,3.8 16.2,2 14,2 C11.8,2 10,3.8 10,6 Z';
+      return `<path d="${heartPath}" fill="${fill}" transform="translate(${x - 10 * scale}, ${y - 10 * scale}) scale(${scale})" />`;
+    }
+    case 'circle':
+    default:
+      return `<circle cx="${x}" cy="${y}" r="${size / 2}" fill="${fill}" />`;
+  }
+}
+
 export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): string {
   const { width, height, safeArea } = modelSpecs;
   const isDark = config.theme !== 'light';
@@ -447,8 +466,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
           fill = isDark ? '#3a3a3a' : '#d0d0d0';
         }
 
-        const radius = (dotSize / 2) * dotSizeMultiplier;
-        dots += `<circle cx="${x}" cy="${y}" r="${radius}" fill="${fill}" />`;
+        const finalSize = dotSize * dotSizeMultiplier;
+        dots += generateDotShape(x, y, finalSize, fill, config.dotShape);
       }
     }
 
@@ -545,8 +564,8 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs): st
         fill = isDark ? '#3a3a3a' : '#d0d0d0';
       }
 
-      const radius = (dotSize / 2) * dotSizeMultiplier;
-      dots += `<circle cx="${x}" cy="${y}" r="${radius}" fill="${fill}" />`;
+      const finalSize = dotSize * dotSizeMultiplier;
+      dots += generateDotShape(x, y, finalSize, fill, config.dotShape);
     }
 
     const lastDotIndex = total - 1;

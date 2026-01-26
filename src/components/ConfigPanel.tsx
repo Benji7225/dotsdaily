@@ -1,6 +1,6 @@
-import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType } from '../pages/Generator';
+import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType, DotShape } from '../pages/Generator';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
-import { Pipette, Upload, Lock } from 'lucide-react';
+import { Pipette, Upload, Lock, Circle, Square, Heart } from 'lucide-react';
 import { useSubscription } from '../hooks/useSubscription';
 import { useState } from 'react';
 
@@ -292,6 +292,75 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                 className="w-0 h-0 opacity-0 absolute"
               />
             </label>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+            Forme des points
+            {!isPremium && config.dotShape && config.dotShape !== 'circle' && (
+              <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
+                <Lock className="w-3 h-3" />
+                Premium
+              </span>
+            )}
+          </label>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setConfig({ ...config, dotShape: 'circle' })}
+              className={`w-12 h-12 rounded-lg border-4 transition-all flex items-center justify-center ${
+                (!config.dotShape || config.dotShape === 'circle')
+                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300 bg-white'
+              }`}
+              title="Rond"
+            >
+              <Circle className="w-6 h-6 text-slate-700" fill="currentColor" />
+            </button>
+            <button
+              onClick={() => {
+                if (!isPremium) {
+                  onShowPremiumModal();
+                  return;
+                }
+                setConfig({ ...config, dotShape: 'square' });
+              }}
+              className={`w-12 h-12 rounded-lg border-4 transition-all flex items-center justify-center relative ${
+                config.dotShape === 'square'
+                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300 bg-white'
+              }`}
+              title="Carré"
+            >
+              {!isPremium && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Lock className="w-3 h-3 text-white" />
+                </div>
+              )}
+              <Square className="w-6 h-6 text-slate-700" fill="currentColor" />
+            </button>
+            <button
+              onClick={() => {
+                if (!isPremium) {
+                  onShowPremiumModal();
+                  return;
+                }
+                setConfig({ ...config, dotShape: 'heart' });
+              }}
+              className={`w-12 h-12 rounded-lg border-4 transition-all flex items-center justify-center relative ${
+                config.dotShape === 'heart'
+                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300 bg-white'
+              }`}
+              title="Cœur"
+            >
+              {!isPremium && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <Lock className="w-3 h-3 text-white" />
+                </div>
+              )}
+              <Heart className="w-6 h-6 text-slate-700" fill="currentColor" />
+            </button>
           </div>
         </div>
 

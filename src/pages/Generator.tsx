@@ -12,6 +12,7 @@ export type WallpaperMode = 'year' | 'life' | 'countdown';
 export type Granularity = 'day' | 'week' | 'month' | 'year';
 export type Grouping = 'none' | 'week' | 'month' | 'quarter' | 'year';
 export type ThemeType = 'dark' | 'light' | 'custom' | 'image';
+export type DotShape = 'circle' | 'square' | 'heart';
 
 export interface WallpaperConfig {
   mode: WallpaperMode;
@@ -26,6 +27,7 @@ export interface WallpaperConfig {
   customColor?: string;
   backgroundImage?: string;
   dotColor?: string;
+  dotShape?: DotShape;
   customText?: string;
   generation: string;
   variant: Variant;
@@ -159,7 +161,8 @@ export default function Generator() {
       config.themeType === 'custom' ||
       config.dotColor !== undefined ||
       (config.customText && config.customText.length > 0) ||
-      config.grouping === 'quarter'
+      config.grouping === 'quarter' ||
+      (config.dotShape && config.dotShape !== 'circle')
     );
   };
 
@@ -189,6 +192,7 @@ export default function Generator() {
         customColor: config.customColor,
         backgroundImage: config.backgroundImage,
         dotColor: config.dotColor,
+        dotShape: config.dotShape,
         customText: config.customText,
         targetDate: config.targetDate,
         startDate: config.startDate,
