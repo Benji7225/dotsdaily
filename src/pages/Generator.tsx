@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Heart, Target, Copy, Check, LogIn, Crown } from 'lucide-react';
+import { Calendar, Heart, Target, Copy, Check, LogIn, Crown, History, X } from 'lucide-react';
 import WallpaperPreview from '../components/WallpaperPreview';
 import ConfigPanel from '../components/ConfigPanel';
 import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from '../utils/iPhoneModels';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../hooks/useSubscription';
+import { useSavedConfigs } from '../hooks/useSavedConfigs';
 import { Link } from 'react-router-dom';
 
 export type WallpaperMode = 'year' | 'life' | 'countdown';
@@ -39,8 +40,10 @@ export default function Generator() {
   const { t } = useLanguage();
   const { user, session, signInWithGoogle } = useAuth();
   const { isPremium } = useSubscription();
+  const { configs: savedConfigs, loading: loadingConfigs } = useSavedConfigs();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showSavedConfigsModal, setShowSavedConfigsModal] = useState(false);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [config, setConfig] = useState<WallpaperConfig>({
     mode: 'year',
@@ -220,7 +223,7 @@ export default function Generator() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -241,6 +244,36 @@ export default function Generator() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const loadSavedConfig = (savedConfig: any) => {
+    const generation = defaultGeneration.id;
+    const variant = defaultVariant;
+
+    setConfig({
+      mode: savedConfig.mode as WallpaperMode,
+      granularity: savedConfig.granularity as Granularity,
+      grouping: savedConfig.grouping as Grouping,
+      theme: savedConfig.theme,
+      themeType: savedConfig.theme_type as ThemeType,
+      customColor: savedConfig.custom_color,
+      backgroundImage: savedConfig.background_image,
+      dotColor: savedConfig.dot_color,
+      dotShape: savedConfig.dot_shape as DotShape,
+      customText: savedConfig.custom_text,
+      additionalDisplay: savedConfig.additional_display as AdditionalDisplay,
+      targetDate: savedConfig.target_date,
+      startDate: savedConfig.start_date,
+      birthDate: savedConfig.birth_date,
+      lifeExpectancy: savedConfig.life_expectancy,
+      generation,
+      variant,
+    });
+
+    const baseUrl = window.location.origin;
+    const pngUrl = `${baseUrl}/w/${savedConfig.id}`;
+    setShortUrl(pngUrl);
+    setShowSavedConfigsModal(false);
   };
 
   const copyUrl = async () => {
@@ -325,9 +358,20 @@ export default function Generator() {
             <ConfigPanel config={config} setConfig={setConfig} onShowPremiumModal={() => setShowPremiumModal(true)} />
 
             <div className="bg-white border-2 border-gray-100 rounded-xl p-4 sm:p-6 mt-6">
-              <h3 className="text-base sm:text-lg font-semibold text-black mb-4">
-                {t('generator.url.title')}
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-black">
+                  {t('generator.url.title')}
+                </h3>
+                {user && savedConfigs.length > 0 && (
+                  <button
+                    onClick={() => setShowSavedConfigsModal(true)}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
+                  >
+                    <History className="w-4 h-4" />
+                    <span className="hidden sm:inline">Mes configs</span>
+                  </button>
+                )}
+              </div>
 
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <button
@@ -493,6 +537,82 @@ export default function Generator() {
             >
               {loadingCheckout ? 'Chargement...' : 'Paiement'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {showSavedConfigsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-black">
+                Mes configurations sauvegardées
+              </h3>
+              <button
+                onClick={() => setShowSavedConfigsModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {loadingConfigs ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">Chargement...</p>
+              </div>
+            ) : savedConfigs.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">Aucune configuration sauvegardée</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {savedConfigs.map((savedConfig) => {
+                  const modeLabels: Record<string, string> = {
+                    year: 'Année',
+                    life: 'Vie',
+                    countdown: 'Compte à rebours',
+                  };
+                  const date = new Date(savedConfig.created_at);
+                  const formattedDate = date.toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  });
+
+                  return (
+                    <button
+                      key={savedConfig.id}
+                      onClick={() => loadSavedConfig(savedConfig)}
+                      className="w-full p-4 bg-gray-50 hover:bg-orange-50 rounded-lg transition-colors text-left border-2 border-transparent hover:border-orange-200"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold text-black">
+                              {modeLabels[savedConfig.mode] || savedConfig.mode}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {savedConfig.granularity}
+                            </span>
+                            {savedConfig.custom_text && (
+                              <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
+                                Texte perso
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            Créé le {formattedDate}
+                          </p>
+                        </div>
+                        <div className="text-sm text-orange-500 font-medium">
+                          Charger
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}

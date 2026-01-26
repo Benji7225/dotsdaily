@@ -53,8 +53,26 @@ Deno.serve(async (req: Request) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    let userId: string | null = null;
+    const authHeader = req.headers.get("Authorization");
+
+    if (authHeader) {
+      try {
+        const token = authHeader.replace("Bearer ", "");
+        const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+        const { data: { user }, error: userError } = await supabaseAuth.auth.getUser(token);
+
+        if (!userError && user) {
+          userId = user.id;
+        }
+      } catch (authError) {
+        console.log('Auth check failed, continuing without user:', authError);
+      }
+    }
 
     const body = await req.json();
 
@@ -102,6 +120,7 @@ Deno.serve(async (req: Request) => {
       .from('wallpaper_configs')
       .insert({
         id,
+        user_id: userId,
         mode,
         granularity,
         grouping: grouping || 'none',
