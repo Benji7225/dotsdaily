@@ -13,7 +13,7 @@ export default function About() {
         <div className="prose prose-lg max-w-none">
           <section className="mb-12">
             <h2 className="text-2xl font-semibold text-black mb-4 flex items-center gap-2">
-              <Heart className="w-6 h-6 text-orange-500" />
+              <Circle className="w-6 h-6 text-orange-500 fill-orange-500" />
               {t('about.mission.title')}
             </h2>
             <p className="text-gray-700 leading-relaxed">{t('about.mission.content')}</p>
@@ -21,7 +21,7 @@ export default function About() {
 
           <section className="mb-12">
             <h2 className="text-2xl font-semibold text-black mb-4 flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-orange-500" />
+              <Circle className="w-6 h-6 text-orange-500 fill-orange-500" />
               {t('about.story.title')}
             </h2>
             <p className="text-gray-700 leading-relaxed mb-4">{t('about.story.content1')}</p>
@@ -55,7 +55,7 @@ export default function About() {
 
           <section className="mb-12">
             <h2 className="text-2xl font-semibold text-black mb-4 flex items-center gap-2">
-              <Users className="w-6 h-6 text-orange-500" />
+              <Circle className="w-6 h-6 text-orange-500 fill-orange-500" />
               {t('about.community.title')}
             </h2>
             <p className="text-gray-700 leading-relaxed mb-4">{t('about.community.content')}</p>
