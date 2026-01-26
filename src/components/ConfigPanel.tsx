@@ -472,7 +472,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                 }`}
                 title="Aucun affichage supplémentaire"
               >
-                <X className="w-4 h-4" />
+               
                 <span className="text-xs sm:text-sm">Rien</span>
               </button>
             </div>
