@@ -13,7 +13,7 @@ export default function Legal() {
           <h2 className="text-2xl font-semibold text-black mb-4">{t('legal.publisher.title')}</h2>
           <div className="space-y-2">
             <p><strong>{t('legal.publisher.name')}:</strong> DotsDaily</p>
-            <p><strong>{t('legal.publisher.email')}:</strong> hello@dotsdaily.app</p>
+            <p><strong>{t('legal.publisher.email')}:</strong> contact@dotsdaily.app</p>
             <p><strong>{t('legal.publisher.website')}:</strong> https://dotsdaily.app</p>
           </div>
         </section>
