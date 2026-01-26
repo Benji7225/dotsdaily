@@ -414,7 +414,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                 id="customText"
                 type="text"
                 maxLength={20}
-                placeholder="Ex: 2025"
+                placeholder="Ex: 2026"
                 value={config.customText || ''}
                 onChange={(e) => setConfig({ ...config, customText: e.target.value })}
                 className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
