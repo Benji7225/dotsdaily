@@ -231,10 +231,11 @@ const translations = {
           title: 'Configuration Raccourcis Apple',
           step1: 'Raccourcis → Automatisation → + → Heure de la journée',
           step2: 'Règle sur 00:00 → Tous les jours → Exécuter immédiatement',
-          step3: 'Ajoute "Obtenir le contenu de l\'URL" → colle ton URL',
-          step4: 'Ajoute "Définir la photo de fond d\'écran" → Écran de verrouillage',
-          step5: 'Appuie sur > pour désactiver "Recadrer sur le sujet" et "Afficher l\'aperçu"',
-          step6: 'Appuie sur le bouton en bas à droite pour lancer',
+          step3: 'Nouvelle automatisation'
+          step4: 'Ajoute "Obtenir le contenu de l\'URL" → colle ton URL',
+          step5: 'Ajoute "Définir la photo de fond d\'écran"',
+          step6: 'Appuie sur > pour désactiver "Recadrer sur le sujet" et "Afficher l\'aperçu"',
+          step7: 'Appuie sur le bouton en bas à droite pour lancer',
           note: 'Ton fond d\'écran se mettra à jour automatiquement chaque jour à minuit dans ton fuseau horaire.'
         }
       }
