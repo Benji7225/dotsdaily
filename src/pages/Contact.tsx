@@ -158,8 +158,8 @@ export default function Contact() {
 
         <div className="mt-8 text-center text-gray-600">
           <p>{t('contact.alternative')}</p>
-          <a href="mailto:hello@dotsdaily.app" className="text-orange-600 hover:text-orange-700 underline font-medium">
-            hello@dotsdaily.app
+          <a href="mailto:contact@dotsdaily.app" className="text-orange-600 hover:text-orange-700 underline font-medium">
+            contact@dotsdaily.app
           </a>
         </div>
       </div>
