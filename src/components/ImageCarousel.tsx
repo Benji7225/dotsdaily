@@ -1,13 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ImageCarouselProps {
   images: string[];
   altPrefix: string;
+  onIndexChange?: (index: number) => void;
 }
 
-export default function ImageCarousel({ images, altPrefix }: ImageCarouselProps) {
+export default function ImageCarousel({ images, altPrefix, onIndexChange }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (onIndexChange) {
+      onIndexChange(currentIndex);
+    }
+  }, [currentIndex, onIndexChange]);
 
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
@@ -26,7 +33,7 @@ export default function ImageCarousel({ images, altPrefix }: ImageCarouselProps)
   }
 
   return (
-    <div className="relative w-full max-w-lg mx-auto">
+    <div className="relative w-full max-w-md mx-auto">
       <div className="relative aspect-[9/19.5] bg-gray-100 rounded-2xl overflow-hidden shadow-2xl">
         <img
           src={images[currentIndex]}

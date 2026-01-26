@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, Smartphone, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -5,6 +6,8 @@ import ImageCarousel from '../components/ImageCarousel';
 
 export default function Home() {
   const { t } = useLanguage();
+  const [activeStep, setActiveStep] = useState(0);
+
   return (
     <div className="min-h-screen bg-white">
       <section className="pt-12 sm:pt-20 pb-16 sm:pb-32 px-4">
@@ -143,12 +146,13 @@ export default function Home() {
               <ImageCarousel
                 images={['/tuto-1.webp', '/tuto-2.webp', '/tuto-3.webp', '/tuto-4.webp']}
                 altPrefix="How it works step"
+                onIndexChange={setActiveStep}
               />
             </div>
 
             <div className="order-1 lg:order-2 space-y-6 sm:space-y-8">
               <div className="flex gap-4 sm:gap-6 items-start">
-                <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                <div className={`${activeStep === 0 ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-600'} w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0 transition-colors`}>
                   1
                 </div>
                 <div>
@@ -160,7 +164,7 @@ export default function Home() {
               </div>
 
               <div className="flex gap-6 items-start">
-                <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                <div className={`${activeStep === 1 ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-600'} w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0 transition-colors`}>
                   2
                 </div>
                 <div>
@@ -172,7 +176,7 @@ export default function Home() {
               </div>
 
               <div className="flex gap-6 items-start">
-                <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                <div className={`${activeStep === 2 ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-600'} w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0 transition-colors`}>
                   3
                 </div>
                 <div>
@@ -184,7 +188,7 @@ export default function Home() {
               </div>
 
               <div className="flex gap-6 items-start">
-                <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0">
+                <div className={`${activeStep === 3 ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-600'} w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0 transition-colors`}>
                   4
                 </div>
                 <div>
