@@ -55,7 +55,7 @@ export default function FAQ() {
           <h3 className="text-lg font-semibold text-black mb-2">{t('faq.stillQuestions')}</h3>
           <p className="text-gray-600 mb-4">{t('faq.contactUs')}</p>
           <a
-            href="mailto:hello@dotsdaily.app"
+            href="mailto:contact@dotsdaily.app"
             className="inline-block bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors"
           >
             {t('footer.contact')}
