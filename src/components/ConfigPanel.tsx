@@ -132,7 +132,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
           <label className="block text-sm font-medium text-slate-700 mb-2">
             Modèle d'iPhone
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <select
                 value={config.generation}
@@ -162,166 +162,219 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
-            Fond d'écran
-            {!isPremium && config.themeType === 'custom' && (
-              <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
-                <Lock className="w-3 h-3" />
-                Premium
-              </span>
-            )}
-          </label>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => handleThemeChange('dark')}
-              className={`w-12 h-12 rounded-full bg-black border-4 transition-all ${
-                config.themeType === 'dark'
-                  ? 'border-slate-900 shadow-lg scale-110'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-              title="Fond noir"
-            />
-            <button
-              onClick={() => handleThemeChange('light')}
-              className={`w-12 h-12 rounded-full bg-white border-4 transition-all ${
-                config.themeType === 'light'
-                  ? 'border-slate-900 shadow-lg scale-110'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-              title="Fond blanc"
-            />
-            <label
-              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
-                config.themeType === 'custom'
-                  ? 'border-slate-900 shadow-lg scale-110'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-              style={{
-                backgroundColor: config.themeType === 'custom' ? config.customColor : '#888888'
-              }}
-              title="Couleur personnalisée"
-            >
-              {!isPremium && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Lock className="w-3 h-3 text-white" />
-                </div>
-              )}
-              {config.themeType !== 'custom' && (
-                <Pipette className="w-5 h-5 text-white" />
-              )}
-              <input
-                type="color"
-                value={config.customColor || '#888888'}
-                onChange={handleBgColorChange}
-                className="w-0 h-0 opacity-0 absolute"
-              />
+        <div className={availableGroupings.length > 0 ? 'grid grid-cols-2 gap-3' : ''}>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Points
             </label>
-            <label
-              className={`relative w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
-                config.themeType === 'image'
-                  ? 'border-slate-900 shadow-lg scale-110'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-              style={{
-                backgroundImage: config.themeType === 'image' && config.backgroundImage
-                  ? `url(${config.backgroundImage})`
-                  : 'none',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundColor: config.themeType === 'image' ? 'transparent' : '#666666'
+            <select
+              value={config.granularity}
+              onChange={(e) => {
+                const newGranularity = e.target.value as Granularity;
+                const newConfig = { ...config, granularity: newGranularity };
+                if (config.mode === 'year' && newGranularity === 'week' && config.grouping === 'month') {
+                  newConfig.grouping = 'none';
+                }
+                setConfig(newConfig);
               }}
-              title="Image personnalisée"
+              className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
             >
-              {!isPremium && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg z-10">
-                  <Lock className="w-3 h-3 text-white" />
-                </div>
-              )}
-              {config.themeType !== 'image' && (
-                <Upload className="w-5 h-5 text-white" />
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </label>
+              {availableGranularities.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
+          {availableGroupings.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Groupe
+              </label>
+              <div className="relative">
+                <select
+                  value={config.grouping}
+                  onChange={(e) => setConfig({ ...config, grouping: e.target.value as Grouping })}
+                  className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
+                >
+                  {availableGroupings.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}{option.value === 'quarter' && !isPremium ? ' 🔒' : ''}
+                    </option>
+                  ))}
+                </select>
+                {!isPremium && config.grouping === 'quarter' && (
+                  <div className="absolute top-1/2 right-10 -translate-y-1/2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-lg pointer-events-none">
+                    <Lock className="w-3 h-3 text-white" />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
-            Couleur du point
-            {!isPremium && config.dotColor && (
-              <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
-                <Lock className="w-3 h-3" />
-                Premium
-              </span>
-            )}
-          </label>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setConfig({ ...config, dotColor: undefined })}
-              className={`w-12 h-12 rounded-full bg-orange-500 border-4 transition-all ${
-                !config.dotColor
-                  ? 'border-slate-900 shadow-lg scale-110'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-              title="Orange (par défaut)"
-            />
-            <label
-              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
-                config.dotColor
-                  ? 'border-slate-900 shadow-lg scale-110'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-              style={{
-                backgroundColor: config.dotColor || '#888888'
-              }}
-              title="Couleur personnalisée"
-            >
-              {!isPremium && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                  <Lock className="w-3 h-3 text-white" />
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+              Arrière plan
+              {!isPremium && config.themeType === 'custom' && (
+                <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
+                  <Lock className="w-3 h-3" />
+                  Premium
+                </span>
               )}
-              {!config.dotColor && (
-                <Pipette className="w-5 h-5 text-white" />
-              )}
-              <input
-                type="color"
-                value={config.dotColor || '#f97316'}
-                onChange={handleDotColorChange}
-                className="w-0 h-0 opacity-0 absolute"
-              />
             </label>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleThemeChange('dark')}
+                className={`w-12 h-12 rounded-full bg-black border-4 transition-all ${
+                  config.themeType === 'dark'
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                title="Fond noir"
+              />
+              <button
+                onClick={() => handleThemeChange('light')}
+                className={`w-12 h-12 rounded-full bg-white border-4 transition-all ${
+                  config.themeType === 'light'
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                title="Fond blanc"
+              />
+              <label
+                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
+                  config.themeType === 'custom'
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                style={{
+                  backgroundColor: config.themeType === 'custom' ? config.customColor : '#888888'
+                }}
+                title="Couleur personnalisée"
+              >
+                {!isPremium && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                    <Lock className="w-3 h-3 text-white" />
+                  </div>
+                )}
+                {config.themeType !== 'custom' && (
+                  <Pipette className="w-5 h-5 text-white" />
+                )}
+                <input
+                  type="color"
+                  value={config.customColor || '#888888'}
+                  onChange={handleBgColorChange}
+                  className="w-0 h-0 opacity-0 absolute"
+                />
+              </label>
+              <label
+                className={`relative w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
+                  config.themeType === 'image'
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                style={{
+                  backgroundImage: config.themeType === 'image' && config.backgroundImage
+                    ? `url(${config.backgroundImage})`
+                    : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundColor: config.themeType === 'image' ? 'transparent' : '#666666'
+                }}
+                title="Image personnalisée"
+              >
+                {!isPremium && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg z-10">
+                    <Lock className="w-3 h-3 text-white" />
+                  </div>
+                )}
+                {config.themeType !== 'image' && (
+                  <Upload className="w-5 h-5 text-white" />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+              Couleur du point
+              {!isPremium && config.dotColor && (
+                <span className="flex items-center gap-1 text-xs text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
+                  <Lock className="w-3 h-3" />
+                  Premium
+                </span>
+              )}
+            </label>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setConfig({ ...config, dotColor: undefined })}
+                className={`w-12 h-12 rounded-full bg-orange-500 border-4 transition-all ${
+                  !config.dotColor
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                title="Orange (par défaut)"
+              />
+              <label
+                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
+                  config.dotColor
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                style={{
+                  backgroundColor: config.dotColor || '#888888'
+                }}
+                title="Couleur personnalisée"
+              >
+                {!isPremium && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                    <Lock className="w-3 h-3 text-white" />
+                  </div>
+                )}
+                {!config.dotColor && (
+                  <Pipette className="w-5 h-5 text-white" />
+                )}
+                <input
+                  type="color"
+                  value={config.dotColor || '#f97316'}
+                  onChange={handleDotColorChange}
+                  className="w-0 h-0 opacity-0 absolute"
+                />
+              </label>
+            </div>
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            Forme des points
+            Forme
           </label>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setConfig({ ...config, dotShape: 'circle' })}
-              className={`transition-all ${
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
                 (!config.dotShape || config.dotShape === 'circle')
-                  ? 'scale-110'
-                  : 'opacity-60 hover:opacity-100'
+                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
               title="Rond"
             >
-              <Circle className="w-8 h-8 text-slate-700" fill="currentColor" />
+              <Circle className="w-6 h-6 text-slate-700" fill="currentColor" />
             </button>
             <button
               onClick={() => setConfig({ ...config, dotShape: 'square' })}
-              className={`transition-all relative ${
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center relative ${
                 config.dotShape === 'square'
-                  ? 'scale-110'
-                  : 'opacity-60 hover:opacity-100'
+                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
               title="Carré"
             >
@@ -330,14 +383,14 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                   <Lock className="w-3 h-3 text-white" />
                 </div>
               )}
-              <Square className="w-8 h-8 text-slate-700" fill="currentColor" />
+              <Square className="w-6 h-6 text-slate-700" fill="currentColor" />
             </button>
             <button
               onClick={() => setConfig({ ...config, dotShape: 'heart' })}
-              className={`transition-all relative ${
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center relative ${
                 config.dotShape === 'heart'
-                  ? 'scale-110'
-                  : 'opacity-60 hover:opacity-100'
+                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
               title="Cœur"
             >
@@ -346,7 +399,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                   <Lock className="w-3 h-3 text-white" />
                 </div>
               )}
-              <Heart className="w-8 h-8 text-slate-700" fill="currentColor" />
+              <Heart className="w-6 h-6 text-slate-700" fill="currentColor" />
             </button>
           </div>
         </div>
@@ -389,7 +442,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                 title="Afficher le pourcentage"
               >
                 <Percent className="w-4 h-4" />
-                
+                <span className="text-xs sm:text-sm">%</span>
               </button>
 
               <button
@@ -407,7 +460,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                   </div>
                 )}
                 <Clock className="w-4 h-4" />
-               
+                <span className="text-xs sm:text-sm">Temps</span>
               </button>
 
               <button
@@ -419,58 +472,10 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal }: C
                 }`}
                 title="Aucun affichage supplémentaire"
               >
-               
+                <X className="w-4 h-4" />
                 <span className="text-xs sm:text-sm">Rien</span>
               </button>
             </div>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            {availableGroupings.length > 0 ? 'Points et affichage' : 'Points'}
-          </label>
-          <div className={availableGroupings.length > 0 ? 'grid grid-cols-1 sm:grid-cols-2 gap-3' : ''}>
-            <div>
-              <select
-                value={config.granularity}
-                onChange={(e) => {
-                  const newGranularity = e.target.value as Granularity;
-                  const newConfig = { ...config, granularity: newGranularity };
-                  if (config.mode === 'year' && newGranularity === 'week' && config.grouping === 'month') {
-                    newConfig.grouping = 'none';
-                  }
-                  setConfig(newConfig);
-                }}
-                className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
-              >
-                {availableGranularities.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {availableGroupings.length > 0 && (
-              <div className="relative">
-                <select
-                  value={config.grouping}
-                  onChange={(e) => setConfig({ ...config, grouping: e.target.value as Grouping })}
-                  className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
-                >
-                  {availableGroupings.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}{option.value === 'quarter' && !isPremium ? ' 🔒' : ''}
-                    </option>
-                  ))}
-                </select>
-                {!isPremium && config.grouping === 'quarter' && (
-                  <div className="absolute top-1/2 right-10 -translate-y-1/2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-lg pointer-events-none">
-                    <Lock className="w-3 h-3 text-white" />
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
