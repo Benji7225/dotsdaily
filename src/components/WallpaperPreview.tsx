@@ -1,17 +1,14 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, Flashlight, Camera } from 'lucide-react';
-import { ModelSpecs, Variant, iPhoneGenerations, variantLabels } from '../utils/iPhoneModels';
+import { Flashlight, Camera } from 'lucide-react';
+import { ModelSpecs } from '../utils/iPhoneModels';
 
 interface WallpaperPreviewProps {
   url: string;
   modelSpecs: ModelSpecs | null;
   theme: 'dark' | 'light';
-  generation: string;
-  variant: Variant;
 }
 
-export default function WallpaperPreview({ url, modelSpecs, theme, generation, variant }: WallpaperPreviewProps) {
-  const [refreshKey, setRefreshKey] = useState(0);
+export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPreviewProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -19,21 +16,10 @@ export default function WallpaperPreview({ url, modelSpecs, theme, generation, v
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    setRefreshKey((prev) => prev + 1);
-  }, [url, modelSpecs, theme]);
-
-  const refresh = () => {
-    setRefreshKey((prev) => prev + 1);
-  };
-
   if (!modelSpecs) {
     return (
-      <div className="bg-white rounded-2xl shadow-xl p-6">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">Aperçu</h3>
-        <div className="text-center text-slate-500 py-12">
-          Modèle non disponible
-        </div>
+      <div className="text-center text-slate-500 py-12">
+        Modèle non disponible
       </div>
     );
   }
@@ -63,26 +49,9 @@ export default function WallpaperPreview({ url, modelSpecs, theme, generation, v
     return currentTime.toLocaleDateString('fr-FR', options);
   };
 
-  const generationData = iPhoneGenerations.find(g => g.id === generation);
-  const modelName = generationData
-    ? `${generationData.name} ${variantLabels[variant]}`
-    : 'iPhone';
-
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-slate-900">Aperçu</h3>
-        <button
-          onClick={refresh}
-          className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-          title="Actualiser"
-        >
-          <RefreshCw className="w-5 h-5 text-slate-600" />
-        </button>
-      </div>
-
-      <div className="relative bg-gradient-to-br from-slate-200 via-slate-300 to-slate-200 rounded-2xl overflow-hidden shadow-inner p-8">
-        <div className="relative mx-auto" style={{ maxWidth: `${displayWidth}px` }}>
+    <div>
+      <div className="relative mx-auto" style={{ maxWidth: `${displayWidth}px` }}>
           <div className="relative" style={{ paddingBottom: `${aspectRatio}%` }}>
             <div className="absolute inset-0">
               <div className="relative w-full h-full">
@@ -95,7 +64,6 @@ export default function WallpaperPreview({ url, modelSpecs, theme, generation, v
                   <div className={`relative w-full h-full ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
                     {url ? (
                       <img
-                        key={refreshKey}
                         src={url.startsWith('blob:') ? url : `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`}
                         alt="Aperçu du fond d'écran"
                         className="w-full h-full object-cover"
@@ -256,12 +224,7 @@ export default function WallpaperPreview({ url, modelSpecs, theme, generation, v
               </div>
             </div>
           </div>
-        </div>
       </div>
-
-      <p className="text-sm text-slate-500 mt-4 text-center">
-        {modelName}
-      </p>
     </div>
   );
 }

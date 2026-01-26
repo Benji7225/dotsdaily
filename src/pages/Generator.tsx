@@ -363,7 +363,7 @@ export default function Generator() {
           </div>
 
           <div>
-            <WallpaperPreview url={shortUrl || previewUrl} modelSpecs={modelSpecs} theme={config.theme} generation={config.generation} variant={config.variant} />
+            <WallpaperPreview url={shortUrl || previewUrl} modelSpecs={modelSpecs} theme={config.theme} />
           </div>
         </div>
       </div>
