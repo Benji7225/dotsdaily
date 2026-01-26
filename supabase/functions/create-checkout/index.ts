@@ -19,11 +19,27 @@ Deno.serve(async (req: Request) => {
     const stripePriceId = Deno.env.get("STRIPE_PRICE_ID");
 
     if (!stripeKey) {
-      throw new Error("STRIPE_SECRET_KEY not configured");
+      return new Response(
+        JSON.stringify({
+          error: "Stripe is not configured. Please contact support."
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        }
+      );
     }
 
     if (!stripePriceId) {
-      throw new Error("STRIPE_PRICE_ID not configured");
+      return new Response(
+        JSON.stringify({
+          error: "Stripe price is not configured. Please contact support."
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        }
+      );
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
