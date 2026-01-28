@@ -64,26 +64,24 @@ export default function Generator() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
-    const url = new URL(window.location.href);
-    const hasSuccess = url.searchParams.has('success');
-    const hasCanceled = url.searchParams.has('canceled');
-
     const savedConfig = localStorage.getItem('pendingConfig');
-    if (savedConfig && (hasSuccess || hasCanceled)) {
+    if (savedConfig) {
       try {
         const parsedConfig = JSON.parse(savedConfig);
         setConfig(parsedConfig);
         localStorage.removeItem('pendingConfig');
 
+        const url = new URL(window.location.href);
         url.searchParams.delete('success');
         url.searchParams.delete('canceled');
+        url.hash = '';
         window.history.replaceState({}, '', url.toString());
       } catch (error) {
         console.error('Error restoring config:', error);
         localStorage.removeItem('pendingConfig');
       }
     }
-  }, []);
+  }, [session]);
 
   useEffect(() => {
     setShortUrl('');
