@@ -26,7 +26,7 @@ Deno.serve(async (req: Request) => {
 
     const body = await req.text();
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-    const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    const event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
 
     console.log("Verified webhook event:", event.type, "ID:", event.id);
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
