@@ -300,7 +300,30 @@ export default function Generator() {
       return;
     }
 
-    window.location.href = 'https://buy.stripe.com/28E4gB8fDa1UfVzcpvfMA00';
+    setLoadingCheckout(true);
+
+    try {
+      const response = await fetch(`${apiUrl}/functions/v1/create-checkout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          returnUrl: window.location.href
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoadingCheckout(false);
+    }
   };
 
   const modes = [

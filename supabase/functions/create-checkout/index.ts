@@ -74,13 +74,17 @@ Deno.serve(async (req: Request) => {
     const customerId = subscription?.stripe_customer_id;
     const baseUrl = req.headers.get("origin") || "https://dotsdaily.com";
 
+    const { returnUrl } = await req.json();
+    const successUrl = returnUrl || `${baseUrl}/generator`;
+    const cancelUrl = returnUrl || `${baseUrl}/pricing`;
+
     const stripeBody: Record<string, string> = {
       "mode": "payment",
       "payment_method_types[0]": "card",
       "line_items[0][price]": stripePriceId,
       "line_items[0][quantity]": "1",
-      "success_url": `${baseUrl}/generator?success=true`,
-      "cancel_url": `${baseUrl}/pricing?canceled=true`,
+      "success_url": `${successUrl}?success=true`,
+      "cancel_url": `${cancelUrl}?canceled=true`,
       "client_reference_id": user.id,
     };
 

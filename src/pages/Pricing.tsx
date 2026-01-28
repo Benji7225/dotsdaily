@@ -2,6 +2,7 @@ import { Check, Lock, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useState } from 'react';
+import { supabase } from '../utils/supabase';
 
 export default function Pricing() {
   const { t } = useLanguage();
@@ -14,7 +15,30 @@ export default function Pricing() {
       return;
     }
 
-    window.location.href = 'https://buy.stripe.com/28E4gB8fDa1UfVzcpvfMA00';
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          returnUrl: window.location.href
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
