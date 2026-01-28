@@ -64,6 +64,28 @@ export default function Generator() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
+    const url = new URL(window.location.href);
+    const hasSuccess = url.searchParams.has('success');
+    const hasCanceled = url.searchParams.has('canceled');
+
+    const savedConfig = localStorage.getItem('pendingConfig');
+    if (savedConfig && (hasSuccess || hasCanceled)) {
+      try {
+        const parsedConfig = JSON.parse(savedConfig);
+        setConfig(parsedConfig);
+        localStorage.removeItem('pendingConfig');
+
+        url.searchParams.delete('success');
+        url.searchParams.delete('canceled');
+        window.history.replaceState({}, '', url.toString());
+      } catch (error) {
+        console.error('Error restoring config:', error);
+        localStorage.removeItem('pendingConfig');
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     setShortUrl('');
   }, [config]);
 
@@ -296,6 +318,7 @@ export default function Generator() {
 
   const handleUpgradeToPremium = async () => {
     if (!session) {
+      localStorage.setItem('pendingConfig', JSON.stringify(config));
       await signInWithGoogle();
       return;
     }
@@ -303,6 +326,13 @@ export default function Generator() {
     setLoadingCheckout(true);
 
     try {
+      localStorage.setItem('pendingConfig', JSON.stringify(config));
+
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.delete('success');
+      currentUrl.searchParams.delete('canceled');
+      const returnUrl = currentUrl.toString();
+
       const response = await fetch(`${apiUrl}/functions/v1/create-checkout`, {
         method: 'POST',
         headers: {
@@ -310,7 +340,7 @@ export default function Generator() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          returnUrl: window.location.href
+          returnUrl
         }),
       });
 
@@ -321,6 +351,7 @@ export default function Generator() {
       }
     } catch (error) {
       console.error('Error:', error);
+      localStorage.removeItem('pendingConfig');
     } finally {
       setLoadingCheckout(false);
     }

@@ -1,13 +1,22 @@
 import { Check, Lock, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 
 export default function Pricing() {
   const { t } = useLanguage();
   const { user, session, signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('success') || url.searchParams.has('canceled')) {
+      url.searchParams.delete('success');
+      url.searchParams.delete('canceled');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
 
   const handleSubscribe = async () => {
     if (!user || !session) {
@@ -18,6 +27,10 @@ export default function Pricing() {
     setLoading(true);
 
     try {
+      const currentUrl = new URL(window.location.href);
+      currentUrl.searchParams.delete('canceled');
+      const returnUrl = currentUrl.toString();
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
         method: 'POST',
         headers: {
@@ -25,7 +38,7 @@ export default function Pricing() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          returnUrl: window.location.href
+          returnUrl
         }),
       });
 
