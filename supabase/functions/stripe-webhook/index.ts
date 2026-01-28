@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import Stripe from "npm:stripe@14.11.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,10 +16,19 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const body = await req.text();
-    const event = JSON.parse(body);
+    const signature = req.headers.get("stripe-signature");
+    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
 
-    console.log("Received webhook event:", event.type, "ID:", event.id);
+    if (!signature || !webhookSecret || !stripeKey) {
+      throw new Error("Missing signature or webhook secret");
+    }
+
+    const body = await req.text();
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+    const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+
+    console.log("Verified webhook event:", event.type, "ID:", event.id);
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const { createClient } = await import("npm:@supabase/supabase-js@2.57.4");
