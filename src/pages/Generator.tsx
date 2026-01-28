@@ -70,18 +70,20 @@ export default function Generator() {
         const parsedConfig = JSON.parse(savedConfig);
         setConfig(parsedConfig);
         localStorage.removeItem('pendingConfig');
-
-        const url = new URL(window.location.href);
-        url.searchParams.delete('success');
-        url.searchParams.delete('canceled');
-        url.hash = '';
-        window.history.replaceState({}, '', url.toString());
       } catch (error) {
         console.error('Error restoring config:', error);
         localStorage.removeItem('pendingConfig');
       }
     }
-  }, [session]);
+
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('success') || url.searchParams.has('canceled')) {
+      url.searchParams.delete('success');
+      url.searchParams.delete('canceled');
+      url.hash = '';
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
 
   useEffect(() => {
     setShortUrl('');

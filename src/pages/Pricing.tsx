@@ -2,21 +2,26 @@ import { Check, Lock, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 
 export default function Pricing() {
   const { t } = useLanguage();
   const { user, session, signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const url = new URL(window.location.href);
-    if (url.searchParams.has('success') || url.searchParams.has('canceled')) {
-      url.searchParams.delete('success');
+    if (url.searchParams.has('success')) {
+      navigate('/generator?success=true');
+      return;
+    }
+    if (url.searchParams.has('canceled')) {
       url.searchParams.delete('canceled');
       window.history.replaceState({}, '', url.toString());
     }
-  }, []);
+  }, [navigate]);
 
   const handleSubscribe = async () => {
     if (!user || !session) {
