@@ -177,7 +177,7 @@ const translations = {
     },
     home: {
       hero: {
-        title: 'Suis ta progression \n en fond d\'écran',
+        title: 'Ta vie. \n Un point à la fois.',
         subtitle: 'Transforme ta vie, tes objectifs et ta progression quotidienne en un magnifique fond d\'écran iPhone qui se met à jour automatiquement chaque jour.',
         cta: 'Créer ton Fond d\'Écran',
         learn: 'Voir Comment ça Marche'
