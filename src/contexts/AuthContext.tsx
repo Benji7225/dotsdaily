@@ -28,11 +28,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        if (event === 'SIGNED_IN') {
+          const returnUrl = localStorage.getItem('authReturnUrl');
+          if (returnUrl) {
+            localStorage.removeItem('authReturnUrl');
+            const url = new URL(returnUrl);
+            url.hash = '';
+            window.location.href = url.toString();
+          }
+        }
       })();
     });
 
@@ -40,10 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
+    localStorage.setItem('authReturnUrl', window.location.href);
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.href,
+        redirectTo: window.location.origin,
       },
     });
 
