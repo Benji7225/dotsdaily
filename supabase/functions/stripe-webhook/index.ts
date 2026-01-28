@@ -37,39 +37,61 @@ Deno.serve(async (req: Request) => {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
-        const userId = session.client_reference_id;
+        let userId = session.client_reference_id;
         const customerId = session.customer;
         const paymentStatus = session.payment_status;
+        const customerEmail = session.customer_details?.email || session.customer_email;
 
-        if (userId && paymentStatus === "paid") {
-          console.log("Processing lifetime payment for user:", userId, "customerId:", customerId);
+        if (paymentStatus === "paid") {
+          if (!userId && customerEmail) {
+            console.log("No userId in session, looking up user by email:", customerEmail);
+            const { data: userData, error: userError } = await supabase.auth.admin.listUsers();
 
-          const subscriptionData: any = {
-            user_id: userId,
-            stripe_subscription_id: null,
-            status: "lifetime",
-            plan: "lifetime",
-            updated_at: new Date().toISOString(),
-          };
-
-          if (customerId) {
-            subscriptionData.stripe_customer_id = customerId;
+            if (!userError && userData?.users) {
+              const user = userData.users.find((u: any) => u.email === customerEmail);
+              if (user) {
+                userId = user.id;
+                console.log("Found user by email:", userId);
+              } else {
+                console.error("No user found with email:", customerEmail);
+              }
+            } else {
+              console.error("Error listing users:", userError);
+            }
           }
 
-          const { data, error } = await supabase
-            .from("user_subscriptions")
-            .upsert(subscriptionData, {
-              onConflict: "user_id"
-            })
-            .select();
+          if (userId) {
+            console.log("Processing lifetime payment for user:", userId, "customerId:", customerId);
 
-          if (error) {
-            console.error("Error updating lifetime access:", error);
+            const subscriptionData: any = {
+              user_id: userId,
+              stripe_subscription_id: null,
+              status: "lifetime",
+              plan: "lifetime",
+              updated_at: new Date().toISOString(),
+            };
+
+            if (customerId) {
+              subscriptionData.stripe_customer_id = customerId;
+            }
+
+            const { data, error } = await supabase
+              .from("user_subscriptions")
+              .upsert(subscriptionData, {
+                onConflict: "user_id"
+              })
+              .select();
+
+            if (error) {
+              console.error("Error updating lifetime access:", error);
+            } else {
+              console.log("Successfully granted lifetime access:", data);
+            }
           } else {
-            console.log("Successfully granted lifetime access:", data);
+            console.log("No userId found - email:", customerEmail);
           }
         } else {
-          console.log("Skipping checkout - userId:", userId, "paymentStatus:", paymentStatus);
+          console.log("Skipping checkout - paymentStatus:", paymentStatus);
         }
         break;
       }
