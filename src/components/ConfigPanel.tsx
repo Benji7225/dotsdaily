@@ -15,6 +15,7 @@ interface ConfigPanelProps {
 export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onUpgradeToPremium }: ConfigPanelProps) {
   const { isPremium } = useSubscription();
   const { t } = useLanguage();
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const granularityOptions: Record<WallpaperMode, { value: Granularity; label: string }[]> = {
     year: [
@@ -87,16 +88,18 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setImageError(null);
+
     const maxSize = 3 * 1024 * 1024;
     if (file.size > maxSize) {
-      alert('Image too large. Please use an image smaller than 3MB.');
+      setImageError(t('config.imageErrors.tooLarge'));
       e.target.value = '';
       return;
     }
 
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      alert('Invalid image format. Please use JPEG, PNG, or WebP.');
+      setImageError(t('config.imageErrors.invalidFormat'));
       e.target.value = '';
       return;
     }
@@ -105,14 +108,15 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
     reader.onloadend = () => {
       const result = reader.result as string;
       if (result.length > 4 * 1024 * 1024) {
-        alert('Image data too large after encoding. Please use a smaller or more compressed image.');
+        setImageError(t('config.imageErrors.dataTooLarge'));
         e.target.value = '';
         return;
       }
+      setImageError(null);
       handleThemeChange('image', undefined, result);
     };
     reader.onerror = () => {
-      alert('Failed to read image file. Please try another image.');
+      setImageError(t('config.imageErrors.readError'));
       e.target.value = '';
     };
     reader.readAsDataURL(file);
@@ -227,6 +231,12 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                 </span>
               )}
             </label>
+            {imageError && (
+              <div className="mb-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                <X className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                <span className="text-sm text-red-700">{imageError}</span>
+              </div>
+            )}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => handleThemeChange('dark')}
@@ -304,6 +314,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                 />
               </label>
             </div>
+            <p className="mt-2 text-xs text-slate-500">{t('config.imageMaxSize')}</p>
           </div>
 
           <div>

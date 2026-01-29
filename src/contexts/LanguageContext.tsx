@@ -109,6 +109,13 @@ const translations = {
         none: 'Aucun',
         month: 'Mois',
         quarter: 'Trimestre'
+      },
+      imageMaxSize: 'Max 3 Mo',
+      imageErrors: {
+        tooLarge: 'Image trop volumineuse. Utilise une image de moins de 3 Mo.',
+        invalidFormat: 'Format d\'image invalide. Utilise JPEG, PNG ou WebP.',
+        dataTooLarge: 'Données image trop volumineuses après encodage. Utilise une image plus petite ou plus compressée.',
+        readError: 'Échec de la lecture du fichier image. Essaie une autre image.'
       }
     },
     nav: {
@@ -596,6 +603,13 @@ const translations = {
         none: 'None',
         month: 'Month',
         quarter: 'Quarter'
+      },
+      imageMaxSize: 'Max 3 MB',
+      imageErrors: {
+        tooLarge: 'Image too large. Please use an image smaller than 3 MB.',
+        invalidFormat: 'Invalid image format. Please use JPEG, PNG, or WebP.',
+        dataTooLarge: 'Image data too large after encoding. Please use a smaller or more compressed image.',
+        readError: 'Failed to read image file. Please try another image.'
       }
     },
     nav: {
