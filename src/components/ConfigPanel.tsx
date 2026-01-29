@@ -1,6 +1,6 @@
 import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType, DotShape, AdditionalDisplay } from '../pages/Generator';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
-import { Upload, Lock, Circle, Square, Heart, Percent, Clock, X, Crown } from 'lucide-react';
+import { Pipette, Upload, Lock, Circle, Square, Heart, Percent, Clock, X, Crown } from 'lucide-react';
 import { useSubscription } from '../hooks/useSubscription';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useState } from 'react';
@@ -257,23 +257,29 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                 title={t('config.whiteBackground')}
               />
               <label
-                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative overflow-hidden ${
+                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
                   config.themeType === 'custom'
                     ? 'border-slate-900 shadow-lg scale-110'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
+                style={{
+                  backgroundColor: config.themeType === 'custom' ? config.customColor : '#888888'
+                }}
                 title={t('config.customColor')}
               >
                 {!isPremium && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg z-10">
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
                     <Lock className="w-3 h-3 text-white" />
                   </div>
+                )}
+                {config.themeType !== 'custom' && (
+                  <Pipette className="w-5 h-5 text-white" />
                 )}
                 <input
                   type="color"
                   value={config.customColor || '#888888'}
                   onChange={handleBgColorChange}
-                  className="w-full h-full cursor-pointer"
+                  className="w-0 h-0 opacity-0 absolute"
                 />
               </label>
               <label
@@ -332,23 +338,29 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                 title={t('config.orangeDefault')}
               />
               <label
-                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative overflow-hidden ${
+                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
                   config.dotColor
                     ? 'border-slate-900 shadow-lg scale-110'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
+                style={{
+                  backgroundColor: config.dotColor || '#888888'
+                }}
                 title="Couleur personnalisée"
               >
                 {!isPremium && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg z-10">
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
                     <Lock className="w-3 h-3 text-white" />
                   </div>
+                )}
+                {!config.dotColor && (
+                  <Pipette className="w-5 h-5 text-white" />
                 )}
                 <input
                   type="color"
                   value={config.dotColor || '#f97316'}
                   onChange={handleDotColorChange}
-                  className="w-full h-full cursor-pointer"
+                  className="w-0 h-0 opacity-0 absolute"
                 />
               </label>
             </div>
@@ -545,18 +557,16 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
           </>
         )}
 
-        {!isPremium && (
-          <button
-            onClick={onUpgradeToPremium}
-            className="relative w-full overflow-hidden group bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
-            <div className="relative flex items-center justify-center gap-3">
-              <Crown className="w-5 h-5 animate-pulse" />
-              <span className="text-base">Débloquer Premium - 2,99€ à vie</span>
-            </div>
-          </button>
-        )}
+        <button
+          onClick={onUpgradeToPremium}
+          className="relative w-full overflow-hidden group bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
+          <div className="relative flex items-center justify-center gap-3">
+            <Crown className="w-5 h-5 animate-pulse" />
+            <span className="text-base">Débloquer Premium - 2,99€ à vie</span>
+          </div>
+        </button>
       </div>
     </div>
   );
