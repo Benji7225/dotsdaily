@@ -512,6 +512,14 @@ const translations = {
         q: 'Les fonds d\'écran sont-ils optimisés pour tous les modèles d\'iPhone ?',
         a: 'Oui ! Nous supportons tous les modèles d\'iPhone récents avec les résolutions exactes pour chaque appareil, assurant un affichage parfait sans déformation.'
       },
+      q11: {
+        q: 'Mon automatisation affiche une erreur CFNetwork -1001.',
+        a: 'L\'erreur CFNetwork -1001 est un timeout réseau. Cela signifie que ton iPhone n\'a pas pu télécharger le fond d\'écran à l\'heure prévue. Causes possibles : pas de connexion Internet, mode économie d\'énergie activé, ou serveur temporairement lent. Solution : assure-toi que ton iPhone est connecté au WiFi la nuit, ou lance manuellement l\'automation dans Raccourcis pour forcer la mise à jour.'
+      },
+      q12: {
+        q: 'Mon automatisation ne fonctionne pas, que faire ?',
+        a: 'Si tu viens d\'installer l\'app Raccourcis ou de créer l\'automatisation, tu dois attendre 2-3 jours pour qu\'elle fonctionne correctement. C\'est une limitation d\'iOS qui empêche les nouvelles automatisations de s\'exécuter immédiatement. Sois patient, elle fonctionnera automatiquement après ce délai.'
+      },
       stillQuestions: 'Tu as encore des questions ?',
       contactUs: 'N\'hésite pas à nous contacter, nous sommes là pour t\'aider !'
     },
@@ -990,6 +998,14 @@ const translations = {
       q10: {
         q: 'Are wallpapers optimized for all iPhone models?',
         a: 'Yes! We support all recent iPhone models with exact resolutions for each device, ensuring perfect display without distortion.'
+      },
+      q11: {
+        q: 'My automation shows a CFNetwork -1001 error.',
+        a: 'CFNetwork -1001 is a network timeout error. This means your iPhone couldn\'t download the wallpaper at the scheduled time. Possible causes: no Internet connection, low power mode enabled, or temporarily slow server. Solution: make sure your iPhone is connected to WiFi at night, or manually run the automation in Shortcuts to force the update.'
+      },
+      q12: {
+        q: 'My automation isn\'t working, what should I do?',
+        a: 'If you just installed the Shortcuts app or created the automation, you need to wait 2-3 days for it to work properly. This is an iOS limitation that prevents new automations from running immediately. Be patient, it will work automatically after this delay.'
       },
       stillQuestions: 'Still have questions?',
       contactUs: 'Feel free to contact us, we\'re here to help!'

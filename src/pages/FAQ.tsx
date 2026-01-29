@@ -17,6 +17,8 @@ export default function FAQ() {
     { q: t('faq.q8.q'), a: t('faq.q8.a') },
     { q: t('faq.q9.q'), a: t('faq.q9.a') },
     { q: t('faq.q10.q'), a: t('faq.q10.a') },
+    { q: t('faq.q11.q'), a: t('faq.q11.a') },
+    { q: t('faq.q12.q'), a: t('faq.q12.a') },
   ];
 
   return (
