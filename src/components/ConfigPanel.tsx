@@ -257,18 +257,15 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                 title={t('config.whiteBackground')}
               />
               <label
-                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
+                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative overflow-hidden ${
                   config.themeType === 'custom'
                     ? 'border-slate-900 shadow-lg scale-110'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
-                style={{
-                  backgroundColor: config.themeType === 'custom' ? config.customColor : '#888888'
-                }}
                 title={t('config.customColor')}
               >
                 {!isPremium && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg z-10">
                     <Lock className="w-3 h-3 text-white" />
                   </div>
                 )}
@@ -276,7 +273,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                   type="color"
                   value={config.customColor || '#888888'}
                   onChange={handleBgColorChange}
-                  className="w-0 h-0 opacity-0 absolute"
+                  className="w-full h-full cursor-pointer"
                 />
               </label>
               <label
@@ -335,18 +332,15 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                 title={t('config.orangeDefault')}
               />
               <label
-                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
+                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative overflow-hidden ${
                   config.dotColor
                     ? 'border-slate-900 shadow-lg scale-110'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
-                style={{
-                  backgroundColor: config.dotColor || '#888888'
-                }}
                 title="Couleur personnalisée"
               >
                 {!isPremium && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg z-10">
                     <Lock className="w-3 h-3 text-white" />
                   </div>
                 )}
@@ -354,7 +348,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                   type="color"
                   value={config.dotColor || '#f97316'}
                   onChange={handleDotColorChange}
-                  className="w-0 h-0 opacity-0 absolute"
+                  className="w-full h-full cursor-pointer"
                 />
               </label>
             </div>
