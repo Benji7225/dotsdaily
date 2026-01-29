@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Heart, Target, Copy, Check, LogIn, Crown, History, X } from 'lucide-react';
+import { Calendar, Heart, Target, Copy, Check, LogIn, History, X } from 'lucide-react';
 import WallpaperPreview from '../components/WallpaperPreview';
 import ConfigPanel from '../components/ConfigPanel';
 import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from '../utils/iPhoneModels';
@@ -397,7 +397,7 @@ export default function Generator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4 lg:gap-6 max-w-6xl mx-auto items-start">
           <div className="order-2 lg:order-1">
-            <ConfigPanel config={config} setConfig={setConfig} onShowPremiumModal={() => setShowPremiumModal(true)} />
+            <ConfigPanel config={config} setConfig={setConfig} onShowPremiumModal={() => setShowPremiumModal(true)} onUpgradeToPremium={handleUpgradeToPremium} />
 
             <div className="bg-white border-2 border-gray-100 rounded-xl p-4 sm:p-6 mt-6">
               <div className="flex items-center justify-between mb-4">
