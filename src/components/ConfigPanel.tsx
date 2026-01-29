@@ -272,9 +272,6 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                     <Lock className="w-3 h-3 text-white" />
                   </div>
                 )}
-                {config.themeType !== 'custom' && (
-                  <div className="w-8 h-8 rounded-full" style={{ background: 'conic-gradient(from 0deg, red, yellow, lime, cyan, blue, magenta, red)' }} />
-                )}
                 <input
                   type="color"
                   value={config.customColor || '#888888'}
@@ -352,9 +349,6 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                   <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
                     <Lock className="w-3 h-3 text-white" />
                   </div>
-                )}
-                {!config.dotColor && (
-                  <div className="w-8 h-8 rounded-full" style={{ background: 'conic-gradient(from 0deg, red, yellow, lime, cyan, blue, magenta, red)' }} />
                 )}
                 <input
                   type="color"
