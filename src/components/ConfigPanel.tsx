@@ -557,16 +557,18 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
           </>
         )}
 
-        <button
-          onClick={onUpgradeToPremium}
-          className="relative w-full overflow-hidden group bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
-          <div className="relative flex items-center justify-center gap-3">
-            <Crown className="w-5 h-5 animate-pulse" />
-            <span className="text-base">Débloquer Premium - 2,99€ à vie</span>
-          </div>
-        </button>
+        {!isPremium && (
+          <button
+            onClick={onUpgradeToPremium}
+            className="relative w-full overflow-hidden group bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
+            <div className="relative flex items-center justify-center gap-3">
+              <Crown className="w-5 h-5 animate-pulse" />
+              <span className="text-base">Débloquer Premium - 2,99€ à vie</span>
+            </div>
+          </button>
+        )}
       </div>
     </div>
   );
