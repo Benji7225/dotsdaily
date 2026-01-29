@@ -1,6 +1,6 @@
 import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType, DotShape, AdditionalDisplay } from '../pages/Generator';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
-import { Pipette, Upload, Lock, Circle, Square, Heart, Percent, Clock, X } from 'lucide-react';
+import { Pipette, Upload, Lock, Circle, Square, Heart, Percent, Clock, X, Crown } from 'lucide-react';
 import { useSubscription } from '../hooks/useSubscription';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useState } from 'react';
