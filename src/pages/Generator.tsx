@@ -496,38 +496,65 @@ export default function Generator() {
       )}
 
       {showPremiumModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-8 max-w-md w-full relative">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-2xl w-full relative">
             <button
               onClick={() => setShowPremiumModal(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-6 h-6" />
             </button>
 
-            <div className="mb-6">
-              <h3 className="text-2xl font-bold text-black mb-4">
-                Abonnement requis
+            <div className="text-center mb-6">
+              <h3 className="text-2xl sm:text-3xl font-bold text-black mb-2">
+                {language === 'fr' ? 'Débloquez DotsDaily' : 'Unlock DotsDaily'}
               </h3>
-              <p className="text-gray-700 mb-6">
-                Pour générer et obtenir une URL de mise à jour automatique de votre fond d'écran, vous devez souscrire à un abonnement.
-              </p>
-              <div className="text-3xl font-bold text-orange-500 mb-2">
-                À partir de 2,99€/mois
-              </div>
-              <p className="text-sm text-gray-600 mb-6">
-                Essai gratuit de 3 jours
+              <p className="text-gray-600">
+                {language === 'fr' ? '3 jours gratuits, puis choisissez votre plan' : '3 days free, then choose your plan'}
               </p>
             </div>
 
-            <button
-              onClick={handleUpgradeToPremium}
-              className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
-            >
-              Voir les offres
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <button
+                onClick={() => window.location.href = 'https://buy.stripe.com/eVq14pcvT5LE9xbexDfMA04'}
+                className="border-2 border-gray-200 rounded-xl p-4 hover:border-orange-500 hover:shadow-lg transition-all text-left"
+              >
+                <div className="text-sm text-gray-600 mb-1">{language === 'fr' ? 'Mensuel' : 'Monthly'}</div>
+                <div className="text-3xl font-bold text-black mb-2">$3.49<span className="text-lg text-gray-600">/mo</span></div>
+                <div className="text-xs text-gray-500">{language === 'fr' ? 'Annulez à tout moment' : 'Cancel anytime'}</div>
+              </button>
+
+              <button
+                onClick={() => window.location.href = 'https://buy.stripe.com/fZufZjdzXb5Y24J0GNfMA05'}
+                className="border-2 border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 hover:shadow-lg transition-all text-left relative"
+              >
+                <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                  {language === 'fr' ? '-44%' : 'Save 44%'}
+                </div>
+                <div className="text-sm text-orange-700 mb-1">{language === 'fr' ? 'Annuel' : 'Annual'}</div>
+                <div className="text-3xl font-bold text-black mb-2">$23<span className="text-lg text-gray-600">/yr</span></div>
+                <div className="text-xs text-orange-700">{language === 'fr' ? 'Meilleure offre' : 'Best value'}</div>
+              </button>
+            </div>
+
+            <ul className="space-y-2 mb-6 text-sm">
+              <li className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                <span className="text-gray-700">{language === 'fr' ? 'Fond d\'écran qui se met à jour chaque jour' : 'Auto-updating wallpaper every day'}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                <span className="text-gray-700">{language === 'fr' ? 'Personnalisation complète (couleurs, formes, texte)' : 'Full customization (colors, shapes, text)'}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                <span className="text-gray-700">{language === 'fr' ? 'Tous les modèles iPhone supportés' : 'All iPhone models supported'}</span>
+              </li>
+            </ul>
+
+            <p className="text-center text-xs text-gray-500">
+              {language === 'fr' ? 'Essayez gratuitement pendant 3 jours. Aucune carte requise.' : 'Try free for 3 days. No card required.'}
+            </p>
           </div>
         </div>
       )}

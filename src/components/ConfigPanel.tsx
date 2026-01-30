@@ -167,22 +167,51 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
           </div>
         </div>
 
-        {config.mode === 'year' && (
+        <div className={availableGroupings.length > 0 ? 'grid grid-cols-2 gap-3' : ''}>
           <div>
-            <label htmlFor="year" className="block text-sm font-medium text-slate-700 mb-2">
-              {t('config.year')}
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              {t('config.dots')}
             </label>
-            <input
-              id="year"
-              type="number"
-              min="1900"
-              max="2100"
-              value={new Date().getFullYear()}
-              onChange={(e) => {}}
-              className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors"
-            />
+            <select
+              value={config.granularity}
+              onChange={(e) => {
+                const newGranularity = e.target.value as Granularity;
+                const newConfig = { ...config, granularity: newGranularity };
+                if (config.mode === 'year' && newGranularity === 'week' && config.grouping === 'month') {
+                  newConfig.grouping = 'none';
+                }
+                setConfig(newConfig);
+              }}
+              className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
+            >
+              {availableGranularities.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
-        )}
+          {availableGroupings.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                {t('config.group')}
+              </label>
+              <div className="relative">
+                <select
+                  value={config.grouping}
+                  onChange={(e) => setConfig({ ...config, grouping: e.target.value as Grouping })}
+                  className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
+                >
+                  {availableGroupings.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
 
         {config.mode === 'life' && (
           <>
@@ -247,52 +276,6 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
             </div>
           </>
         )}
-
-        <div className={availableGroupings.length > 0 ? 'grid grid-cols-2 gap-3' : ''}>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              {t('config.dots')}
-            </label>
-            <select
-              value={config.granularity}
-              onChange={(e) => {
-                const newGranularity = e.target.value as Granularity;
-                const newConfig = { ...config, granularity: newGranularity };
-                if (config.mode === 'year' && newGranularity === 'week' && config.grouping === 'month') {
-                  newConfig.grouping = 'none';
-                }
-                setConfig(newConfig);
-              }}
-              className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
-            >
-              {availableGranularities.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          {availableGroupings.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                {t('config.group')}
-              </label>
-              <div className="relative">
-                <select
-                  value={config.grouping}
-                  onChange={(e) => setConfig({ ...config, grouping: e.target.value as Grouping })}
-                  className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
-                >
-                  {availableGroupings.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          )}
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
