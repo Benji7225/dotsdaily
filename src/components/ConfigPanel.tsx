@@ -15,6 +15,27 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
   const { t } = useLanguage();
   const [imageError, setImageError] = useState<string | null>(null);
 
+  const getDefaultGranularity = (mode: WallpaperMode): Granularity => {
+    switch (mode) {
+      case 'year': return 'day';
+      case 'life': return 'year';
+      case 'countdown': return 'day';
+    }
+  };
+
+  const getDefaultGrouping = (mode: WallpaperMode): Grouping => {
+    return mode === 'year' ? 'none' : 'none';
+  };
+
+  const handleModeChange = (newMode: WallpaperMode) => {
+    setConfig({
+      ...config,
+      mode: newMode,
+      granularity: getDefaultGranularity(newMode),
+      grouping: getDefaultGrouping(newMode)
+    });
+  };
+
   const granularityOptions: Record<WallpaperMode, { value: Granularity; label: string }[]> = {
     year: [
       { value: 'day', label: t('config.granularity.day') },
@@ -173,7 +194,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
           </label>
           <select
             value={config.mode}
-            onChange={(e) => setConfig({ ...config, mode: e.target.value as WallpaperMode })}
+            onChange={(e) => handleModeChange(e.target.value as WallpaperMode)}
             className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
           >
             <option value="year">Year - Track every day of the year</option>

@@ -48,7 +48,7 @@ export default function Generator() {
   const [config, setConfig] = useState<WallpaperConfig>({
     mode: 'year',
     granularity: 'day',
-    grouping: 'month',
+    grouping: 'none',
     theme: 'dark',
     themeType: 'dark',
     generation: defaultGeneration.id,
@@ -97,27 +97,6 @@ export default function Generator() {
   useEffect(() => {
     setShortUrl('');
   }, [config]);
-
-  const getDefaultGranularity = (mode: WallpaperMode): Granularity => {
-    switch (mode) {
-      case 'year': return 'day';
-      case 'life': return 'year';
-      case 'countdown': return 'day';
-    }
-  };
-
-  const getDefaultGrouping = (mode: WallpaperMode): Grouping => {
-    return mode === 'year' ? 'month' : 'none';
-  };
-
-  const handleModeChange = (newMode: WallpaperMode) => {
-    setConfig({
-      ...config,
-      mode: newMode,
-      granularity: getDefaultGranularity(newMode),
-      grouping: getDefaultGrouping(newMode)
-    });
-  };
 
   const modelSpecs = getModelSpecs(config.generation, config.variant);
   const apiUrl = import.meta.env.VITE_SUPABASE_URL;
