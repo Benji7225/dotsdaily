@@ -44,7 +44,6 @@ export default function Generator() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showSavedConfigsModal, setShowSavedConfigsModal] = useState(false);
-  const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [config, setConfig] = useState<WallpaperConfig>({
     mode: 'year',
     granularity: 'day',
@@ -62,6 +61,15 @@ export default function Generator() {
   const [copied, setCopied] = useState(false);
   const [shortUrl, setShortUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleConfigChange = async (newConfig: WallpaperConfig) => {
+    if (!user) {
+      localStorage.setItem('pendingConfig', JSON.stringify(newConfig));
+      await signInWithGoogle();
+      return;
+    }
+    setConfig(newConfig);
+  };
 
   useEffect(() => {
     const savedConfig = localStorage.getItem('pendingConfig');
@@ -215,7 +223,7 @@ export default function Generator() {
       return;
     }
 
-    if (usesPremiumFeatures() && !isPremium) {
+    if (!isPremium) {
       setShowPremiumModal(true);
       return;
     }
@@ -316,45 +324,8 @@ export default function Generator() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleUpgradeToPremium = async () => {
-    if (!session) {
-      localStorage.setItem('pendingConfig', JSON.stringify(config));
-      await signInWithGoogle();
-      return;
-    }
-
-    setLoadingCheckout(true);
-
-    try {
-      localStorage.setItem('pendingConfig', JSON.stringify(config));
-
-      const currentUrl = new URL(window.location.href);
-      currentUrl.searchParams.delete('success');
-      currentUrl.searchParams.delete('canceled');
-      const returnUrl = currentUrl.toString();
-
-      const response = await fetch(`${apiUrl}/functions/v1/create-checkout`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          returnUrl
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      localStorage.removeItem('pendingConfig');
-    } finally {
-      setLoadingCheckout(false);
-    }
+  const handleUpgradeToPremium = () => {
+    window.location.href = '/pricing';
   };
 
   const modes = [
@@ -397,7 +368,7 @@ export default function Generator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4 lg:gap-6 max-w-6xl mx-auto items-start">
           <div className="order-2 lg:order-1">
-            <ConfigPanel config={config} setConfig={setConfig} onShowPremiumModal={() => setShowPremiumModal(true)} onUpgradeToPremium={handleUpgradeToPremium} />
+            <ConfigPanel config={config} setConfig={handleConfigChange} onShowPremiumModal={() => setShowPremiumModal(true)} onUpgradeToPremium={handleUpgradeToPremium} />
 
             <div className="bg-white border-2 border-gray-100 rounded-xl p-4 sm:p-6 mt-6">
               <div className="flex items-center justify-between mb-4">
@@ -538,46 +509,24 @@ export default function Generator() {
 
             <div className="mb-6">
               <h3 className="text-2xl font-bold text-black mb-4">
-                Fonctionnalités Premium
+                Abonnement requis
               </h3>
-              <div className="text-3xl font-bold text-orange-500 mb-6">
-                2,99€ à vie
+              <p className="text-gray-700 mb-6">
+                Pour générer et obtenir une URL de mise à jour automatique de votre fond d'écran, vous devez souscrire à un abonnement.
+              </p>
+              <div className="text-3xl font-bold text-orange-500 mb-2">
+                À partir de 2,99€/mois
               </div>
-
-              <ul className="space-y-3 mb-6">
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Texte personnalisé sur le fond d'écran</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Groupement par trimestre</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Couleurs personnalisées avec pipette</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Couleur des points personnalisable</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Formes de points (cercle, carré, cœur)</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">Support prioritaire</span>
-                </li>
-              </ul>
+              <p className="text-sm text-gray-600 mb-6">
+                Essai gratuit de 3 jours
+              </p>
             </div>
 
             <button
               onClick={handleUpgradeToPremium}
-              disabled={loadingCheckout}
-              className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
             >
-              {loadingCheckout ? 'Chargement...' : 'Paiement'}
+              Voir les offres
             </button>
           </div>
         </div>
