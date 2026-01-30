@@ -40,7 +40,7 @@ export default function Pricing() {
             <div className="mb-6">
               <h3 className="text-xl sm:text-2xl font-bold text-black mb-2">{language === 'fr' ? 'Mensuel' : 'Monthly'}</h3>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl sm:text-4xl font-bold text-black">$3.49</span>
+                <span className="text-3xl sm:text-4xl font-bold text-black">$2.99</span>
                 <span className="text-sm sm:text-base text-gray-600">{language === 'fr' ? '/mois' : '/month'}</span>
               </div>
               <p className="text-sm sm:text-base text-gray-600">{language === 'fr' ? 'Essai gratuit de 3 jours' : '3 days free trial'}</p>
@@ -87,7 +87,7 @@ export default function Pricing() {
             <div className="mb-6">
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">{language === 'fr' ? 'Annuel' : 'Annual'}</h3>
               <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-3xl sm:text-4xl font-bold text-white">$23</span>
+                <span className="text-3xl sm:text-4xl font-bold text-white">$19.9</span>
                 <span className="text-sm sm:text-base text-orange-100">{language === 'fr' ? '/an' : '/year'}</span>
               </div>
               <div className="mb-2">

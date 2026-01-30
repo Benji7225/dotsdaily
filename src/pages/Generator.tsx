@@ -44,6 +44,7 @@ export default function Generator() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showSavedConfigsModal, setShowSavedConfigsModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual'>('annual');
   const [config, setConfig] = useState<WallpaperConfig>({
     mode: 'year',
     granularity: 'day',
@@ -328,12 +329,6 @@ export default function Generator() {
     window.location.href = '/pricing';
   };
 
-  const modes = [
-    { id: 'year' as WallpaperMode, name: t('generator.modes.year.name'), icon: Calendar, desc: t('generator.modes.year.desc') },
-    { id: 'life' as WallpaperMode, name: t('generator.modes.life.name'), icon: Heart, desc: t('generator.modes.life.desc') },
-    { id: 'countdown' as WallpaperMode, name: t('generator.modes.goal.name'), icon: Target, desc: t('generator.modes.goal.desc') },
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
@@ -344,26 +339,6 @@ export default function Generator() {
           <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             {t('generator.subtitle')}
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8 max-w-4xl mx-auto">
-          {modes.map((mode) => (
-            <button
-              key={mode.id}
-              onClick={() => handleModeChange(mode.id)}
-              className={`p-4 sm:p-6 rounded-xl transition-all border-2 ${
-                config.mode === mode.id
-                  ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
-                  : 'bg-white text-black border-gray-200 hover:border-orange-500'
-              }`}
-            >
-              <mode.icon className="w-6 h-6 sm:w-8 sm:h-8 mb-2 sm:mb-3 mx-auto" />
-              <h3 className="text-base sm:text-lg font-semibold mb-1">{mode.name}</h3>
-              <p className={`text-xs sm:text-sm ${config.mode === mode.id ? 'text-orange-100' : 'text-gray-500'}`}>
-                {mode.desc}
-              </p>
-            </button>
-          ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4 lg:gap-6 max-w-6xl mx-auto items-start">
@@ -516,23 +491,31 @@ export default function Generator() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <button
-                onClick={() => window.location.href = 'https://buy.stripe.com/eVq14pcvT5LE9xbexDfMA04'}
-                className="border-2 border-gray-200 rounded-xl p-4 hover:border-orange-500 hover:shadow-lg transition-all text-left"
+                onClick={() => setSelectedPlan('monthly')}
+                className={`border-2 rounded-xl p-4 transition-all text-left ${
+                  selectedPlan === 'monthly'
+                    ? 'border-orange-500 bg-orange-50'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
               >
                 <div className="text-sm text-gray-600 mb-1">{language === 'fr' ? 'Mensuel' : 'Monthly'}</div>
-                <div className="text-3xl font-bold text-black mb-2">$3.49<span className="text-lg text-gray-600">/mo</span></div>
+                <div className="text-3xl font-bold text-black mb-2">$2.99<span className="text-lg text-gray-600">/mo</span></div>
                 <div className="text-xs text-gray-500">{language === 'fr' ? 'Annulez à tout moment' : 'Cancel anytime'}</div>
               </button>
 
               <button
-                onClick={() => window.location.href = 'https://buy.stripe.com/fZufZjdzXb5Y24J0GNfMA05'}
-                className="border-2 border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 hover:shadow-lg transition-all text-left relative"
+                onClick={() => setSelectedPlan('annual')}
+                className={`border-2 rounded-xl p-4 transition-all text-left relative ${
+                  selectedPlan === 'annual'
+                    ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
               >
                 <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
                   {language === 'fr' ? '-44%' : 'Save 44%'}
                 </div>
                 <div className="text-sm text-orange-700 mb-1">{language === 'fr' ? 'Annuel' : 'Annual'}</div>
-                <div className="text-3xl font-bold text-black mb-2">$23<span className="text-lg text-gray-600">/yr</span></div>
+                <div className="text-3xl font-bold text-black mb-2">$19.9<span className="text-lg text-gray-600">/yr</span></div>
                 <div className="text-xs text-orange-700">{language === 'fr' ? 'Meilleure offre' : 'Best value'}</div>
               </button>
             </div>
@@ -552,7 +535,17 @@ export default function Generator() {
               </li>
             </ul>
 
-            <p className="text-center text-xs text-gray-500">
+            <button
+              onClick={() => window.location.href = selectedPlan === 'monthly'
+                ? 'https://buy.stripe.com/eVq14pcvT5LE9xbexDfMA04'
+                : 'https://buy.stripe.com/fZufZjdzXb5Y24J0GNfMA05'
+              }
+              className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
+            >
+              {language === 'fr' ? 'Payer' : 'Pay Now'}
+            </button>
+
+            <p className="text-center text-xs text-gray-500 mt-3">
               {language === 'fr' ? 'Essayez gratuitement pendant 3 jours. Aucune carte requise.' : 'Try free for 3 days. No card required.'}
             </p>
           </div>

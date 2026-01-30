@@ -167,6 +167,21 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
           </div>
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Mode
+          </label>
+          <select
+            value={config.mode}
+            onChange={(e) => setConfig({ ...config, mode: e.target.value as WallpaperMode })}
+            className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
+          >
+            <option value="year">Year - Track every day of the year</option>
+            <option value="life">Life - Visualize your entire life</option>
+            <option value="countdown">Goal - Countdown to a target date</option>
+          </select>
+        </div>
+
         <div className={availableGroupings.length > 0 ? 'grid grid-cols-2 gap-3' : ''}>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
