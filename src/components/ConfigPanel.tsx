@@ -2,7 +2,7 @@ import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType, DotSh
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
 import { Pipette, Upload, Circle, Square, Heart, Percent, Clock, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ConfigPanelProps {
   config: WallpaperConfig;
@@ -14,27 +14,6 @@ interface ConfigPanelProps {
 export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onUpgradeToPremium }: ConfigPanelProps) {
   const { t } = useLanguage();
   const [imageError, setImageError] = useState<string | null>(null);
-
-  const getDefaultGranularity = (mode: WallpaperMode): Granularity => {
-    switch (mode) {
-      case 'year': return 'day';
-      case 'life': return 'year';
-      case 'countdown': return 'day';
-    }
-  };
-
-  const getDefaultGrouping = (mode: WallpaperMode): Grouping => {
-    return mode === 'year' ? 'none' : 'none';
-  };
-
-  const handleModeChange = (newMode: WallpaperMode) => {
-    setConfig({
-      ...config,
-      mode: newMode,
-      granularity: getDefaultGranularity(newMode),
-      grouping: getDefaultGrouping(newMode)
-    });
-  };
 
   const granularityOptions: Record<WallpaperMode, { value: Granularity; label: string }[]> = {
     year: [
@@ -63,6 +42,54 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
     life: [],
     countdown: [],
   };
+
+  const getDefaultGranularity = (mode: WallpaperMode): Granularity => {
+    switch (mode) {
+      case 'year': return 'day';
+      case 'life': return 'year';
+      case 'countdown': return 'day';
+    }
+  };
+
+  const getDefaultGrouping = (mode: WallpaperMode): Grouping => {
+    return 'none';
+  };
+
+  const handleModeChange = (newMode: WallpaperMode) => {
+    setConfig({
+      ...config,
+      mode: newMode,
+      granularity: getDefaultGranularity(newMode),
+      grouping: getDefaultGrouping(newMode)
+    });
+  };
+
+  useEffect(() => {
+    const validGranularities = granularityOptions[config.mode].map(g => g.value);
+    let validGroupings = groupingOptions[config.mode].map(g => g.value);
+
+    if (config.mode === 'year' && config.granularity === 'week') {
+      validGroupings = validGroupings.filter(g => g !== 'month');
+    }
+
+    let needsUpdate = false;
+    const updates: Partial<WallpaperConfig> = {};
+
+    if (!validGranularities.includes(config.granularity)) {
+      updates.granularity = getDefaultGranularity(config.mode);
+      needsUpdate = true;
+    }
+
+    if (validGroupings.length > 0 && !validGroupings.includes(config.grouping)) {
+      updates.grouping = getDefaultGrouping(config.mode);
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      setConfig({ ...config, ...updates });
+    }
+  }, [config.mode, config.granularity]);
+
   const today = new Date().toISOString().split('T')[0];
   const availableVariants = getAvailableVariants(config.generation);
   const availableGranularities = granularityOptions[config.mode];
