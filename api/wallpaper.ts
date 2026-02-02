@@ -852,7 +852,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       res.setHeader('Content-Type', 'image/png');
       res.setHeader('Content-Length', pngBuffer.length.toString());
-      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
       res.setHeader('Access-Control-Allow-Origin', '*');
       return res.send(pngBuffer);
     }
@@ -918,7 +918,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     res.setHeader('Content-Type', 'image/png');
     res.setHeader('Content-Length', pngBuffer.length.toString());
-    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
     res.setHeader('Access-Control-Allow-Origin', '*');
     return res.send(pngBuffer);
   } catch (error: any) {
