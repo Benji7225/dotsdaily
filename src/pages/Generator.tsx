@@ -250,7 +250,9 @@ export default function Generator() {
       });
 
       if (!saveResponse.ok) {
-        throw new Error('Sauvegarde config échouée');
+        const errorData = await saveResponse.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Edge function error:', errorData);
+        throw new Error(`Sauvegarde config échouée: ${errorData.error || saveResponse.statusText}`);
       }
 
       const saveData = await saveResponse.json();
@@ -260,8 +262,8 @@ export default function Generator() {
       const pngUrl = `${baseUrl}/w/${configId}`;
       setShortUrl(pngUrl);
     } catch (error) {
-      console.error('Erreur:', error);
-      alert('Erreur lors de la génération du fond d\'écran');
+      console.error('Erreur complète:', error);
+      alert(`Erreur: ${error instanceof Error ? error.message : 'Erreur lors de la génération du fond d\'écran'}`);
     } finally {
       setIsGenerating(false);
     }

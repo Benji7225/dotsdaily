@@ -102,9 +102,14 @@ Deno.serve(async (req: Request) => {
       language
     } = body;
 
-    if (!mode || !granularity || !width || !height) {
+    if (!mode || !granularity || !width || !height ||
+        safeTop === undefined || safeBottom === undefined ||
+        safeLeft === undefined || safeRight === undefined) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({
+          error: 'Missing required fields',
+          details: { mode, granularity, width, height, safeTop, safeBottom, safeLeft, safeRight }
+        }),
         {
           status: 400,
           headers: {
