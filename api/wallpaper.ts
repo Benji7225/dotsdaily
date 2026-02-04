@@ -5,6 +5,7 @@ import { join } from 'path';
 import { readFileSync } from 'fs';
 
 interface WallpaperConfig {
+  wallpaper_type?: string;
   mode: string;
   granularity: string;
   grouping: string;
@@ -28,6 +29,9 @@ interface WallpaperConfig {
   safe_right: number;
   timezone: string;
   language: string;
+  quote_mode?: string | null;
+  quote_text_color?: string | null;
+  custom_quotes?: string[] | null;
 }
 
 interface Translations {
@@ -372,7 +376,92 @@ function generateDotShape(x: number, y: number, size: number, fill: string, shap
   }
 }
 
+function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date): string {
+  const { width, height } = modelSpecs;
+  const isDark = config.theme !== 'light';
+
+  let bgColor = isDark ? '#0a0a0a' : '#ffffff';
+  let backgroundDef = '';
+
+  if (config.background_image) {
+    backgroundDef = `<defs>
+      <pattern id="bgImage" x="0" y="0" width="1" height="1">
+        <image href="${config.background_image}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+      </pattern>
+    </defs>`;
+    bgColor = 'url(#bgImage)';
+  }
+
+  const shortQuotes = [
+    "no one will do it for you.",
+    "this month will be my month.",
+    "do what makes you happy.",
+    "you will win.",
+    "never give up.",
+    "i will be the person i want to be.",
+    "it's not just a dream.",
+    "be the good person.",
+    "better.",
+    "balance is not found, it's created.",
+    "easy choices -> hard life\nhard choices -> easy life.",
+    "focus.",
+    "obsession beat talent.",
+    "the 1%.",
+    "you vs you.",
+    "on a mission.",
+    "don't quit.",
+    "just do it.",
+    "patience.",
+    "persévérance.",
+    "love the process.",
+    "discipline.",
+    "believe in progress, not in perfection.",
+    "no risk, no story.",
+    "keep going.",
+    "loser not try.",
+    "better than yesterday.",
+    "my potential is outside my comfort zone.",
+    "dreaming doing.",
+    "fall 6 times, stand up 7."
+  ];
+
+  const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+  const quoteIndex = dayOfYear % shortQuotes.length;
+  const quote = shortQuotes[quoteIndex];
+
+  const textColor = config.quote_text_color === 'black' ? '#000000' : '#ffffff';
+  const dotColor = config.dot_color || '#FF8C42';
+
+  const lines = quote.split('\n');
+  const lineHeight = 40;
+  const startY = height / 2 - (lines.length * lineHeight) / 2;
+
+  const textElements = lines.map((line, index) => {
+    const parts = line.split('.');
+    if (parts.length > 1 && parts[parts.length - 1] === '') {
+      const textPart = parts.slice(0, -1).join('.');
+      return `<text x="${width / 2}" y="${startY + index * lineHeight}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="${textColor}" text-anchor="middle">
+      ${textPart}<tspan fill="${dotColor}">.</tspan>
+    </text>`;
+    }
+    return `<text x="${width / 2}" y="${startY + index * lineHeight}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="${textColor}" text-anchor="middle">
+      ${line}
+    </text>`;
+  }).join('\n  ');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  ${backgroundDef}
+  <rect width="${width}" height="${height}" fill="${bgColor}"/>
+
+  ${textElements}
+</svg>`;
+}
+
 function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date): string {
+  if (config.wallpaper_type === 'quotes') {
+    return generateQuoteSVG(config, modelSpecs, now);
+  }
   const { width, height, safeArea } = modelSpecs;
   const isDark = config.theme !== 'light';
 

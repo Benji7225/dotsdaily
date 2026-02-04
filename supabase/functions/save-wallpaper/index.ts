@@ -77,6 +77,7 @@ Deno.serve(async (req: Request) => {
     const body = await req.json();
 
     const {
+      wallpaperType,
       mode,
       granularity,
       grouping,
@@ -99,7 +100,10 @@ Deno.serve(async (req: Request) => {
       safeLeft,
       safeRight,
       timezone,
-      language
+      language,
+      quoteMode,
+      quoteTextColor,
+      customQuotes
     } = body;
 
     if (!mode || !granularity || !width || !height ||
@@ -127,6 +131,7 @@ Deno.serve(async (req: Request) => {
       .insert({
         id,
         user_id: userId,
+        wallpaper_type: wallpaperType || 'dots',
         mode,
         granularity,
         grouping: grouping || 'none',
@@ -149,7 +154,10 @@ Deno.serve(async (req: Request) => {
         safe_left: safeLeft,
         safe_right: safeRight,
         timezone: timezone || 'UTC',
-        language: language || 'en'
+        language: language || 'en',
+        quote_mode: quoteMode || 'short',
+        quote_text_color: quoteTextColor || 'white',
+        custom_quotes: customQuotes || null
       });
 
     if (error) {

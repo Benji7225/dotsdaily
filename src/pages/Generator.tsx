@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Heart, Target, Copy, Check, LogIn, History, X } from 'lucide-react';
+import { Calendar, Heart, Target, Copy, Check, LogIn, History, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import WallpaperPreview from '../components/WallpaperPreview';
 import ConfigPanel from '../components/ConfigPanel';
+import QuotesConfigPanel from '../components/QuotesConfigPanel';
 import { defaultGeneration, defaultVariant, Variant, getModelSpecs } from '../utils/iPhoneModels';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,14 +10,17 @@ import { useSubscription } from '../hooks/useSubscription';
 import { useSavedConfigs } from '../hooks/useSavedConfigs';
 import { Link } from 'react-router-dom';
 
+export type WallpaperType = 'dots' | 'quotes';
 export type WallpaperMode = 'year' | 'life' | 'countdown';
 export type Granularity = 'day' | 'week' | 'month' | 'year';
 export type Grouping = 'none' | 'week' | 'month' | 'quarter' | 'year';
 export type ThemeType = 'dark' | 'light' | 'custom' | 'image';
 export type DotShape = 'circle' | 'square' | 'heart';
 export type AdditionalDisplay = 'percentage' | 'timeRemaining' | 'none';
+export type QuoteMode = 'short' | 'star' | 'custom';
 
 export interface WallpaperConfig {
+  wallpaperType: WallpaperType;
   mode: WallpaperMode;
   granularity: Granularity;
   grouping: Grouping;
@@ -34,6 +38,9 @@ export interface WallpaperConfig {
   additionalDisplay?: AdditionalDisplay;
   generation: string;
   variant: Variant;
+  quoteMode?: QuoteMode;
+  customQuotes?: string[];
+  quoteTextColor?: 'black' | 'white';
 }
 
 export default function Generator() {
@@ -46,6 +53,7 @@ export default function Generator() {
   const [showSavedConfigsModal, setShowSavedConfigsModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual'>('annual');
   const [config, setConfig] = useState<WallpaperConfig>({
+    wallpaperType: 'dots',
     mode: 'year',
     granularity: 'day',
     grouping: 'none',
@@ -57,11 +65,14 @@ export default function Generator() {
     lifeExpectancy: 80,
     startDate: '2026-01-26',
     targetDate: '2026-02-09',
+    quoteMode: 'short',
+    quoteTextColor: 'white',
   });
 
   const [copied, setCopied] = useState(false);
   const [shortUrl, setShortUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [currentDayOffset, setCurrentDayOffset] = useState(0);
 
   const handleConfigChange = async (newConfig: WallpaperConfig) => {
     if (!user) {
@@ -121,7 +132,7 @@ export default function Generator() {
             years: t('wallpaper.timeRemaining.years')
           }
         };
-        const svgContent = generateSVG(config, modelSpecs, translations);
+        const svgContent = generateSVG(config, modelSpecs, translations, currentDayOffset);
 
         if (cancelled) return;
 
@@ -183,7 +194,7 @@ export default function Generator() {
         URL.revokeObjectURL(currentPreviewUrl);
       }
     };
-  }, [config, modelSpecs, t]);
+  }, [config, modelSpecs, t, currentDayOffset]);
 
   const usesPremiumFeatures = () => {
     return (
@@ -215,6 +226,7 @@ export default function Generator() {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       const payload = {
+        wallpaperType: config.wallpaperType,
         mode: config.mode,
         granularity: config.granularity,
         grouping: config.grouping,
@@ -238,6 +250,9 @@ export default function Generator() {
         safeRight: modelSpecs.safeArea.right,
         timezone,
         language: language,
+        quoteMode: config.quoteMode,
+        quoteTextColor: config.quoteTextColor,
+        customQuotes: config.customQuotes,
       };
 
       const saveResponse = await fetch(`${apiUrl}/functions/v1/save-wallpaper`, {
@@ -324,7 +339,36 @@ export default function Generator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4 lg:gap-6 max-w-6xl mx-auto items-start">
           <div className="order-2 lg:order-1">
-            <ConfigPanel config={config} setConfig={handleConfigChange} onShowPremiumModal={() => setShowPremiumModal(true)} onUpgradeToPremium={handleUpgradeToPremium} />
+            <div className="bg-white border-2 border-gray-100 rounded-xl p-6 mb-6">
+              <div className="flex items-center justify-center gap-4">
+                <button
+                  onClick={() => setConfig({ ...config, wallpaperType: 'dots' })}
+                  className={`flex-1 py-4 px-6 rounded-lg font-semibold transition-all ${
+                    config.wallpaperType === 'dots'
+                      ? 'bg-orange-500 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Dots Wallpaper
+                </button>
+                <button
+                  onClick={() => setConfig({ ...config, wallpaperType: 'quotes' })}
+                  className={`flex-1 py-4 px-6 rounded-lg font-semibold transition-all ${
+                    config.wallpaperType === 'quotes'
+                      ? 'bg-orange-500 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Quotes Wallpaper
+                </button>
+              </div>
+            </div>
+
+            {config.wallpaperType === 'dots' ? (
+              <ConfigPanel config={config} setConfig={handleConfigChange} onShowPremiumModal={() => setShowPremiumModal(true)} onUpgradeToPremium={handleUpgradeToPremium} />
+            ) : (
+              <QuotesConfigPanel config={config} setConfig={handleConfigChange} />
+            )}
 
             <div className="bg-white border-2 border-gray-100 rounded-xl p-4 sm:p-6 mt-6">
               <div className="flex items-center justify-between mb-4">
@@ -405,6 +449,27 @@ export default function Generator() {
           </div>
 
           <div className="order-1 lg:order-2 lg:sticky lg:top-4">
+            {config.wallpaperType === 'quotes' && (
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <button
+                  onClick={() => setCurrentDayOffset(Math.max(currentDayOffset - 1, -365))}
+                  disabled={currentDayOffset <= -365}
+                  className="p-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <span className="text-sm font-medium text-gray-700 min-w-[120px] text-center">
+                  {currentDayOffset === 0 ? 'Today' : `${Math.abs(currentDayOffset)} day${Math.abs(currentDayOffset) > 1 ? 's' : ''} ago`}
+                </span>
+                <button
+                  onClick={() => setCurrentDayOffset(Math.min(currentDayOffset + 1, 0))}
+                  disabled={currentDayOffset >= 0}
+                  className="p-3 rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </div>
+            )}
             <WallpaperPreview url={shortUrl || previewUrl} modelSpecs={modelSpecs} theme={config.theme} />
           </div>
         </div>
