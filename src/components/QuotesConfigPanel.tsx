@@ -82,10 +82,33 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        setConfig({ ...config, backgroundImage: result });
+        setConfig({ ...config, backgroundImage: result, themeType: 'image' });
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleThemeChange = (themeType: 'dark' | 'light') => {
+    setConfig({
+      ...config,
+      theme: themeType,
+      themeType,
+      backgroundImage: undefined,
+      customColor: undefined
+    });
+  };
+
+  const handleBgColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfig({
+      ...config,
+      customColor: e.target.value,
+      themeType: 'custom',
+      backgroundImage: undefined
+    });
+  };
+
+  const handleDotColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfig({ ...config, dotColor: e.target.value });
   };
 
   return (
@@ -142,131 +165,163 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
           </select>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Background
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setConfig({ ...config, theme: 'dark', themeType: 'dark', backgroundImage: undefined })}
-              className={`py-3 px-4 rounded-lg border-2 transition-colors ${
-                config.themeType === 'dark' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-900'
-              }`}
-            >
-              Dark
-            </button>
-            <button
-              onClick={() => setConfig({ ...config, theme: 'light', themeType: 'light', backgroundImage: undefined })}
-              className={`py-3 px-4 rounded-lg border-2 transition-colors ${
-                config.themeType === 'light' ? 'border-slate-900 bg-slate-100 text-slate-900' : 'border-slate-200 bg-white text-slate-900'
-              }`}
-            >
-              Light
-            </button>
-          </div>
-          <div className="mt-3">
-            <label className="flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 border-slate-200 cursor-pointer hover:border-slate-900 transition-colors bg-white">
-              <Upload className="w-5 h-5 text-slate-700" />
-              <span className="text-sm font-medium text-slate-700">Upload Image</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Background
             </label>
-            {imageError && <p className="text-red-500 text-sm mt-1">{imageError}</p>}
-            {config.backgroundImage && (
-              <div className="mt-2 relative inline-block">
-                <img src={config.backgroundImage} alt="Background" className="h-20 rounded-lg" />
-                <button
-                  onClick={() => setConfig({ ...config, backgroundImage: undefined })}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+            {imageError && (
+              <div className="mb-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                <X className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                <span className="text-sm text-red-700">{imageError}</span>
               </div>
             )}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Dot Color
-          </label>
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <input
-                type="color"
-                value={config.dotColor || '#FF8C42'}
-                onChange={(e) => setConfig({ ...config, dotColor: e.target.value })}
-                className="w-full h-12 rounded-lg cursor-pointer border-2 border-slate-200"
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleThemeChange('dark')}
+                className={`w-12 h-12 rounded-full bg-black border-4 transition-all ${
+                  config.themeType === 'dark'
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                title="Black Background"
               />
+              <button
+                onClick={() => handleThemeChange('light')}
+                className={`w-12 h-12 rounded-full bg-white border-4 transition-all ${
+                  config.themeType === 'light'
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                title="White Background"
+              />
+              <label
+                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
+                  config.themeType === 'custom'
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                style={{
+                  backgroundColor: config.themeType === 'custom' ? config.customColor : '#888888'
+                }}
+                title="Custom Color"
+              >
+                {config.themeType !== 'custom' && (
+                  <Pipette className="w-5 h-5 text-white" />
+                )}
+                <input
+                  type="color"
+                  value={config.customColor || '#888888'}
+                  onChange={handleBgColorChange}
+                  className="w-0 h-0 opacity-0 absolute"
+                />
+              </label>
+              <label
+                className={`relative w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
+                  config.themeType === 'image'
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                style={{
+                  backgroundImage: config.themeType === 'image' && config.backgroundImage
+                    ? `url(${config.backgroundImage})`
+                    : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundColor: config.themeType === 'image' ? 'transparent' : '#666666'
+                }}
+                title="Custom Image"
+              >
+                {config.themeType !== 'image' && (
+                  <Upload className="w-5 h-5 text-white" />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
             </div>
-            <button
-              onClick={() => setConfig({ ...config, dotColor: '#FF8C42' })}
-              className="px-4 py-2 bg-slate-100 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-200 transition-colors"
-            >
-              Reset
-            </button>
+            <p className="mt-2 text-xs text-slate-500">Max 3 MB</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Dot color
+            </label>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setConfig({ ...config, dotColor: undefined })}
+                className={`w-12 h-12 rounded-full bg-orange-500 border-4 transition-all ${
+                  !config.dotColor
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                title="Orange (default)"
+              />
+              <label
+                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer relative ${
+                  config.dotColor
+                    ? 'border-slate-900 shadow-lg scale-110'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+                style={{
+                  backgroundColor: config.dotColor || '#888888'
+                }}
+                title="Custom color"
+              >
+                {!config.dotColor && (
+                  <Pipette className="w-5 h-5 text-white" />
+                )}
+                <input
+                  type="color"
+                  value={config.dotColor || '#f97316'}
+                  onChange={handleDotColorChange}
+                  className="w-0 h-0 opacity-0 absolute"
+                />
+              </label>
+            </div>
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            Dot Shape
+            Shape
           </label>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setConfig({ ...config, dotShape: 'circle' })}
-              className={`py-3 px-4 rounded-lg border-2 transition-colors flex items-center justify-center gap-2 ${
-                (config.dotShape || 'circle') === 'circle' ? 'border-slate-900 bg-slate-50' : 'border-slate-200 bg-white'
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
+                (!config.dotShape || config.dotShape === 'circle')
+                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
+              title="Circle"
             >
-              <Circle className="w-5 h-5" />
-              <span className="text-sm font-medium">Circle</span>
+              <Circle className="w-6 h-6 text-slate-700" fill="currentColor" />
             </button>
             <button
               onClick={() => setConfig({ ...config, dotShape: 'square' })}
-              className={`py-3 px-4 rounded-lg border-2 transition-colors flex items-center justify-center gap-2 ${
-                config.dotShape === 'square' ? 'border-slate-900 bg-slate-50' : 'border-slate-200 bg-white'
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
+                config.dotShape === 'square'
+                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
+              title="Square"
             >
-              <Square className="w-5 h-5" />
-              <span className="text-sm font-medium">Square</span>
+              <Square className="w-6 h-6 text-slate-700" fill="currentColor" />
             </button>
             <button
               onClick={() => setConfig({ ...config, dotShape: 'heart' })}
-              className={`py-3 px-4 rounded-lg border-2 transition-colors flex items-center justify-center gap-2 ${
-                config.dotShape === 'heart' ? 'border-slate-900 bg-slate-50' : 'border-slate-200 bg-white'
+              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
+                config.dotShape === 'heart'
+                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
+              title="Heart"
             >
-              <Heart className="w-5 h-5" />
-              <span className="text-sm font-medium">Heart</span>
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Text Color
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setConfig({ ...config, quoteTextColor: 'white' })}
-              className={`py-3 px-4 rounded-lg border-2 transition-colors ${
-                (config.quoteTextColor || 'white') === 'white' ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-900'
-              }`}
-            >
-              White
-            </button>
-            <button
-              onClick={() => setConfig({ ...config, quoteTextColor: 'black' })}
-              className={`py-3 px-4 rounded-lg border-2 transition-colors ${
-                config.quoteTextColor === 'black' ? 'border-slate-900 bg-slate-100 text-slate-900' : 'border-slate-200 bg-white text-slate-900'
-              }`}
-            >
-              Black
+              <Heart className="w-6 h-6 text-slate-700" fill="currentColor" />
             </button>
           </div>
         </div>

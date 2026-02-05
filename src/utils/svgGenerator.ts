@@ -299,7 +299,9 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   let bgColor = isDark ? '#0a0a0a' : '#ffffff';
   let backgroundDef = '';
 
-  if (config.backgroundImage) {
+  if (config.themeType === 'custom' && config.customColor) {
+    bgColor = config.customColor;
+  } else if (config.themeType === 'image' && config.backgroundImage) {
     backgroundDef = `<defs>
       <pattern id="bgImage" x="0" y="0" width="1" height="1">
         <image href="${config.backgroundImage}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
@@ -347,8 +349,11 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   const quoteIndex = dayOfYear % shortQuotes.length;
   const quote = shortQuotes[quoteIndex];
 
-  const textColor = config.quoteTextColor === 'black' ? '#000000' : '#ffffff';
+  const textColor = isDark ? '#ffffff' : '#000000';
   const dotColor = config.dotColor || '#FF8C42';
+  const dotSize = 10;
+
+  const horizontalPadding = width * 0.2;
 
   const lines = quote.split('\n');
   const lineHeight = 40;
@@ -358,9 +363,12 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
     const parts = line.split('.');
     if (parts.length > 1 && parts[parts.length - 1] === '') {
       const textPart = parts.slice(0, -1).join('.');
-      return `<text x="${width / 2}" y="${startY + index * lineHeight}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="${textColor}" text-anchor="middle">
-      ${textPart}<tspan fill="${dotColor}">.</tspan>
-    </text>`;
+      const centerY = startY + index * lineHeight;
+
+      return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="${textColor}" text-anchor="middle">
+      ${textPart}
+    </text>
+    <circle cx="${width / 2 + (textPart.length * 8.2)}" cy="${centerY - 8}" r="${dotSize / 2}" fill="${dotColor}" />`;
     }
     return `<text x="${width / 2}" y="${startY + index * lineHeight}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="${textColor}" text-anchor="middle">
       ${line}
