@@ -436,6 +436,7 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: 
   const dotSize = 10;
 
   const horizontalPadding = width * 0.2;
+  const maxTextWidth = width - (2 * horizontalPadding);
 
   const lines = quote.split('\n');
   const lineHeight = 40;
@@ -447,10 +448,15 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: 
       const textPart = parts.slice(0, -1).join('.');
       const centerY = startY + index * lineHeight;
 
-      return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="${textColor}" text-anchor="middle">
+      const charWidth = 14;
+      const estimatedTextWidth = textPart.length * charWidth;
+      const dotX = width / 2 + estimatedTextWidth / 2 + 8;
+      const dotY = centerY - 8;
+
+      return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="${textColor}" text-anchor="middle" textLength="${Math.min(estimatedTextWidth, maxTextWidth)}" lengthAdjust="spacingAndGlyphs">
       ${textPart}
     </text>
-    <circle cx="${width / 2 + (textPart.length * 8.2)}" cy="${centerY - 8}" r="${dotSize / 2}" fill="${dotColor}" />`;
+    ${generateDotShape(dotX, dotY, dotSize, dotColor, config.dot_shape)}`;
     }
     return `<text x="${width / 2}" y="${startY + index * lineHeight}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="${textColor}" text-anchor="middle">
       ${line}
