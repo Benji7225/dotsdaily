@@ -102,6 +102,7 @@ Deno.serve(async (req: Request) => {
       timezone,
       language,
       quoteMode,
+      quoteCategories,
       quoteTextColor,
       customQuotes
     } = body;
@@ -156,6 +157,7 @@ Deno.serve(async (req: Request) => {
         timezone: timezone || 'UTC',
         language: language || 'en',
         quote_mode: quoteMode || 'short',
+        quote_categories: quoteCategories || null,
         quote_text_color: quoteTextColor || 'white',
         custom_quotes: customQuotes || null
       });

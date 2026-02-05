@@ -310,38 +310,161 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
     bgColor = 'url(#bgImage)';
   }
 
-  const shortQuotes = [
-    "no one will do it for you.",
-    "this month will be my month.",
-    "do what makes you happy.",
-    "you will win.",
-    "never give up.",
-    "i will be the person i want to be.",
-    "it's not just a dream.",
-    "be the good person.",
-    "better.",
-    "balance is not found, it's created.",
-    "easy choices -> hard life\nhard choices -> easy life.",
-    "focus.",
-    "obsession beat talent.",
-    "the 1%.",
-    "you vs you.",
-    "on a mission.",
-    "don't quit.",
-    "just do it.",
-    "patience.",
-    "persévérance.",
-    "love the process.",
-    "discipline.",
-    "believe in progress, not in perfection.",
-    "no risk, no story.",
-    "keep going.",
-    "loser not try.",
-    "better than yesterday.",
-    "my potential is outside my comfort zone.",
-    "dreaming doing.",
-    "fall 6 times, stand up 7."
-  ];
+  const quotesByCategory: Record<string, string[]> = {
+    discipline: [
+      "do it anyway.",
+      "no excuses.",
+      "stay consistent.",
+      "show up.",
+      "keep going.",
+      "finish the day.",
+      "start again.",
+      "earn it.",
+      "keep your word.",
+      "no zero days.",
+      "discipline > mood.",
+      "repeat.",
+      "be reliable."
+    ],
+    self_respect: [
+      "respect yourself.",
+      "choose yourself.",
+      "protect your peace.",
+      "stop begging.",
+      "raise your standards.",
+      "don't chase.",
+      "walk away.",
+      "stay private.",
+      "keep boundaries.",
+      "you deserve better.",
+      "self respect first."
+    ],
+    confidence: [
+      "i am capable.",
+      "i trust myself.",
+      "i'm built for this.",
+      "i can handle it.",
+      "i am enough.",
+      "i belong here.",
+      "calm confidence.",
+      "prove it.",
+      "i don't fold.",
+      "watch me.",
+      "i will win."
+    ],
+    calm: [
+      "breathe.",
+      "slow down.",
+      "you are safe.",
+      "one step.",
+      "not today.",
+      "stay present.",
+      "be here now.",
+      "let it go.",
+      "calm mind.",
+      "it will pass.",
+      "no panic.",
+      "keep it simple."
+    ],
+    heartbreak: [
+      "let them go.",
+      "choose peace.",
+      "stop checking.",
+      "don't look back.",
+      "heal quietly.",
+      "you'll be okay.",
+      "detach.",
+      "it's over.",
+      "move forward.",
+      "new chapter.",
+      "you deserve love.",
+      "never again."
+    ],
+    love: [
+      "i love you.",
+      "i'm proud of you.",
+      "you're my home.",
+      "good morning, love.",
+      "i'm here.",
+      "i choose you.",
+      "always you.",
+      "stay with me.",
+      "i'm yours.",
+      "you matter.",
+      "you're safe with me."
+    ],
+    ambition: [
+      "build the life.",
+      "think bigger.",
+      "stay hungry.",
+      "no comfort.",
+      "make it real.",
+      "get to work.",
+      "stack it.",
+      "be unstoppable.",
+      "play the long game.",
+      "execute.",
+      "move in silence.",
+      "no shortcuts."
+    ],
+    gym: [
+      "one more rep.",
+      "earn the body.",
+      "no days off.",
+      "train today.",
+      "don't quit.",
+      "pain is temporary.",
+      "stay hard.",
+      "do the work.",
+      "sweat first.",
+      "stronger daily.",
+      "lift heavy."
+    ],
+    focus: [
+      "focus.",
+      "lock in.",
+      "deep work.",
+      "no distractions.",
+      "study now.",
+      "future you.",
+      "keep learning.",
+      "do the task.",
+      "finish this.",
+      "one chapter.",
+      "pass the exam."
+    ],
+    memento_mori: [
+      "time is running.",
+      "don't waste it.",
+      "your time matters.",
+      "life is short.",
+      "remember death.",
+      "today counts.",
+      "time flies.",
+      "not forever.",
+      "make it count.",
+      "you are aging.",
+      "stop delaying."
+    ]
+  };
+
+  let shortQuotes: string[] = [];
+
+  if (config.customQuotes && config.customQuotes.length > 0) {
+    shortQuotes = config.customQuotes;
+  } else {
+    const selectedCategories = config.quoteCategories || ['discipline', 'self_respect', 'confidence', 'calm', 'heartbreak', 'love', 'ambition', 'gym', 'focus', 'memento_mori'];
+
+    for (const category of selectedCategories) {
+      if (quotesByCategory[category]) {
+        shortQuotes = shortQuotes.concat(quotesByCategory[category]);
+      }
+    }
+
+    if (shortQuotes.length === 0) {
+      shortQuotes = quotesByCategory.discipline;
+    }
+  }
 
   const now = new Date();
   const targetDate = new Date(now.getTime() + dayOffset * 24 * 60 * 60 * 1000);
@@ -408,8 +531,8 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
 
     if (lineObj.hasDot) {
       const textWidth = lineObj.text.length * charWidth;
-      const dotX = width / 2 + textWidth / 2 + 6;
-      const dotY = centerY - fontSize * 0.3;
+      const dotX = width / 2 + textWidth / 2 + 4;
+      const dotY = centerY - dotSize * 0.5;
 
       return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}</text>
     ${generateDotShape(dotX, dotY, dotSize, dotColor, config.dotShape)}`;

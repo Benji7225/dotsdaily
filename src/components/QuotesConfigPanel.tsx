@@ -1,6 +1,6 @@
 import { WallpaperConfig, QuoteMode, DotShape } from '../pages/Generator';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
-import { Circle, Square, Heart, Pipette, Upload, X } from 'lucide-react';
+import { Circle, Square, Heart, Pipette, Upload, X, HelpCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface QuotesConfigPanelProps {
@@ -8,42 +8,56 @@ interface QuotesConfigPanelProps {
   setConfig: (config: WallpaperConfig) => void;
 }
 
-const shortQuotes = [
-  "no one will do it for you.",
-  "this month will be my month.",
-  "do what makes you happy.",
-  "you will win.",
-  "never give up.",
-  "i will be the person i want to be.",
-  "it's not just a dream.",
-  "be the good person.",
-  "better.",
-  "balance is not found, it's created.",
-  "easy choices -> hard life\nhard choices -> easy life.",
-  "focus.",
-  "obsession beat talent.",
-  "the 1%.",
-  "you vs you.",
-  "on a mission.",
-  "don't quit.",
-  "just do it.",
-  "patience.",
-  "persévérance.",
-  "love the process.",
-  "discipline.",
-  "believe in progress, not in perfection.",
-  "no risk, no story.",
-  "keep going.",
-  "loser not try.",
-  "better than yesterday.",
-  "my potential is outside my comfort zone.",
-  "dreaming doing.",
-  "fall 6 times, stand up 7."
-];
+const quoteCategories = {
+  discipline: {
+    label: 'Discipline',
+    examples: ['do it anyway.', 'no excuses.', 'stay consistent.', 'discipline > mood.']
+  },
+  self_respect: {
+    label: 'Self Respect',
+    examples: ['respect yourself.', 'protect your peace.', 'raise your standards.', 'keep boundaries.']
+  },
+  confidence: {
+    label: 'Confidence',
+    examples: ['i am capable.', 'i trust myself.', 'i will win.', 'watch me.']
+  },
+  calm: {
+    label: 'Anxiety / Calm',
+    examples: ['breathe.', 'you are safe.', 'stay present.', 'it will pass.']
+  },
+  heartbreak: {
+    label: 'Heartbreak / Moving On',
+    examples: ['let them go.', 'choose peace.', 'heal quietly.', 'new chapter.']
+  },
+  love: {
+    label: 'Love',
+    examples: ['i love you.', 'i\'m proud of you.', 'you\'re my home.', 'i choose you.']
+  },
+  ambition: {
+    label: 'Money / Ambition',
+    examples: ['build the life.', 'think bigger.', 'stay hungry.', 'execute.']
+  },
+  gym: {
+    label: 'Gym / Grind',
+    examples: ['one more rep.', 'earn the body.', 'no days off.', 'stay hard.']
+  },
+  focus: {
+    label: 'Study / Focus',
+    examples: ['focus.', 'lock in.', 'deep work.', 'finish this.']
+  },
+  memento_mori: {
+    label: 'Memento Mori / Time',
+    examples: ['time is running.', 'life is short.', 'make it count.', 'stop delaying.']
+  }
+};
+
+const shortQuotes: string[] = [];
 
 export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPanelProps) {
   const [imageError, setImageError] = useState<string | null>(null);
   const [availableVariants, setAvailableVariants] = useState<Variant[]>([]);
+  const [showCategoryExamples, setShowCategoryExamples] = useState<string | null>(null);
+  const [customQuotesText, setCustomQuotesText] = useState('');
 
   useEffect(() => {
     const variants = getAvailableVariants(config.generation);
@@ -111,6 +125,23 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
     setConfig({ ...config, dotColor: e.target.value });
   };
 
+  const handleCategoryToggle = (category: string) => {
+    const currentCategories = config.quoteCategories || [];
+    const newCategories = currentCategories.includes(category)
+      ? currentCategories.filter(c => c !== category)
+      : [...currentCategories, category];
+    setConfig({ ...config, quoteCategories: newCategories.length > 0 ? newCategories : undefined });
+  };
+
+  const handleCustomQuotesChange = (text: string) => {
+    setCustomQuotesText(text);
+    const lines = text.split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .slice(0, 100);
+    setConfig({ ...config, customQuotes: lines.length > 0 ? lines : undefined });
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
       <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">Customize your Quotes Wallpaper</h3>
@@ -160,10 +191,73 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
             className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
           >
             <option value="short">Short Quotes</option>
-            <option value="star">Star Quotes</option>
             <option value="custom">Custom Quotes (up to 100)</option>
           </select>
         </div>
+
+        {config.quoteMode === 'short' && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Quote Categories
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(quoteCategories).map(([key, category]) => {
+                const isSelected = config.quoteCategories?.includes(key) || (!config.quoteCategories && true);
+                return (
+                  <div key={key} className="relative inline-flex items-center gap-1">
+                    <button
+                      onClick={() => handleCategoryToggle(key)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                        isSelected
+                          ? 'bg-slate-900 text-white shadow-md'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      {category.label}
+                    </button>
+                    <button
+                      onClick={() => setShowCategoryExamples(showCategoryExamples === key ? null : key)}
+                      className="w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 flex items-center justify-center transition-colors"
+                      title="Show examples"
+                    >
+                      <HelpCircle className="w-3.5 h-3.5 text-slate-600" />
+                    </button>
+                    {showCategoryExamples === key && (
+                      <div className="absolute top-full left-0 mt-1 z-10 bg-white rounded-lg shadow-xl border border-slate-200 p-3 min-w-[200px]">
+                        <p className="text-xs font-semibold text-slate-900 mb-2">Examples:</p>
+                        <ul className="space-y-1">
+                          {category.examples.map((example, idx) => (
+                            <li key={idx} className="text-xs text-slate-600">• {example}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-xs text-slate-500">Select one or more categories. Your wallpaper will rotate through quotes from selected categories daily.</p>
+          </div>
+        )}
+
+        {config.quoteMode === 'custom' && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Custom Quotes
+            </label>
+            <textarea
+              value={customQuotesText}
+              onChange={(e) => handleCustomQuotesChange(e.target.value)}
+              placeholder="i will do it.&#10;focus.&#10;no excuses."
+              className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white font-mono text-sm min-h-[150px]"
+              maxLength={5000}
+            />
+            <p className="mt-2 text-xs text-slate-500">One quote per line. Max 100 quotes. Your wallpaper will rotate through your custom quotes daily.</p>
+            {config.customQuotes && config.customQuotes.length > 0 && (
+              <p className="mt-1 text-xs text-slate-700 font-medium">{config.customQuotes.length} quote{config.customQuotes.length !== 1 ? 's' : ''} added</p>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
