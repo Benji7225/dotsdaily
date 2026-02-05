@@ -538,7 +538,7 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: 
   if (config.custom_quotes && config.custom_quotes.length > 0) {
     shortQuotes = config.custom_quotes;
   } else {
-    const selectedCategories = config.quote_categories || ['discipline', 'self_respect', 'confidence', 'calm', 'heartbreak', 'love', 'ambition', 'gym', 'focus', 'memento_mori'];
+    const selectedCategories = config.quote_categories || ['discipline'];
 
     for (const category of selectedCategories) {
       if (quotesByCategory[category]) {
@@ -563,8 +563,25 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: 
   const maxTextWidth = width - (2 * horizontalPadding);
 
   const fontSize = 28;
-  const charWidth = fontSize * 0.5;
+  const avgCharWidth = fontSize * 0.54;
   const lineHeight = fontSize * 1.5;
+
+  function estimateTextWidth(text: string): number {
+    let width = 0;
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      if (char === ' ') {
+        width += avgCharWidth * 0.3;
+      } else if (char.match(/[iIl1!']/)) {
+        width += avgCharWidth * 0.4;
+      } else if (char.match(/[mMwW]/)) {
+        width += avgCharWidth * 1.3;
+      } else {
+        width += avgCharWidth;
+      }
+    }
+    return width;
+  }
 
   function wrapText(text: string, maxWidth: number): string[] {
     const words = text.split(' ');
@@ -573,7 +590,7 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: 
 
     for (const word of words) {
       const testLine = currentLine ? `${currentLine} ${word}` : word;
-      const testWidth = testLine.length * charWidth;
+      const testWidth = estimateTextWidth(testLine);
 
       if (testWidth > maxWidth && currentLine) {
         lines.push(currentLine);
@@ -613,9 +630,9 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: 
     const centerY = startY + index * lineHeight;
 
     if (lineObj.hasDot) {
-      const textWidth = lineObj.text.length * charWidth;
-      const dotX = width / 2 + textWidth / 2 + 4;
-      const dotY = centerY - dotSize * 0.5;
+      const textWidth = estimateTextWidth(lineObj.text);
+      const dotX = width / 2 + textWidth / 2 + 8;
+      const dotY = centerY - dotSize * 0.85;
 
       return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}</text>
     ${generateDotShape(dotX, dotY, dotSize, dotColor, config.dot_shape)}`;

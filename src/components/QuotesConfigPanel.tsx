@@ -126,11 +126,11 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
   };
 
   const handleCategoryToggle = (category: string) => {
-    const currentCategories = config.quoteCategories || [];
+    const currentCategories = config.quoteCategories || ['discipline'];
     const newCategories = currentCategories.includes(category)
       ? currentCategories.filter(c => c !== category)
       : [...currentCategories, category];
-    setConfig({ ...config, quoteCategories: newCategories.length > 0 ? newCategories : undefined });
+    setConfig({ ...config, quoteCategories: newCategories.length > 0 ? newCategories : ['discipline'] });
   };
 
   const handleCustomQuotesChange = (text: string) => {
@@ -197,30 +197,37 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
 
         {config.quoteMode === 'short' && (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Quote Categories
             </label>
+            <p className="mb-3 text-xs text-slate-500">Select one or more categories. Your wallpaper will rotate through quotes from selected categories daily.</p>
             <div className="flex flex-wrap gap-2">
               {Object.entries(quoteCategories).map(([key, category]) => {
-                const isSelected = config.quoteCategories?.includes(key) || (!config.quoteCategories && true);
+                const currentCategories = config.quoteCategories || ['discipline'];
+                const isSelected = currentCategories.includes(key);
                 return (
-                  <div key={key} className="relative inline-flex items-center gap-1">
+                  <div key={key} className="relative">
                     <button
                       onClick={() => handleCategoryToggle(key)}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      className={`pl-3 pr-8 py-1.5 rounded-full text-sm font-medium transition-all relative ${
                         isSelected
-                          ? 'bg-slate-900 text-white shadow-md'
+                          ? 'bg-orange-500 text-white shadow-md'
                           : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                       }`}
                     >
                       {category.label}
-                    </button>
-                    <button
-                      onClick={() => setShowCategoryExamples(showCategoryExamples === key ? null : key)}
-                      className="w-5 h-5 rounded-full bg-slate-200 hover:bg-slate-300 flex items-center justify-center transition-colors"
-                      title="Show examples"
-                    >
-                      <HelpCircle className="w-3.5 h-3.5 text-slate-600" />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowCategoryExamples(showCategoryExamples === key ? null : key);
+                        }}
+                        className={`absolute top-1/2 right-2 -translate-y-1/2 w-4 h-4 flex items-center justify-center transition-colors rounded-full ${
+                          isSelected ? 'hover:bg-orange-600' : 'hover:bg-slate-300'
+                        }`}
+                        title="Show examples"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                      </button>
                     </button>
                     {showCategoryExamples === key && (
                       <div className="absolute top-full left-0 mt-1 z-10 bg-white rounded-lg shadow-xl border border-slate-200 p-3 min-w-[200px]">
@@ -236,15 +243,15 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
                 );
               })}
             </div>
-            <p className="mt-2 text-xs text-slate-500">Select one or more categories. Your wallpaper will rotate through quotes from selected categories daily.</p>
           </div>
         )}
 
         {config.quoteMode === 'custom' && (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Custom Quotes
             </label>
+            <p className="mb-3 text-xs text-slate-500">One quote per line. Max 100 quotes. Your wallpaper will rotate through your custom quotes daily.</p>
             <textarea
               value={customQuotesText}
               onChange={(e) => handleCustomQuotesChange(e.target.value)}
@@ -252,9 +259,8 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
               className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white font-mono text-sm min-h-[150px]"
               maxLength={5000}
             />
-            <p className="mt-2 text-xs text-slate-500">One quote per line. Max 100 quotes. Your wallpaper will rotate through your custom quotes daily.</p>
             {config.customQuotes && config.customQuotes.length > 0 && (
-              <p className="mt-1 text-xs text-slate-700 font-medium">{config.customQuotes.length} quote{config.customQuotes.length !== 1 ? 's' : ''} added</p>
+              <p className="mt-2 text-xs text-slate-700 font-medium">{config.customQuotes.length} quote{config.customQuotes.length !== 1 ? 's' : ''} added</p>
             )}
           </div>
         )}

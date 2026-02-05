@@ -67,7 +67,7 @@ export default function Generator() {
     startDate: '2026-01-26',
     targetDate: '2026-02-09',
     quoteMode: 'short',
-    quoteCategories: ['discipline', 'self_respect', 'confidence', 'calm', 'heartbreak', 'love', 'ambition', 'gym', 'focus', 'memento_mori'],
+    quoteCategories: ['discipline'],
     quoteTextColor: 'white',
   });
 
