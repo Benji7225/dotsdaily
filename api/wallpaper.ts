@@ -634,12 +634,7 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: 
     const centerY = startY + index * lineHeight;
 
     if (lineObj.hasDot) {
-      const textWidth = estimateTextWidth(lineObj.text);
-      const dotX = width / 2 + textWidth / 2 + 6;
-      const dotY = centerY - dotSize * 0.6;
-
-      return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}</text>
-    ${generateDotShape(dotX, dotY, dotSize, dotColor, config.dot_shape)}`;
+      return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}<tspan font-size="${fontSize * 1.4}" fill="${dotColor}">.</tspan></text>`;
     }
     return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}</text>`;
   }).join('\n  ');
