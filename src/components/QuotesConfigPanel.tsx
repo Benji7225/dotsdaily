@@ -136,7 +136,13 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
   const handleCustomQuotesChange = (text: string) => {
     setCustomQuotesText(text);
     const lines = text.split('\n')
-      .map(line => line.trim())
+      .map(line => {
+        const trimmed = line.trim();
+        if (trimmed.length > 0 && !trimmed.endsWith('.')) {
+          return trimmed + '.';
+        }
+        return trimmed;
+      })
       .filter(line => line.length > 0)
       .slice(0, 100);
     setConfig({ ...config, customQuotes: lines.length > 0 ? lines : undefined });

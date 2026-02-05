@@ -480,7 +480,7 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   const maxTextWidth = width - (2 * horizontalPadding);
 
   const fontSize = 28;
-  const avgCharWidth = fontSize * 0.54;
+  const avgCharWidth = fontSize * 0.52;
   const lineHeight = fontSize * 1.5;
 
   function estimateTextWidth(text: string): number {
@@ -488,11 +488,15 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
     for (let i = 0; i < text.length; i++) {
       const char = text[i];
       if (char === ' ') {
-        width += avgCharWidth * 0.3;
-      } else if (char.match(/[iIl1!']/)) {
-        width += avgCharWidth * 0.4;
+        width += avgCharWidth * 0.28;
+      } else if (char.match(/[iIjl1!'|]/)) {
+        width += avgCharWidth * 0.35;
       } else if (char.match(/[mMwW]/)) {
-        width += avgCharWidth * 1.3;
+        width += avgCharWidth * 1.4;
+      } else if (char.match(/[frt]/)) {
+        width += avgCharWidth * 0.6;
+      } else if (char.match(/[><]/)) {
+        width += avgCharWidth * 1.1;
       } else {
         width += avgCharWidth;
       }
@@ -548,8 +552,8 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
 
     if (lineObj.hasDot) {
       const textWidth = estimateTextWidth(lineObj.text);
-      const dotX = width / 2 + textWidth / 2 + 8;
-      const dotY = centerY - dotSize * 0.85;
+      const dotX = width / 2 + textWidth / 2 + 6;
+      const dotY = centerY - dotSize * 0.6;
 
       return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}</text>
     ${generateDotShape(dotX, dotY, dotSize, dotColor, config.dotShape)}`;
