@@ -197,7 +197,7 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
             className="w-full px-4 py-3 rounded-lg border-2 border-slate-200 focus:border-slate-900 focus:outline-none transition-colors bg-white"
           >
             <option value="short">Short Quotes</option>
-            <option value="custom">Custom Quotes (up to 100)</option>
+            <option value="custom">Custom Quotes</option>
           </select>
         </div>
 
