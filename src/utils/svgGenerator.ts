@@ -356,29 +356,65 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   const horizontalPadding = width * 0.2;
   const maxTextWidth = width - (2 * horizontalPadding);
 
-  const lines = quote.split('\n');
-  const lineHeight = 40;
-  const startY = height / 2 - (lines.length * lineHeight) / 2;
+  const fontSize = 28;
+  const charWidth = fontSize * 0.5;
+  const lineHeight = fontSize * 1.5;
 
-  const textElements = lines.map((line, index) => {
-    const parts = line.split('.');
-    if (parts.length > 1 && parts[parts.length - 1] === '') {
-      const textPart = parts.slice(0, -1).join('.');
-      const centerY = startY + index * lineHeight;
+  function wrapText(text: string, maxWidth: number): string[] {
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
 
-      const charWidth = 14;
-      const estimatedTextWidth = textPart.length * charWidth;
-      const dotX = width / 2 + estimatedTextWidth / 2 + 8;
-      const dotY = centerY - 8;
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const testWidth = testLine.length * charWidth;
 
-      return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="${textColor}" text-anchor="middle" textLength="${Math.min(estimatedTextWidth, maxTextWidth)}" lengthAdjust="spacingAndGlyphs">
-      ${textPart}
-    </text>
+      if (testWidth > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    return lines;
+  }
+
+  const allLines: Array<{ text: string; hasDot: boolean }> = [];
+  const quoteLines = quote.split('\n');
+
+  for (const line of quoteLines) {
+    const hasDot = line.endsWith('.');
+    const textWithoutDot = hasDot ? line.slice(0, -1) : line;
+    const wrappedLines = wrapText(textWithoutDot, maxTextWidth);
+
+    wrappedLines.forEach((wrappedLine, idx) => {
+      allLines.push({
+        text: wrappedLine,
+        hasDot: idx === wrappedLines.length - 1 && hasDot
+      });
+    });
+  }
+
+  const totalHeight = allLines.length * lineHeight;
+  const startY = height / 2 - totalHeight / 2 + fontSize;
+
+  const textElements = allLines.map((lineObj, index) => {
+    const centerY = startY + index * lineHeight;
+
+    if (lineObj.hasDot) {
+      const textWidth = lineObj.text.length * charWidth;
+      const dotX = width / 2 + textWidth / 2 + 6;
+      const dotY = centerY - fontSize * 0.3;
+
+      return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}</text>
     ${generateDotShape(dotX, dotY, dotSize, dotColor, config.dotShape)}`;
     }
-    return `<text x="${width / 2}" y="${startY + index * lineHeight}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="500" fill="${textColor}" text-anchor="middle">
-      ${line}
-    </text>`;
+    return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}</text>`;
   }).join('\n  ');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
