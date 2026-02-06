@@ -8,7 +8,7 @@ export default function PromoBanner() {
   }
 
   return (
-    <div className="bg-orange-500 text-white py-1 overflow-hidden">
+    <div className="bg-orange-500 text-white py-10 overflow-hidden">
       <div className="animate-scroll whitespace-nowrap">
         <span className="inline-block px-4">3-day free trial • then €2.99/month or €19.90/year</span>
         <span className="inline-block px-4">3-day free trial • then €2.99/month or €19.90/year</span>
