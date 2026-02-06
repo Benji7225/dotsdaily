@@ -75,6 +75,7 @@ export default function Generator() {
   const [shortUrl, setShortUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentDayOffset, setCurrentDayOffset] = useState(0);
+  const [shouldAutoGenerateUrl, setShouldAutoGenerateUrl] = useState(false);
 
   const handleConfigChange = async (newConfig: WallpaperConfig) => {
     if (!user) {
@@ -99,6 +100,10 @@ export default function Generator() {
     }
 
     const url = new URL(window.location.href);
+    const hadSuccessParam = url.searchParams.has('success');
+    if (hadSuccessParam) {
+      setShouldAutoGenerateUrl(true);
+    }
     if (url.searchParams.has('success') || url.searchParams.has('canceled')) {
       url.searchParams.delete('success');
       url.searchParams.delete('canceled');
@@ -110,6 +115,72 @@ export default function Generator() {
   useEffect(() => {
     setShortUrl('');
   }, [config]);
+
+  useEffect(() => {
+    if (shouldAutoGenerateUrl && user && isPremium && !shortUrl && !isGenerating) {
+      setShouldAutoGenerateUrl(false);
+      setTimeout(() => {
+        const generateUrl = async () => {
+          if (!modelSpecs) return;
+          setIsGenerating(true);
+          try {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const payload = {
+              wallpaperType: config.wallpaperType,
+              mode: config.mode,
+              granularity: config.granularity,
+              grouping: config.grouping,
+              theme: config.theme,
+              themeType: config.themeType,
+              customColor: config.customColor,
+              backgroundImage: config.backgroundImage,
+              dotColor: config.dotColor,
+              dotShape: config.dotShape,
+              customText: config.customText,
+              additionalDisplay: config.additionalDisplay,
+              targetDate: config.targetDate,
+              startDate: config.startDate,
+              birthDate: config.birthDate,
+              lifeExpectancy: config.lifeExpectancy,
+              width: modelSpecs.width,
+              height: modelSpecs.height,
+              safeTop: modelSpecs.safeArea.top,
+              safeBottom: modelSpecs.safeArea.bottom,
+              safeLeft: modelSpecs.safeArea.left,
+              safeRight: modelSpecs.safeArea.right,
+              timezone,
+              language: language,
+              quoteMode: config.quoteMode,
+              quoteTextColor: config.quoteTextColor,
+              customQuotes: config.customQuotes,
+              quoteCategories: config.quoteCategories,
+            };
+            const saveResponse = await fetch(`${apiUrl}/functions/v1/save-wallpaper`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.access_token}`,
+              },
+              body: JSON.stringify(payload),
+            });
+            if (!saveResponse.ok) {
+              throw new Error('Sauvegarde config échouée');
+            }
+            const saveData = await saveResponse.json();
+            const configId = saveData.id;
+            const baseUrl = window.location.origin;
+            const pngUrl = `${baseUrl}/w/${configId}`;
+            setShortUrl(pngUrl);
+          } catch (error) {
+            console.error('Erreur génération auto:', error);
+          } finally {
+            setIsGenerating(false);
+          }
+        };
+        generateUrl();
+      }, 1000);
+    }
+  }, [shouldAutoGenerateUrl, user, isPremium, shortUrl, isGenerating, modelSpecs, config, apiUrl, session, language]);
 
   const modelSpecs = getModelSpecs(config.generation, config.variant);
   const apiUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -390,14 +461,29 @@ export default function Generator() {
                 )}
               </div>
 
+              {!user || !isPremium ? (
+                <div className="mb-3 p-3 bg-orange-50 border border-orange-200 rounded-lg text-center">
+                  <p className="text-sm text-gray-700">
+                    {language === 'fr' ? 'Aperçu gratuit. Essai de 3 jours pour activer les mises à jour automatiques.' : 'Free preview. 3-day trial to activate auto-updates.'}
+                  </p>
+                </div>
+              ) : null}
+
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                <button
-                  onClick={generateShortUrl}
-                  disabled={isGenerating}
-                  className="flex-1 bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  {isGenerating ? t('generator.url.generating') : shortUrl ? t('generator.url.regenerate') : t('generator.url.generate')}
-                </button>
+                <div className="flex-1">
+                  <button
+                    onClick={generateShortUrl}
+                    disabled={isGenerating}
+                    className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    {isGenerating ? t('generator.url.generating') : shortUrl ? t('generator.url.regenerate') : (language === 'fr' ? 'Activer les mises à jour automatiques' : 'Activate auto-updates')}
+                  </button>
+                  {!shortUrl && (!user || !isPremium) && (
+                    <p className="text-center text-xs text-gray-600 mt-2">
+                      {language === 'fr' ? 'Essai gratuit de 3 jours' : '3-day free trial'}
+                    </p>
+                  )}
+                </div>
                 {shortUrl && (
                   <button
                     onClick={copyUrl}
