@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Flashlight, Camera, Circle } from 'lucide-react';
 import { ModelSpecs } from '../utils/iPhoneModels';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface WallpaperPreviewProps {
   url: string;
@@ -9,6 +10,7 @@ interface WallpaperPreviewProps {
 }
 
 export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPreviewProps) {
+  const { language } = useLanguage();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -33,12 +35,14 @@ export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPr
   const iconColor = theme === 'dark' ? 'white' : '#334155';
 
   const formatTime = () => {
-    return currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const locale = language === 'fr' ? 'fr-FR' : 'en-US';
+    return currentTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   };
 
   const formatDate = () => {
+    const locale = language === 'fr' ? 'fr-FR' : 'en-US';
     const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
-    return currentTime.toLocaleDateString('fr-FR', options);
+    return currentTime.toLocaleDateString(locale, options);
   };
 
   return (

@@ -54,7 +54,7 @@ export default function Generator() {
   const [showSavedConfigsModal, setShowSavedConfigsModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual'>('annual');
   const [config, setConfig] = useState<WallpaperConfig>({
-    wallpaperType: 'dots',
+    wallpaperType: 'quotes',
     mode: 'year',
     granularity: 'day',
     grouping: 'none',
@@ -451,6 +451,16 @@ export default function Generator() {
 
   return (
     <div className="min-h-screen bg-white">
+      <div className="bg-orange-500 text-white py-2 overflow-hidden">
+        <div className="animate-scroll whitespace-nowrap">
+          <span className="inline-block px-4">3-day free trial • then €2.99/month or €19.90/year</span>
+          <span className="inline-block px-4">3-day free trial • then €2.99/month or €19.90/year</span>
+          <span className="inline-block px-4">3-day free trial • then €2.99/month or €19.90/year</span>
+          <span className="inline-block px-4">3-day free trial • then €2.99/month or €19.90/year</span>
+          <span className="inline-block px-4">3-day free trial • then €2.99/month or €19.90/year</span>
+          <span className="inline-block px-4">3-day free trial • then €2.99/month or €19.90/year</span>
+        </div>
+      </div>
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-12">
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black mb-3">
@@ -465,16 +475,6 @@ export default function Generator() {
           <div className="bg-white border-2 border-gray-100 rounded-xl p-6">
             <div className="flex items-center justify-center gap-4">
               <button
-                onClick={() => setConfig({ ...config, wallpaperType: 'dots' })}
-                className={`flex-1 py-4 px-6 rounded-lg font-semibold transition-all ${
-                  config.wallpaperType === 'dots'
-                    ? 'bg-orange-500 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Dots Wallpaper
-              </button>
-              <button
                 onClick={() => setConfig({ ...config, wallpaperType: 'quotes' })}
                 className={`flex-1 py-4 px-6 rounded-lg font-semibold transition-all ${
                   config.wallpaperType === 'quotes'
@@ -483,6 +483,16 @@ export default function Generator() {
                 }`}
               >
                 Quotes Wallpaper
+              </button>
+              <button
+                onClick={() => setConfig({ ...config, wallpaperType: 'dots' })}
+                className={`flex-1 py-4 px-6 rounded-lg font-semibold transition-all ${
+                  config.wallpaperType === 'dots'
+                    ? 'bg-orange-500 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Dots Wallpaper
               </button>
             </div>
           </div>
@@ -511,14 +521,6 @@ export default function Generator() {
                   </button>
                 )}
               </div>
-
-              {!user || !isPremium ? (
-                <div className="mb-3 p-3 bg-orange-50 border border-orange-200 rounded-lg text-center">
-                  <p className="text-sm text-gray-700">
-                    {language === 'fr' ? 'Aperçu gratuit. Essai de 3 jours pour activer les mises à jour automatiques.' : 'Free preview. 3-day trial to activate auto-updates.'}
-                  </p>
-                </div>
-              ) : null}
 
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <div className="flex-1">
@@ -557,15 +559,9 @@ export default function Generator() {
                 )}
               </div>
 
-              {shortUrl ? (
+              {shortUrl && (
                 <div className="bg-gray-50 rounded-lg p-4 mb-4 break-all text-sm text-gray-700 font-mono">
                   {shortUrl}
-                </div>
-              ) : (
-                <div className="p-4 bg-gray-50 rounded-lg mb-4">
-                  <p className="text-sm text-gray-600">
-                    {t('generator.url.placeholder')}
-                  </p>
                 </div>
               )}
 
@@ -729,9 +725,29 @@ export default function Generator() {
               {language === 'fr' ? 'Payer' : 'Pay Now'}
             </button>
 
-            <p className="text-center text-xs text-gray-500 mt-3">
-              {language === 'fr' ? 'Essayez gratuitement pendant 3 jours. Aucune carte requise.' : 'Try free for 3 days. No card required.'}
-            </p>
+            <div className="flex flex-col items-center gap-2 mt-3">
+              <p className="text-center text-xs text-gray-500">
+                {language === 'fr' ? 'Essayez gratuitement pendant 3 jours. Aucune carte requise.' : 'Try free for 3 days. No card required.'}
+              </p>
+              <div className="flex items-center gap-3 opacity-60">
+                <svg className="h-5" viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="40" height="26" rx="3" fill="#635BFF"/>
+                  <path d="M17.5 11.5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v3c0 1.38-1.12 2.5-2.5 2.5s-2.5-1.12-2.5-2.5v-3z" fill="white"/>
+                  <path d="M12 11.5c0-1.38 1.12-2.5 2.5-2.5 1.38 0 2.5 1.12 2.5 2.5v3c0 1.38-1.12 2.5-2.5 2.5-1.38 0-2.5-1.12-2.5-2.5v-3z" fill="white" fillOpacity="0.6"/>
+                  <path d="M23 11.5c0-1.38 1.12-2.5 2.5-2.5 1.38 0 2.5 1.12 2.5 2.5v3c0 1.38-1.12 2.5-2.5 2.5-1.38 0-2.5-1.12-2.5-2.5v-3z" fill="white" fillOpacity="0.6"/>
+                </svg>
+                <svg className="h-5" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="32" rx="4" fill="#EB001B"/>
+                  <circle cx="20" cy="16" r="10" fill="#F79E1B"/>
+                  <circle cx="28" cy="16" r="10" fill="#FF5F00"/>
+                </svg>
+                <svg className="h-5" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="32" rx="4" fill="#1A1F71"/>
+                  <path d="M20 24l8-16h4l-8 16h-4z" fill="#F7B600"/>
+                  <path d="M16 24l8-16h4l-8 16h-4z" fill="#F7B600" fillOpacity="0.7"/>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
       )}
