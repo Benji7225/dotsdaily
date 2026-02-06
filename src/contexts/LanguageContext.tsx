@@ -780,7 +780,7 @@ const translations = {
         }
       },
       url: {
-        title: 'Your Wallpaper URL',
+        title: 'Set it once',
         generate: 'Generate URL',
         generating: 'Generating...',
         regenerate: 'Regenerate URL',
