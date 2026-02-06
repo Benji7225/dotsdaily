@@ -77,6 +77,27 @@ export default function Generator() {
   const [currentDayOffset, setCurrentDayOffset] = useState(0);
   const [shouldAutoGenerateUrl, setShouldAutoGenerateUrl] = useState(false);
 
+  const modelSpecs = getModelSpecs(config.generation, config.variant);
+  const apiUrl = import.meta.env.VITE_SUPABASE_URL;
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+
+  const saveDraftConfig = async (configToSave: WallpaperConfig) => {
+    if (!user || !session) return;
+
+    try {
+      const { supabase } = await import('../utils/supabase');
+      await supabase
+        .from('user_draft_configs')
+        .upsert({
+          user_id: user.id,
+          config: configToSave,
+          updated_at: new Date().toISOString(),
+        });
+    } catch (error) {
+      console.error('Error saving draft:', error);
+    }
+  };
+
   const handleConfigChange = async (newConfig: WallpaperConfig) => {
     if (!user) {
       localStorage.setItem('pendingConfig', JSON.stringify(newConfig));
@@ -84,6 +105,7 @@ export default function Generator() {
       return;
     }
     setConfig(newConfig);
+    await saveDraftConfig(newConfig);
   };
 
   useEffect(() => {
@@ -100,17 +122,40 @@ export default function Generator() {
     }
 
     const url = new URL(window.location.href);
-    const hadSuccessParam = url.searchParams.has('success');
+    const hadSuccessParam = url.searchParams.has('success') || url.searchParams.has('session_id');
     if (hadSuccessParam) {
       setShouldAutoGenerateUrl(true);
     }
-    if (url.searchParams.has('success') || url.searchParams.has('canceled')) {
+    if (url.searchParams.has('success') || url.searchParams.has('canceled') || url.searchParams.has('session_id')) {
       url.searchParams.delete('success');
       url.searchParams.delete('canceled');
+      url.searchParams.delete('session_id');
       url.hash = '';
       window.history.replaceState({}, '', url.toString());
     }
   }, []);
+
+  useEffect(() => {
+    if (user && session) {
+      const load = async () => {
+        try {
+          const { supabase } = await import('../utils/supabase');
+          const { data, error } = await supabase
+            .from('user_draft_configs')
+            .select('config')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (!error && data?.config) {
+            setConfig(data.config as WallpaperConfig);
+          }
+        } catch (error) {
+          console.error('Error loading draft:', error);
+        }
+      };
+      load();
+    }
+  }, [user, session]);
 
   useEffect(() => {
     setShortUrl('');
@@ -181,10 +226,6 @@ export default function Generator() {
       }, 1000);
     }
   }, [shouldAutoGenerateUrl, user, isPremium, shortUrl, isGenerating, modelSpecs, config, apiUrl, session, language]);
-
-  const modelSpecs = getModelSpecs(config.generation, config.variant);
-  const apiUrl = import.meta.env.VITE_SUPABASE_URL;
-  const [previewUrl, setPreviewUrl] = useState<string>('');
 
   useEffect(() => {
     if (!modelSpecs) return;
@@ -279,6 +320,16 @@ export default function Generator() {
       (config.dotShape && config.dotShape !== 'circle') ||
       config.additionalDisplay === 'timeRemaining'
     );
+  };
+
+  const handlePayment = async (plan: 'monthly' | 'annual') => {
+    await saveDraftConfig(config);
+
+    const stripeUrl = plan === 'monthly'
+      ? 'https://buy.stripe.com/eVq14pcvT5LE9xbexDfMA04'
+      : 'https://buy.stripe.com/fZufZjdzXb5Y24J0GNfMA05';
+
+    window.location.href = stripeUrl;
   };
 
   const generateShortUrl = async () => {
@@ -672,10 +723,7 @@ export default function Generator() {
             </ul>
 
             <button
-              onClick={() => window.location.href = selectedPlan === 'monthly'
-                ? 'https://buy.stripe.com/eVq14pcvT5LE9xbexDfMA04'
-                : 'https://buy.stripe.com/fZufZjdzXb5Y24J0GNfMA05'
-              }
+              onClick={() => handlePayment(selectedPlan)}
               className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
             >
               {language === 'fr' ? 'Payer' : 'Pay Now'}
