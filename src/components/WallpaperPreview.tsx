@@ -35,14 +35,16 @@ export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPr
   const iconColor = theme === 'dark' ? 'white' : '#334155';
 
   const formatTime = () => {
-    const locale = language === 'fr' ? 'fr-FR' : 'en-US';
-    return currentTime.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+    return currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   };
 
   const formatDate = () => {
     const locale = language === 'fr' ? 'fr-FR' : 'en-US';
-    const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
-    return currentTime.toLocaleDateString(locale, options);
+    const weekday = currentTime.toLocaleDateString(locale, { weekday: 'short' });
+    const day = currentTime.getDate();
+    const month = currentTime.toLocaleDateString(locale, { month: 'short' });
+
+    return `${weekday} ${day} ${month}`;
   };
 
   return (
