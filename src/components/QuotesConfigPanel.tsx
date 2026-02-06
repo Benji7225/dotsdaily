@@ -1,6 +1,6 @@
 import { WallpaperConfig, QuoteMode, DotShape } from '../pages/Generator';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
-import { Circle, Square, Heart, Pipette, Upload, X, HelpCircle } from 'lucide-react';
+import { Pipette, Upload, X, HelpCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface QuotesConfigPanelProps {
@@ -388,47 +388,6 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
                 />
               </label>
             </div>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Shape
-          </label>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setConfig({ ...config, dotShape: 'circle' })}
-              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
-                (!config.dotShape || config.dotShape === 'circle')
-                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-              title="Circle"
-            >
-              <Circle className="w-6 h-6 text-slate-700" fill="currentColor" />
-            </button>
-            <button
-              onClick={() => setConfig({ ...config, dotShape: 'square' })}
-              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
-                config.dotShape === 'square'
-                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-              title="Square"
-            >
-              <Square className="w-6 h-6 text-slate-700" fill="currentColor" />
-            </button>
-            <button
-              onClick={() => setConfig({ ...config, dotShape: 'heart' })}
-              className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
-                config.dotShape === 'heart'
-                  ? 'border-slate-900 shadow-lg scale-110 bg-slate-50'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-              title="Heart"
-            >
-              <Heart className="w-6 h-6 text-slate-700" fill="currentColor" />
-            </button>
           </div>
         </div>
       </div>

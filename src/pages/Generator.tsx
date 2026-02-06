@@ -339,33 +339,35 @@ export default function Generator() {
           </p>
         </div>
 
+        <div className="max-w-6xl mx-auto mb-6">
+          <div className="bg-white border-2 border-gray-100 rounded-xl p-6">
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={() => setConfig({ ...config, wallpaperType: 'dots' })}
+                className={`flex-1 py-4 px-6 rounded-lg font-semibold transition-all ${
+                  config.wallpaperType === 'dots'
+                    ? 'bg-orange-500 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Dots Wallpaper
+              </button>
+              <button
+                onClick={() => setConfig({ ...config, wallpaperType: 'quotes' })}
+                className={`flex-1 py-4 px-6 rounded-lg font-semibold transition-all ${
+                  config.wallpaperType === 'quotes'
+                    ? 'bg-orange-500 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Quotes Wallpaper
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4 lg:gap-6 max-w-6xl mx-auto items-start">
           <div className="order-2 lg:order-1">
-            <div className="bg-white border-2 border-gray-100 rounded-xl p-6 mb-6">
-              <div className="flex items-center justify-center gap-4">
-                <button
-                  onClick={() => setConfig({ ...config, wallpaperType: 'dots' })}
-                  className={`flex-1 py-4 px-6 rounded-lg font-semibold transition-all ${
-                    config.wallpaperType === 'dots'
-                      ? 'bg-orange-500 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Dots Wallpaper
-                </button>
-                <button
-                  onClick={() => setConfig({ ...config, wallpaperType: 'quotes' })}
-                  className={`flex-1 py-4 px-6 rounded-lg font-semibold transition-all ${
-                    config.wallpaperType === 'quotes'
-                      ? 'bg-orange-500 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Quotes Wallpaper
-                </button>
-              </div>
-            </div>
-
             {config.wallpaperType === 'dots' ? (
               <ConfigPanel config={config} setConfig={handleConfigChange} onShowPremiumModal={() => setShowPremiumModal(true)} onUpgradeToPremium={handleUpgradeToPremium} />
             ) : (
@@ -451,8 +453,9 @@ export default function Generator() {
           </div>
 
           <div className="order-1 lg:order-2 lg:sticky lg:top-4">
+            <WallpaperPreview url={shortUrl || previewUrl} modelSpecs={modelSpecs} theme={config.theme} />
             {config.wallpaperType === 'quotes' && (
-              <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="flex items-center justify-center gap-4 mt-4">
                 <button
                   onClick={() => setCurrentDayOffset(Math.max(currentDayOffset - 1, -365))}
                   disabled={currentDayOffset <= -365}
@@ -472,7 +475,6 @@ export default function Generator() {
                 </button>
               </div>
             )}
-            <WallpaperPreview url={shortUrl || previewUrl} modelSpecs={modelSpecs} theme={config.theme} />
           </div>
         </div>
       </div>

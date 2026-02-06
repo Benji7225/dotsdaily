@@ -269,8 +269,8 @@ const translations = {
       }
     },
     generator: {
-      title: 'Générateur de Fond d\'Écran',
-      subtitle: 'Personnalise ton fond d\'écran iPhone auto-actualisé',
+      title: 'Chaque Jour Compte',
+      subtitle: 'Transforme le temps en motivation avec ton fond d\'écran quotidien',
       modes: {
         year: {
           name: 'Année',
@@ -763,8 +763,8 @@ const translations = {
       }
     },
     generator: {
-      title: 'Wallpaper Generator',
-      subtitle: 'Customize your daily-updating iPhone wallpaper',
+      title: 'Every Day Matters',
+      subtitle: 'Turn time into motivation with your daily wallpaper',
       modes: {
         year: {
           name: 'Year',
