@@ -763,7 +763,7 @@ const translations = {
       }
     },
     generator: {
-      title: 'Every Day Matters',
+      title: 'Set it once. Updates every day.',
       subtitle: 'Turn time into motivation with your daily wallpaper',
       modes: {
         year: {
