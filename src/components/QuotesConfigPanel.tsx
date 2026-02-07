@@ -150,7 +150,7 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
-      <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">Set it once</h3>
+      <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">Customize your Wallpaper</h3>
 
       <div className="space-y-4">
         <div>
