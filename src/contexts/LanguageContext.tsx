@@ -764,7 +764,7 @@ const translations = {
     },
     generator: {
       title: 'Set it once. Updates every day.',
-      subtitle: 'Turn time into motivation with your daily wallpaper',
+      subtitle: 'Minimal. No app. No notifications.',
       modes: {
         year: {
           name: 'Year',
