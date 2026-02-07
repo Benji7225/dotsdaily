@@ -763,7 +763,7 @@ const translations = {
       }
     },
     generator: {
-      title: 'Set it once. Updates every day.',
+      title: 'Updates every day.',
       subtitle: 'Minimal. No app. No notifications.',
       modes: {
         year: {
