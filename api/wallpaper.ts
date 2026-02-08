@@ -13,6 +13,7 @@ interface WallpaperConfig {
   theme_type: string;
   custom_color: string | null;
   background_image: string | null;
+  background_image_url: string | null;
   dot_color: string | null;
   dot_shape: string | null;
   custom_text: string | null;
@@ -386,13 +387,16 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: 
 
   if (config.theme_type === 'custom' && config.custom_color) {
     bgColor = config.custom_color;
-  } else if (config.theme_type === 'image' && config.background_image) {
-    backgroundDef = `<defs>
+  } else if (config.theme_type === 'image') {
+    const imageUrl = config.background_image_url || config.background_image;
+    if (imageUrl) {
+      backgroundDef = `<defs>
       <pattern id="bgImage" x="0" y="0" width="1" height="1">
-        <image href="${config.background_image}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+        <image href="${imageUrl}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
-    bgColor = 'url(#bgImage)';
+      bgColor = 'url(#bgImage)';
+    }
   }
 
   const quotesByCategory: Record<string, string[]> = {
@@ -675,13 +679,16 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
 
   if (config.theme_type === 'custom' && config.custom_color) {
     bgColor = config.custom_color;
-  } else if (config.theme_type === 'image' && config.background_image) {
-    backgroundDef = `<defs>
+  } else if (config.theme_type === 'image') {
+    const imageUrl = config.background_image_url || config.background_image;
+    if (imageUrl) {
+      backgroundDef = `<defs>
       <pattern id="bgImage" x="0" y="0" width="1" height="1">
-        <image href="${config.background_image}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+        <image href="${imageUrl}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
-    bgColor = 'url(#bgImage)';
+      bgColor = 'url(#bgImage)';
+    }
   }
 
   const textColor = isDark ? '#ffffff' : '#1a1a1a';
