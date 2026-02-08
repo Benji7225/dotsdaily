@@ -1120,19 +1120,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .eq('user_id', config.user_id)
         .maybeSingle();
 
-      const hasActiveSubscription = subscription &&
-        (subscription.status === 'active' || subscription.status === 'lifetime' || subscription.status === 'trialing') &&
-        (!subscription.current_period_end || new Date(subscription.current_period_end) > new Date());
+      console.log('Subscription check for user:', config.user_id, 'subscription:', subscription);
 
-      if (!hasActiveSubscription) {
-        const fallbackImagePath = join(process.cwd(), 'public', 'your_wallpaper_stop_updating..png');
-        const fallbackImage = readFileSync(fallbackImagePath);
+      const isExpiredSubscription = subscription &&
+        subscription.status !== 'lifetime' &&
+        subscription.current_period_end &&
+        new Date(subscription.current_period_end) < new Date();
 
-        res.setHeader('Content-Type', 'image/png');
-        res.setHeader('Content-Length', fallbackImage.length.toString());
-        res.setHeader('Cache-Control', 'public, max-age=3600');
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        return res.send(fallbackImage);
+      const isInactiveSubscription = subscription &&
+        subscription.status === 'inactive' &&
+        !subscription.current_period_end;
+
+      if (isExpiredSubscription || isInactiveSubscription) {
+        console.log('Subscription expired or inactive, showing fallback image');
+        try {
+          const fallbackImagePath = join(process.cwd(), 'public', 'your_wallpaper_stop_updating..png');
+          const fallbackImage = readFileSync(fallbackImagePath);
+
+          res.setHeader('Content-Type', 'image/png');
+          res.setHeader('Content-Length', fallbackImage.length.toString());
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          return res.send(fallbackImage);
+        } catch (error) {
+          console.error('Failed to load fallback image:', error);
+        }
       }
     }
 
