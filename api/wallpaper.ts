@@ -1089,9 +1089,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .from('wallpaper_configs')
       .select(`
         id, user_id, theme_type, custom_color, dot_color, mode, granularity, grouping,
-        start_date, countdown_date, custom_text, width, height, safe_top, safe_bottom,
-        safe_left, safe_right, variant, generation, timezone, dot_shape, additional_display,
-        last_accessed_at, created_at, wallpaper_type, quote_categories, language, background_image_url
+        start_date, target_date, birth_date, life_expectancy, custom_text, width, height, safe_top, safe_bottom,
+        safe_left, safe_right, timezone, dot_shape, additional_display, theme,
+        last_accessed_at, created_at, wallpaper_type, quote_categories, quote_mode, quote_text_color,
+        custom_quotes, language, background_image_url
       `)
       .eq('id', id)
       .maybeSingle();
