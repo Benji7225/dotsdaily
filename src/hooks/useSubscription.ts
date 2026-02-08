@@ -15,6 +15,8 @@ export function useSubscription() {
         return;
       }
 
+      console.log('[Subscription] Checking for user:', user.id, user.email);
+
       try {
         const { data, error } = await supabase
           .from('user_subscriptions')
@@ -23,19 +25,23 @@ export function useSubscription() {
           .maybeSingle();
 
         if (error) {
-          console.error('Error fetching subscription:', error);
+          console.error('[Subscription] Error fetching:', error);
           setIsPremium(false);
         } else if (data) {
+          console.log('[Subscription] Found subscription data:', data);
           const hasLifetimeAccess = data.status === 'lifetime' && data.plan === 'lifetime';
           const hasActiveSubscription = data.status === 'active' &&
                                        data.current_period_end &&
                                        new Date(data.current_period_end) > new Date();
-          setIsPremium(hasLifetimeAccess || hasActiveSubscription);
+          const premium = hasLifetimeAccess || hasActiveSubscription;
+          console.log('[Subscription] isPremium:', premium, '(lifetime:', hasLifetimeAccess, ', active:', hasActiveSubscription, ')');
+          setIsPremium(premium);
         } else {
+          console.log('[Subscription] No subscription found for user');
           setIsPremium(false);
         }
       } catch (error) {
-        console.error('Error checking subscription:', error);
+        console.error('[Subscription] Exception:', error);
         setIsPremium(false);
       } finally {
         setLoading(false);
