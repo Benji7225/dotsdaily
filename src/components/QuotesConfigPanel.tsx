@@ -112,7 +112,6 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
         maxWidth: 2048,
         maxHeight: 2048,
         quality: 0.85,
-        maxSizeKB: 800,
       });
 
       const compressedFile = new File([compressedBlob], file.name, {
@@ -124,8 +123,7 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
       setConfig({ ...config, backgroundImage: publicUrl, themeType: 'image' });
     } catch (error) {
       console.error('Image upload error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to upload image. Please try again.';
-      setImageError(errorMessage);
+      setImageError('Failed to upload image. Please try again.');
     } finally {
       setImageUploading(false);
     }

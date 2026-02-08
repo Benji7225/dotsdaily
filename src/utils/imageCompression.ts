@@ -79,7 +79,6 @@ export async function compressImageToBlob(
     maxWidth = 2048,
     maxHeight = 2048,
     quality = 0.85,
-    maxSizeKB = 800,
   } = options;
 
   return new Promise((resolve, reject) => {
@@ -88,7 +87,7 @@ export async function compressImageToBlob(
     reader.onload = (e) => {
       const img = new Image();
 
-      img.onload = async () => {
+      img.onload = () => {
         let { width, height } = img;
 
         if (width > maxWidth || height > maxHeight) {
@@ -109,40 +108,17 @@ export async function compressImageToBlob(
 
         ctx.drawImage(img, 0, 0, width, height);
 
-        let currentQuality = quality;
-        let blob: Blob | null = null;
-
-        const tryCompress = (q: number): Promise<Blob | null> => {
-          return new Promise((res) => {
-            canvas.toBlob(
-              (b) => res(b),
-              'image/jpeg',
-              q
-            );
-          });
-        };
-
-        blob = await tryCompress(currentQuality);
-        if (!blob) {
-          reject(new Error('Failed to create blob'));
-          return;
-        }
-
-        const maxSizeBytes = maxSizeKB * 1024;
-
-        while (blob.size > maxSizeBytes && currentQuality > 0.3) {
-          currentQuality = Math.max(0.3, currentQuality * 0.8);
-          const newBlob = await tryCompress(currentQuality);
-          if (!newBlob) break;
-          blob = newBlob;
-        }
-
-        if (blob.size > maxSizeBytes * 1.5) {
-          reject(new Error(`Image too large after compression (${Math.round(blob.size / 1024)}KB). Please use a smaller image.`));
-          return;
-        }
-
-        resolve(blob);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Failed to create blob'));
+              return;
+            }
+            resolve(blob);
+          },
+          'image/jpeg',
+          quality
+        );
       };
 
       img.onerror = () => {

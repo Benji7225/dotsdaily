@@ -61,7 +61,7 @@ Deno.serve(async (req: Request) => {
           }
 
           if (userId) {
-            console.log("Processing lifetime payment for user:", userId, "email:", customerEmail, "customerId:", customerId);
+            console.log("Processing lifetime payment for user:", userId, "customerId:", customerId);
 
             const subscriptionData: any = {
               user_id: userId,
@@ -73,10 +73,6 @@ Deno.serve(async (req: Request) => {
 
             if (customerId) {
               subscriptionData.stripe_customer_id = customerId;
-            }
-
-            if (customerEmail) {
-              subscriptionData.email = customerEmail;
             }
 
             const { data, error } = await supabase

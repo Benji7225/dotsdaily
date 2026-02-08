@@ -91,13 +91,8 @@ export default function Header() {
                           onClick={async (e) => {
                             e.preventDefault();
                             e.stopPropagation();
+                            await signOut();
                             setShowDropdown(false);
-                            try {
-                              await signOut();
-                              window.location.reload();
-                            } catch (error) {
-                              console.error('Sign out error:', error);
-                            }
                           }}
                           className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors flex items-center gap-2 touch-manipulation"
                         >
@@ -193,13 +188,8 @@ export default function Header() {
                         onClick={async (e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          await signOut();
                           setShowMobileMenu(false);
-                          try {
-                            await signOut();
-                            window.location.reload();
-                          } catch (error) {
-                            console.error('Sign out error:', error);
-                          }
                         }}
                         className="flex items-center gap-2 text-gray-700 hover:text-black active:bg-gray-100 transition-colors py-3 px-2 rounded-lg -mx-2 touch-manipulation"
                       >
