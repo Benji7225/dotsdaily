@@ -170,6 +170,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
         maxWidth: 2048,
         maxHeight: 2048,
         quality: 0.85,
+        maxSizeKB: 800,
       });
 
       const compressedFile = new File([compressedBlob], file.name, {
@@ -183,7 +184,8 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
       handleThemeChange('image', undefined, imageUrl);
     } catch (error) {
       console.error('Image upload error:', error);
-      setImageError(t('config.imageErrors.readError'));
+      const errorMessage = error instanceof Error ? error.message : t('config.imageErrors.readError');
+      setImageError(errorMessage);
       e.target.value = '';
     } finally {
       setIsCompressing(false);
