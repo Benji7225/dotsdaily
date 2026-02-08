@@ -1087,7 +1087,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { data: config, error } = await supabase
       .from('wallpaper_configs')
-      .select('*')
+      .select(`
+        id, user_id, theme_type, custom_color, dot_color, mode, granularity, grouping,
+        start_date, countdown_date, custom_text, width, height, safe_top, safe_bottom,
+        safe_left, safe_right, variant, generation, timezone, dot_shape, additional_display,
+        last_accessed_at, created_at, wallpaper_type, quote_categories, language, background_image_url
+      `)
       .eq('id', id)
       .maybeSingle();
 
@@ -1172,22 +1177,59 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.send(pngBuffer);
     }
 
-    if (config.theme_type === 'image' && config.background_image) {
-      const imageSize = config.background_image.length;
-      console.log(`Background image size: ${imageSize} bytes`);
+    let backgroundImage: string | undefined;
 
-      if (imageSize > 10 * 1024 * 1024) {
-        console.error('Background image too large:', imageSize);
-        return res.status(400).json({
-          error: 'Background image is too large (>10MB). Please use a smaller image.'
-        });
+    if (config.theme_type === 'image') {
+      if (config.background_image_url) {
+        console.log('Loading background image from Storage URL');
+        try {
+          const imageResponse = await fetch(config.background_image_url);
+          if (!imageResponse.ok) {
+            throw new Error(`Failed to fetch image: ${imageResponse.statusText}`);
+          }
+          const imageBuffer = await imageResponse.arrayBuffer();
+          const base64 = Buffer.from(imageBuffer).toString('base64');
+          const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+          backgroundImage = `data:${contentType};base64,${base64}`;
+          console.log(`Image loaded from Storage: ${imageBuffer.byteLength} bytes`);
+        } catch (error) {
+          console.error('Failed to load image from Storage:', error);
+          return res.status(500).json({
+            error: 'Failed to load background image',
+            details: error instanceof Error ? error.message : 'Unknown error'
+          });
+        }
+      } else {
+        console.log('Checking for legacy base64 background image');
+        const { data: legacyConfig } = await supabase
+          .from('wallpaper_configs')
+          .select('background_image')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (legacyConfig?.background_image) {
+          backgroundImage = legacyConfig.background_image;
+          const imageSize = backgroundImage.length;
+          console.log(`Background image size: ${imageSize} bytes`);
+
+          if (imageSize > 10 * 1024 * 1024) {
+            console.error('Background image too large:', imageSize);
+            return res.status(400).json({
+              error: 'Background image is too large (>10MB). Please use a smaller image.'
+            });
+          }
+
+          if (!backgroundImage.startsWith('data:image/')) {
+            console.error('Invalid background image format');
+            return res.status(400).json({
+              error: 'Invalid background image format. Must be a data URL.'
+            });
+          }
+        }
       }
 
-      if (!config.background_image.startsWith('data:image/')) {
-        console.error('Invalid background image format');
-        return res.status(400).json({
-          error: 'Invalid background image format. Must be a data URL.'
-        });
+      if (backgroundImage) {
+        config.background_image = backgroundImage;
       }
     }
 

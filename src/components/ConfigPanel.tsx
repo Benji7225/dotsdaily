@@ -3,16 +3,19 @@ import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDef
 import { Pipette, Upload, Circle, Square, Heart, Percent, Clock, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useState, useEffect } from 'react';
-import { compressImage } from '../utils/imageCompression';
+import { compressImageToBlob } from '../utils/imageCompression';
+import { uploadImageToStorage } from '../utils/imageStorage';
+import type { User } from '@supabase/supabase-js';
 
 interface ConfigPanelProps {
   config: WallpaperConfig;
   setConfig: (config: WallpaperConfig) => void;
   onShowPremiumModal: () => void;
   onUpgradeToPremium: () => void;
+  user?: User | null;
 }
 
-export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onUpgradeToPremium }: ConfigPanelProps) {
+export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onUpgradeToPremium, user }: ConfigPanelProps) {
   const { t } = useLanguage();
   const [imageError, setImageError] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
@@ -155,18 +158,31 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
       return;
     }
 
+    if (!user) {
+      setImageError('You must be logged in to upload images');
+      e.target.value = '';
+      setIsCompressing(false);
+      return;
+    }
+
     try {
-      const compressedImage = await compressImage(file, {
+      const compressedBlob = await compressImageToBlob(file, {
         maxWidth: 2048,
         maxHeight: 2048,
         quality: 0.85,
-        maxSizeKB: 1024,
       });
 
+      const compressedFile = new File([compressedBlob], file.name, {
+        type: 'image/jpeg',
+        lastModified: Date.now(),
+      });
+
+      const imageUrl = await uploadImageToStorage(compressedFile, user.id);
+
       setImageError(null);
-      handleThemeChange('image', undefined, compressedImage);
+      handleThemeChange('image', undefined, imageUrl);
     } catch (error) {
-      console.error('Image compression error:', error);
+      console.error('Image upload error:', error);
       setImageError(t('config.imageErrors.readError'));
       e.target.value = '';
     } finally {

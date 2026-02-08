@@ -160,6 +160,8 @@ Deno.serve(async (req: Request) => {
 
     const id = await generateUniqueId(supabase);
 
+    const isStorageUrl = backgroundImage && backgroundImage.includes('/storage/v1/object/public/wallpaper-images/');
+
     const { error } = await supabase
       .from('wallpaper_configs')
       .insert({
@@ -173,7 +175,8 @@ Deno.serve(async (req: Request) => {
         theme: theme || 'dark',
         theme_type: themeType || 'dark',
         custom_color: customColor || null,
-        background_image: backgroundImage || null,
+        background_image: isStorageUrl ? null : (backgroundImage || null),
+        background_image_url: isStorageUrl ? backgroundImage : null,
         dot_color: dotColor || null,
         dot_shape: dotShape || 'circle',
         custom_text: customText || null,
