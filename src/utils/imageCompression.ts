@@ -10,53 +10,64 @@ export async function compressImage(
   options: CompressionOptions = {}
 ): Promise<string> {
   const {
-    maxWidth = 2048,
-    maxHeight = 2048,
-    quality = 0.85,
-    maxSizeKB = 1024,
+    maxWidth = 1920,
+    maxHeight = 1920,
+    quality = 0.8,
+    maxSizeKB = 800,
   } = options;
 
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    const timeout = setTimeout(() => {
+      reject(new Error('Image processing timeout'));
+    }, 30000);
 
     reader.onload = (e) => {
       const img = new Image();
 
       img.onload = () => {
-        let { width, height } = img;
+        clearTimeout(timeout);
+        try {
+          let { width, height } = img;
 
-        if (width > maxWidth || height > maxHeight) {
-          const ratio = Math.min(maxWidth / width, maxHeight / height);
-          width = Math.floor(width * ratio);
-          height = Math.floor(height * ratio);
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.floor(width * ratio);
+            height = Math.floor(height * ratio);
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d', { alpha: false });
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+
+          let currentQuality = quality;
+          let compressed = canvas.toDataURL('image/jpeg', currentQuality);
+
+          const sizeKB = (compressed.length * 3) / 4 / 1024;
+
+          if (sizeKB > maxSizeKB && currentQuality > 0.4) {
+            currentQuality = Math.max(0.4, quality * (maxSizeKB / sizeKB) * 0.9);
+            compressed = canvas.toDataURL('image/jpeg', currentQuality);
+          }
+
+          resolve(compressed);
+        } catch (err) {
+          reject(err);
         }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-
-        let currentQuality = quality;
-        let compressed = canvas.toDataURL('image/jpeg', currentQuality);
-
-        const sizeKB = (compressed.length * 3) / 4 / 1024;
-
-        if (sizeKB > maxSizeKB && currentQuality > 0.5) {
-          currentQuality = Math.max(0.5, quality * (maxSizeKB / sizeKB));
-          compressed = canvas.toDataURL('image/jpeg', currentQuality);
-        }
-
-        resolve(compressed);
       };
 
       img.onerror = () => {
+        clearTimeout(timeout);
         reject(new Error('Failed to load image'));
       };
 
@@ -64,6 +75,7 @@ export async function compressImage(
     };
 
     reader.onerror = () => {
+      clearTimeout(timeout);
       reject(new Error('Failed to read file'));
     };
 
@@ -76,52 +88,75 @@ export async function compressImageToBlob(
   options: CompressionOptions = {}
 ): Promise<Blob> {
   const {
-    maxWidth = 2048,
-    maxHeight = 2048,
-    quality = 0.85,
+    maxWidth = 1920,
+    maxHeight = 1920,
+    quality = 0.8,
+    maxSizeKB = 800,
   } = options;
 
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    const timeout = setTimeout(() => {
+      reject(new Error('Image processing timeout'));
+    }, 30000);
 
     reader.onload = (e) => {
       const img = new Image();
 
       img.onload = () => {
-        let { width, height } = img;
+        clearTimeout(timeout);
+        try {
+          let { width, height } = img;
 
-        if (width > maxWidth || height > maxHeight) {
-          const ratio = Math.min(maxWidth / width, maxHeight / height);
-          width = Math.floor(width * ratio);
-          height = Math.floor(height * ratio);
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.floor(width * ratio);
+            height = Math.floor(height * ratio);
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d', { alpha: false });
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const processBlob = (currentQuality: number) => {
+            canvas.toBlob(
+              (blob) => {
+                if (!blob) {
+                  reject(new Error('Failed to create blob'));
+                  return;
+                }
+
+                const sizeKB = blob.size / 1024;
+                if (sizeKB > maxSizeKB && currentQuality > 0.4) {
+                  const newQuality = Math.max(0.4, currentQuality * (maxSizeKB / sizeKB) * 0.9);
+                  processBlob(newQuality);
+                } else {
+                  resolve(blob);
+                }
+              },
+              'image/png',
+              currentQuality
+            );
+          };
+
+          processBlob(quality);
+        } catch (err) {
+          reject(err);
         }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              reject(new Error('Failed to create blob'));
-              return;
-            }
-            resolve(blob);
-          },
-          'image/jpeg',
-          quality
-        );
       };
 
       img.onerror = () => {
+        clearTimeout(timeout);
         reject(new Error('Failed to load image'));
       };
 
@@ -129,6 +164,7 @@ export async function compressImageToBlob(
     };
 
     reader.onerror = () => {
+      clearTimeout(timeout);
       reject(new Error('Failed to read file'));
     };
 

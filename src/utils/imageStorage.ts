@@ -4,26 +4,52 @@ export async function uploadImageToStorage(
   file: File,
   userId: string
 ): Promise<string> {
-  const fileExt = file.name.split('.').pop() || 'jpg';
+  const maxRetries = 2;
+  const fileExt = 'png';
   const fileName = `${userId}/${Date.now()}.${fileExt}`;
 
-  const { data, error } = await supabase.storage
-    .from('wallpaper-images')
-    .upload(fileName, file, {
-      cacheControl: '3600',
-      upsert: false,
-    });
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const uploadPromise = supabase.storage
+        .from('wallpaper-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: 'image/png',
+        });
 
-  if (error) {
-    console.error('Storage upload error:', error);
-    throw new Error(`Failed to upload image: ${error.message}`);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Upload timeout')), 25000)
+      );
+
+      const { data, error } = await Promise.race([uploadPromise, timeoutPromise]);
+
+      if (error) {
+        if (attempt < maxRetries && (error.message.includes('timeout') || error.message.includes('timed out'))) {
+          console.warn(`Upload attempt ${attempt + 1} failed, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          continue;
+        }
+        console.error('Storage upload error:', error);
+        throw new Error(`Failed to upload image: ${error.message}`);
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('wallpaper-images')
+        .getPublicUrl(data.path);
+
+      return urlData.publicUrl;
+    } catch (err) {
+      if (attempt < maxRetries && err instanceof Error && err.message.includes('timeout')) {
+        console.warn(`Upload attempt ${attempt + 1} timed out, retrying...`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        continue;
+      }
+      throw err;
+    }
   }
 
-  const { data: urlData } = supabase.storage
-    .from('wallpaper-images')
-    .getPublicUrl(data.path);
-
-  return urlData.publicUrl;
+  throw new Error('Failed to upload image after multiple attempts');
 }
 
 export async function deleteImageFromStorage(imageUrl: string): Promise<void> {

@@ -18,31 +18,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    let isMounted = true;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      (async () => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (isMounted) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-
-        if (event === 'SIGNED_IN') {
-          const returnUrl = localStorage.getItem('authReturnUrl');
-          if (returnUrl) {
-            localStorage.removeItem('authReturnUrl');
-            const url = new URL(returnUrl);
-            url.hash = '';
-            window.location.href = url.toString();
-          }
-        }
-      })();
+      }
     });
 
-    return () => subscription.unsubscribe();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+
+      if (event === 'SIGNED_IN') {
+        const returnUrl = localStorage.getItem('authReturnUrl');
+        if (returnUrl) {
+          localStorage.removeItem('authReturnUrl');
+          const url = new URL(returnUrl);
+          url.hash = '';
+          setTimeout(() => {
+            window.location.href = url.toString();
+          }, 100);
+        }
+      }
+
+      if (event === 'SIGNED_OUT') {
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 100);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = async () => {
@@ -62,10 +77,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      localStorage.removeItem('authReturnUrl');
+      localStorage.removeItem('pendingConfig');
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch (error) {
       console.error('Error signing out:', error);
-      throw error;
     }
   };
 

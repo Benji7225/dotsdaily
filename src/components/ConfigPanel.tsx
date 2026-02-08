@@ -142,17 +142,9 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
     setImageError(null);
     setIsCompressing(true);
 
-    const maxSize = 10 * 1024 * 1024;
+    const maxSize = 50 * 1024 * 1024;
     if (file.size > maxSize) {
       setImageError(t('config.imageErrors.tooLarge'));
-      e.target.value = '';
-      setIsCompressing(false);
-      return;
-    }
-
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      setImageError(t('config.imageErrors.invalidFormat'));
       e.target.value = '';
       setIsCompressing(false);
       return;
@@ -167,14 +159,16 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
 
     try {
       const compressedBlob = await compressImageToBlob(file, {
-        maxWidth: 2048,
-        maxHeight: 2048,
-        quality: 0.85,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.75,
+        maxSizeKB: 700,
       });
 
-      const compressedFile = new File([compressedBlob], file.name, {
-        type: 'image/jpeg',
-        lastModified: Date.now(),
+      const timestamp = Date.now();
+      const compressedFile = new File([compressedBlob], `image_${timestamp}.png`, {
+        type: 'image/png',
+        lastModified: timestamp,
       });
 
       const imageUrl = await uploadImageToStorage(compressedFile, user.id);
@@ -183,7 +177,12 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
       handleThemeChange('image', undefined, imageUrl);
     } catch (error) {
       console.error('Image upload error:', error);
-      setImageError(t('config.imageErrors.readError'));
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (errorMessage.includes('timeout')) {
+        setImageError('Image processing timeout. Please try with a smaller image.');
+      } else {
+        setImageError(t('config.imageErrors.readError'));
+      }
       e.target.value = '';
     } finally {
       setIsCompressing(false);
