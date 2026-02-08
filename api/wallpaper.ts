@@ -1232,8 +1232,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       if (backgroundImage) {
         config.background_image = backgroundImage;
+        console.log(`✓ Background image assigned to config: ${backgroundImage.substring(0, 50)}...`);
       }
     }
+
+    const configWithImage: WallpaperConfig = {
+      ...config,
+      background_image: backgroundImage || config.background_image || null,
+    };
 
     const modelSpecs: ModelSpecs = {
       width: config.width,
@@ -1246,17 +1252,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     };
 
-    console.log(`Generating SVG for config ${id}, theme: ${config.theme_type}`);
-    const svgContent = generateSVG(config, modelSpecs, now);
+    console.log(`Generating SVG for config ${id}`);
+    console.log(`- theme_type: ${configWithImage.theme_type}`);
+    console.log(`- has background_image: ${!!configWithImage.background_image}`);
+    console.log(`- background_image length: ${configWithImage.background_image?.length || 0}`);
+    console.log(`- wallpaper_type: ${configWithImage.wallpaper_type || 'dots'}`);
+
+    const svgContent = generateSVG(configWithImage, modelSpecs, now);
 
     const textCount = (svgContent.match(/<text/g) || []).length;
+    const hasImagePattern = svgContent.includes('id="bgImage"');
+    const hasImageHref = svgContent.includes('<image href=');
     console.log(`SVG generated with ${textCount} text elements`);
+    console.log(`SVG has image pattern: ${hasImagePattern}, has image href: ${hasImageHref}`);
 
     if (req.query.format === 'svg') {
       res.setHeader('Content-Type', 'image/svg+xml');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Access-Control-Allow-Origin', '*');
       return res.send(svgContent);
+    }
+
+    if (req.query.debug === 'true') {
+      return res.status(200).json({
+        id: config.id,
+        theme_type: configWithImage.theme_type,
+        has_background_image: !!backgroundImage,
+        background_image_length: backgroundImage?.length || 0,
+        background_image_url: config.background_image_url,
+        wallpaper_type: configWithImage.wallpaper_type,
+        svg_length: svgContent.length,
+        svg_has_image_pattern: hasImagePattern,
+        svg_has_image_href: hasImageHref,
+        svg_preview: svgContent.substring(0, 800)
+      });
     }
 
     console.log(`Converting SVG to PNG (${config.width}x${config.height})`);
