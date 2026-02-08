@@ -3,6 +3,7 @@ import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDef
 import { Pipette, Upload, Circle, Square, Heart, Percent, Clock, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useState, useEffect } from 'react';
+import { compressImage } from '../utils/imageCompression';
 
 interface ConfigPanelProps {
   config: WallpaperConfig;
@@ -14,6 +15,7 @@ interface ConfigPanelProps {
 export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onUpgradeToPremium }: ConfigPanelProps) {
   const { t } = useLanguage();
   const [imageError, setImageError] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   const granularityOptions: Record<WallpaperMode, { value: Granularity; label: string }[]> = {
     year: [
@@ -130,16 +132,18 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
     return brightness < 128;
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setImageError(null);
+    setIsCompressing(true);
 
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       setImageError(t('config.imageErrors.tooLarge'));
       e.target.value = '';
+      setIsCompressing(false);
       return;
     }
 
@@ -147,25 +151,27 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
     if (!validTypes.includes(file.type)) {
       setImageError(t('config.imageErrors.invalidFormat'));
       e.target.value = '';
+      setIsCompressing(false);
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      if (result.length > 10 * 1024 * 1024) {
-        setImageError(t('config.imageErrors.dataTooLarge'));
-        e.target.value = '';
-        return;
-      }
+    try {
+      const compressedImage = await compressImage(file, {
+        maxWidth: 2048,
+        maxHeight: 2048,
+        quality: 0.85,
+        maxSizeKB: 1024,
+      });
+
       setImageError(null);
-      handleThemeChange('image', undefined, result);
-    };
-    reader.onerror = () => {
+      handleThemeChange('image', undefined, compressedImage);
+    } catch (error) {
+      console.error('Image compression error:', error);
       setImageError(t('config.imageErrors.readError'));
       e.target.value = '';
-    };
-    reader.readAsDataURL(file);
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   const handleBgColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -392,33 +398,42 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                 />
               </label>
               <label
-                className={`relative w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center cursor-pointer ${
+                className={`relative w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
+                  isCompressing ? 'cursor-wait' : 'cursor-pointer'
+                } ${
                   config.themeType === 'image'
                     ? 'border-slate-900 shadow-lg scale-110'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
                 style={{
-                  backgroundImage: config.themeType === 'image' && config.backgroundImage
+                  backgroundImage: config.themeType === 'image' && config.backgroundImage && !isCompressing
                     ? `url(${config.backgroundImage})`
                     : 'none',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  backgroundColor: config.themeType === 'image' ? 'transparent' : '#666666'
+                  backgroundColor: config.themeType === 'image' && !isCompressing ? 'transparent' : '#666666'
                 }}
-                title={t('config.customImage')}
+                title={isCompressing ? 'Compressing...' : t('config.customImage')}
               >
-                {config.themeType !== 'image' && (
+                {isCompressing ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : config.themeType !== 'image' ? (
                   <Upload className="w-5 h-5 text-white" />
-                )}
+                ) : null}
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
                   className="hidden"
+                  disabled={isCompressing}
                 />
               </label>
             </div>
-            <p className="mt-2 text-xs text-slate-500">{t('config.imageMaxSize')}</p>
+            {isCompressing ? (
+              <p className="mt-2 text-xs text-blue-600 animate-pulse">Compressing image...</p>
+            ) : (
+              <p className="mt-2 text-xs text-slate-500">{t('config.imageMaxSize')}</p>
+            )}
           </div>
 
           <div>
