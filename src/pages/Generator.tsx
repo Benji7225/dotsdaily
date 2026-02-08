@@ -209,6 +209,13 @@ export default function Generator() {
               body: JSON.stringify(payload),
             });
             if (!saveResponse.ok) {
+              if (saveResponse.status === 402) {
+                const errorData = await saveResponse.json().catch(() => ({}));
+                if (errorData.code === 'SUBSCRIPTION_REQUIRED') {
+                  setShowPremiumModal(true);
+                  return;
+                }
+              }
               throw new Error('Sauvegarde config échouée');
             }
             const saveData = await saveResponse.json();
@@ -389,6 +396,14 @@ export default function Generator() {
       });
 
       if (!saveResponse.ok) {
+        if (saveResponse.status === 402) {
+          const errorData = await saveResponse.json().catch(() => ({}));
+          if (errorData.code === 'SUBSCRIPTION_REQUIRED') {
+            setShowPremiumModal(true);
+            setIsGenerating(false);
+            return;
+          }
+        }
         const errorData = await saveResponse.json().catch(() => ({ error: 'Unknown error' }));
         console.error('Edge function error:', errorData);
         throw new Error(`Sauvegarde config échouée: ${errorData.error || saveResponse.statusText}`);

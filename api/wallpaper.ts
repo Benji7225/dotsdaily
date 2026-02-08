@@ -1116,7 +1116,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (config.user_id) {
       const { data: subscription } = await supabase
         .from('user_subscriptions')
-        .select('status, current_period_end')
+        .select('status, current_period_end, plan')
         .eq('user_id', config.user_id)
         .maybeSingle();
 
@@ -1127,12 +1127,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         subscription.current_period_end &&
         new Date(subscription.current_period_end) < new Date();
 
-      const isInactiveSubscription = subscription &&
-        subscription.status === 'inactive' &&
-        !subscription.current_period_end;
-
-      if (isExpiredSubscription || isInactiveSubscription) {
-        console.log('Subscription expired or inactive, showing fallback image');
+      if (isExpiredSubscription) {
+        console.log('Subscription expired, showing fallback image');
         try {
           const fallbackImagePath = join(process.cwd(), 'public', 'your_wallpaper_stop_updating..png');
           const fallbackImage = readFileSync(fallbackImagePath);

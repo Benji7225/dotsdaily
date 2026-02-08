@@ -76,6 +76,37 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    if (userId) {
+      const { data: subscription } = await supabase
+        .from('user_subscriptions')
+        .select('status, current_period_end, plan')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      const hasActiveSubscription = subscription && (
+        subscription.status === 'lifetime' ||
+        subscription.status === 'trialing' ||
+        (subscription.status === 'active' && subscription.current_period_end && new Date(subscription.current_period_end) > new Date())
+      );
+
+      if (!hasActiveSubscription) {
+        return new Response(
+          JSON.stringify({
+            error: 'Subscription required',
+            code: 'SUBSCRIPTION_REQUIRED',
+            message: 'An active subscription is required to create wallpaper links'
+          }),
+          {
+            status: 402,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+      }
+    }
+
     const body = await req.json();
 
     const {
