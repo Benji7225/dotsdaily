@@ -58,6 +58,7 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     let userId: string | null = null;
+    let userEmail: string | null = null;
     const authHeader = req.headers.get("Authorization");
 
     if (authHeader) {
@@ -68,6 +69,7 @@ Deno.serve(async (req: Request) => {
 
         if (!userError && user) {
           userId = user.id;
+          userEmail = user.email || null;
         }
       } catch (authError) {
         console.log('Auth check failed, continuing without user:', authError);
@@ -132,6 +134,7 @@ Deno.serve(async (req: Request) => {
       .insert({
         id,
         user_id: userId,
+        user_email: userEmail,
         wallpaper_type: wallpaperType || 'dots',
         mode,
         granularity,
@@ -159,7 +162,8 @@ Deno.serve(async (req: Request) => {
         quote_mode: quoteMode || 'short',
         quote_categories: quoteCategories || null,
         quote_text_color: quoteTextColor || 'white',
-        custom_quotes: customQuotes || null
+        custom_quotes: customQuotes || null,
+        last_accessed_at: new Date().toISOString()
       });
 
     if (error) {

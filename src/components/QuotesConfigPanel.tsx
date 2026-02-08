@@ -84,8 +84,8 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setImageError('Image must be less than 5MB');
+      if (file.size > 10 * 1024 * 1024) {
+        setImageError('Image must be less than 10MB');
         return;
       }
       if (!file.type.startsWith('image/')) {

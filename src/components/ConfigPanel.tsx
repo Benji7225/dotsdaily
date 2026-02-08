@@ -136,7 +136,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
 
     setImageError(null);
 
-    const maxSize = 3 * 1024 * 1024;
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       setImageError(t('config.imageErrors.tooLarge'));
       e.target.value = '';
@@ -153,7 +153,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
     const reader = new FileReader();
     reader.onloadend = () => {
       const result = reader.result as string;
-      if (result.length > 4 * 1024 * 1024) {
+      if (result.length > 10 * 1024 * 1024) {
         setImageError(t('config.imageErrors.dataTooLarge'));
         e.target.value = '';
         return;

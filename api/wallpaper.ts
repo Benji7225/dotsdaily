@@ -1108,6 +1108,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
+    await supabase
+      .from('wallpaper_configs')
+      .update({ last_accessed_at: new Date().toISOString() })
+      .eq('id', id);
+
+    if (config.user_id) {
+      const { data: subscription } = await supabase
+        .from('user_subscriptions')
+        .select('status, current_period_end')
+        .eq('user_id', config.user_id)
+        .maybeSingle();
+
+      const hasActiveSubscription = subscription &&
+        (subscription.status === 'active' || subscription.status === 'lifetime' || subscription.status === 'trialing') &&
+        (!subscription.current_period_end || new Date(subscription.current_period_end) > new Date());
+
+      if (!hasActiveSubscription) {
+        const fallbackImagePath = join(process.cwd(), 'public', 'your_wallpaper_stop_updating..png');
+        const fallbackImage = readFileSync(fallbackImagePath);
+
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Length', fallbackImage.length.toString());
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        return res.send(fallbackImage);
+      }
+    }
+
     const timezone = config.timezone || 'UTC';
     const now = getDateInTimezone(timezone);
     const dateKey = now.toISOString().split('T')[0];
@@ -1140,10 +1168,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const imageSize = config.background_image.length;
       console.log(`Background image size: ${imageSize} bytes`);
 
-      if (imageSize > 5 * 1024 * 1024) {
+      if (imageSize > 10 * 1024 * 1024) {
         console.error('Background image too large:', imageSize);
         return res.status(400).json({
-          error: 'Background image is too large (>5MB). Please use a smaller image.'
+          error: 'Background image is too large (>10MB). Please use a smaller image.'
         });
       }
 
