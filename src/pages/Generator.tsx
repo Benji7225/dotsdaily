@@ -384,6 +384,7 @@ export default function Generator() {
         quoteMode: config.quoteMode,
         quoteTextColor: config.quoteTextColor,
         customQuotes: config.customQuotes,
+        quoteCategories: config.quoteCategories,
       };
 
       const saveResponse = await fetch(`${apiUrl}/functions/v1/save-wallpaper`, {
