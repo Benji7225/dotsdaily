@@ -168,7 +168,7 @@ export default function Generator() {
           if (!modelSpecs) return;
           setIsGenerating(true);
           try {
-            const { data: { session: refreshedSession }, error: sessionError } = await supabase.auth.getSession();
+            const { data: { session: refreshedSession }, error: sessionError } = await supabase.auth.refreshSession();
 
             if (sessionError || !refreshedSession) {
               console.error('Session expired during auto-generation');
@@ -380,7 +380,7 @@ export default function Generator() {
 
     setIsGenerating(true);
     try {
-      const { data: { session: refreshedSession }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { session: refreshedSession }, error: sessionError } = await supabase.auth.refreshSession();
 
       if (sessionError || !refreshedSession) {
         throw new Error('Session expired. Please sign in again.');
