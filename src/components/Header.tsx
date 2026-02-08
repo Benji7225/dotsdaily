@@ -88,11 +88,13 @@ export default function Header() {
                     {showDropdown && (
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2">
                         <button
-                          onClick={async () => {
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             await signOut();
                             setShowDropdown(false);
                           }}
-                          className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                          className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors flex items-center gap-2 touch-manipulation"
                         >
                           <LogOut className="w-4 h-4" />
                           {t('nav.signOut')}
@@ -183,14 +185,16 @@ export default function Header() {
                         </span>
                       </div>
                       <button
-                        onClick={async () => {
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           await signOut();
                           setShowMobileMenu(false);
                         }}
-                        className="flex items-center gap-2 text-gray-700 hover:text-black transition-colors py-2"
+                        className="flex items-center gap-2 text-gray-700 hover:text-black active:bg-gray-100 transition-colors py-3 px-2 rounded-lg -mx-2 touch-manipulation"
                       >
-                        <LogOut className="w-4 h-4" />
-                        {t('nav.signOut')}
+                        <LogOut className="w-5 h-5" />
+                        <span className="text-base">{t('nav.signOut')}</span>
                       </button>
                     </div>
                   ) : (
