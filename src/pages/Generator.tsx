@@ -169,6 +169,14 @@ export default function Generator() {
           if (!modelSpecs) return;
           setIsGenerating(true);
           try {
+            const { supabase } = await import('../utils/supabase');
+            const { data: { session: refreshedSession }, error: sessionError } = await supabase.auth.getSession();
+
+            if (sessionError || !refreshedSession) {
+              console.error('Session expired during auto-generation');
+              return;
+            }
+
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             const payload = {
               wallpaperType: config.wallpaperType,
@@ -204,7 +212,7 @@ export default function Generator() {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session?.access_token}`,
+                'Authorization': `Bearer ${refreshedSession.access_token}`,
               },
               body: JSON.stringify(payload),
             });
@@ -242,6 +250,26 @@ export default function Generator() {
 
     const generatePreview = async () => {
       try {
+        let previewConfig = { ...config };
+
+        if (config.themeType === 'image' && config.backgroundImage && config.backgroundImage.startsWith('http')) {
+          try {
+            const response = await fetch(config.backgroundImage);
+            const blob = await response.blob();
+            const base64 = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+            previewConfig = { ...config, backgroundImage: base64 };
+          } catch (err) {
+            console.error('Failed to load background image for preview:', err);
+          }
+        }
+
+        if (cancelled) return;
+
         const { generateSVG } = await import('../utils/svgGenerator');
         const translations = {
           months: t('wallpaper.months'),
@@ -253,7 +281,7 @@ export default function Generator() {
             years: t('wallpaper.timeRemaining.years')
           }
         };
-        const svgContent = generateSVG(config, modelSpecs, translations, currentDayOffset);
+        const svgContent = generateSVG(previewConfig, modelSpecs, translations, currentDayOffset);
 
         if (cancelled) return;
 
@@ -354,6 +382,13 @@ export default function Generator() {
 
     setIsGenerating(true);
     try {
+      const { supabase } = await import('../utils/supabase');
+      const { data: { session: refreshedSession }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !refreshedSession) {
+        throw new Error('Session expired. Please sign in again.');
+      }
+
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       const payload = {
@@ -391,7 +426,7 @@ export default function Generator() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
+          'Authorization': `Bearer ${refreshedSession.access_token}`,
         },
         body: JSON.stringify(payload),
       });

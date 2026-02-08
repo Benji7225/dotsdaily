@@ -120,6 +120,7 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
 
       const publicUrl = await uploadImageToStorage(compressedFile, user.id);
 
+      console.log('Image uploaded to:', publicUrl);
       setConfig({ ...config, backgroundImage: publicUrl, themeType: 'image' });
     } catch (error) {
       console.error('Image upload error:', error);
