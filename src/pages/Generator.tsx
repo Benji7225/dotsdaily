@@ -80,6 +80,7 @@ export default function Generator() {
 
   const modelSpecs = getModelSpecs(config.generation, config.variant);
   const apiUrl = import.meta.env.VITE_SUPABASE_URL;
+  const apiKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
   const saveDraftConfig = async (configToSave: WallpaperConfig) => {
@@ -211,6 +212,7 @@ export default function Generator() {
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${refreshedSession.access_token}`,
+                'apikey': apiKey,
               },
               body: JSON.stringify(payload),
             });
@@ -424,6 +426,7 @@ export default function Generator() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${refreshedSession.access_token}`,
+          'apikey': apiKey,
         },
         body: JSON.stringify(payload),
       });
