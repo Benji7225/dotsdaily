@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../hooks/useSubscription';
 import { useSavedConfigs } from '../hooks/useSavedConfigs';
 import { Link } from 'react-router-dom';
+import { supabase } from '../utils/supabase';
 
 export type WallpaperType = 'dots' | 'quotes';
 export type WallpaperMode = 'year' | 'life' | 'countdown';
@@ -85,7 +86,6 @@ export default function Generator() {
     if (!user || !session) return;
 
     try {
-      const { supabase } = await import('../utils/supabase');
       await supabase
         .from('user_draft_configs')
         .upsert({
@@ -139,7 +139,6 @@ export default function Generator() {
     if (user && session) {
       const load = async () => {
         try {
-          const { supabase } = await import('../utils/supabase');
           const { data, error } = await supabase
             .from('user_draft_configs')
             .select('config')
@@ -169,7 +168,6 @@ export default function Generator() {
           if (!modelSpecs) return;
           setIsGenerating(true);
           try {
-            const { supabase } = await import('../utils/supabase');
             const { data: { session: refreshedSession }, error: sessionError } = await supabase.auth.getSession();
 
             if (sessionError || !refreshedSession) {
@@ -382,7 +380,6 @@ export default function Generator() {
 
     setIsGenerating(true);
     try {
-      const { supabase } = await import('../utils/supabase');
       const { data: { session: refreshedSession }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError || !refreshedSession) {

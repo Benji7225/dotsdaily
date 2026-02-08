@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth, supabase } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../utils/supabase';
 
 export function useSubscription() {
   const { user } = useAuth();
