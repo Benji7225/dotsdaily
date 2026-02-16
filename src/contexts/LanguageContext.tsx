@@ -269,7 +269,7 @@ const translations = {
       }
     },
     generator: {
-      title: 'Mis à jour automatiquement',
+      title: 'Mis à jour automatiquement.',
       subtitle: 'Minimal. Sans app. Sans notifications.',
       modes: {
         year: {
