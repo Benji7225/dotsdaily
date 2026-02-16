@@ -1183,24 +1183,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (config.theme_type === 'image') {
       if (config.background_image_url) {
-        console.log('Loading background image from Storage URL');
-        try {
-          const imageResponse = await fetch(config.background_image_url);
-          if (!imageResponse.ok) {
-            throw new Error(`Failed to fetch image: ${imageResponse.statusText}`);
-          }
-          const imageBuffer = await imageResponse.arrayBuffer();
-          const base64 = Buffer.from(imageBuffer).toString('base64');
-          const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
-          backgroundImage = `data:${contentType};base64,${base64}`;
-          console.log(`Image loaded from Storage: ${imageBuffer.byteLength} bytes`);
-        } catch (error) {
-          console.error('Failed to load image from Storage:', error);
-          return res.status(500).json({
-            error: 'Failed to load background image',
-            details: error instanceof Error ? error.message : 'Unknown error'
-          });
-        }
+        console.log('Using direct Storage URL for background image');
+        backgroundImage = config.background_image_url;
+        console.log(`Background image URL: ${backgroundImage}`);
       } else {
         console.log('Checking for legacy base64 background image');
         const { data: legacyConfig } = await supabase
