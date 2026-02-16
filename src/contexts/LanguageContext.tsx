@@ -184,7 +184,7 @@ const translations = {
     },
     home: {
       hero: {
-        title: 'Ton fond d'\'écran \n mis à jour quotidiennement.',
+        title: 'Ton fond d\'écran \n mis à jour quotidiennement.',
         subtitle: 'Transforme ta vie, tes objectifs et ta progression quotidienne en un magnifique fond d\'écran iPhone qui se met à jour automatiquement chaque jour.',
         cta: 'Créer ton Fond d\'Écran',
         learn: 'Voir Comment ça Marche'
