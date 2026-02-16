@@ -678,7 +678,7 @@ const translations = {
     },
     home: {
       hero: {
-        title: 'Your life.\nOne dot at a time.',
+        title: 'Your wallpaper\nupdated daily.',
         subtitle: 'Turn your life, goals, and daily progress into a beautiful iPhone wallpaper that updates automatically every day.',
         cta: 'Create Your Wallpaper',
         learn: 'See How It Works'
