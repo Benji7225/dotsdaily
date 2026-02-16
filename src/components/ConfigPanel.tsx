@@ -115,7 +115,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
     setConfig({ ...config, variant });
   };
 
-  const handleThemeChange = (themeType: ThemeType, customColor?: string, backgroundImage?: string) => {
+  const handleThemeChange = (themeType: ThemeType, customColor?: string, backgroundImage?: string, backgroundImageUrl?: string) => {
     const isDark = themeType === 'dark' || (themeType === 'custom' && customColor && isColorDark(customColor));
     setConfig({
       ...config,
@@ -123,6 +123,7 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
       theme: isDark ? 'dark' : 'light',
       customColor,
       backgroundImage,
+      backgroundImageUrl,
     });
   };
 
@@ -173,8 +174,20 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
 
       const imageUrl = await uploadImageToStorage(compressedFile, user.id);
 
-      setImageError(null);
-      handleThemeChange('image', undefined, imageUrl);
+      const previewBlob = await compressImageToBlob(file, {
+        maxWidth: 800,
+        maxHeight: 800,
+        quality: 0.6,
+        maxSizeKB: 300,
+      });
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setImageError(null);
+        handleThemeChange('image', undefined, base64, imageUrl);
+      };
+      reader.readAsDataURL(previewBlob);
     } catch (error) {
       console.error('Image upload error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

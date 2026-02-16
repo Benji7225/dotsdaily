@@ -33,6 +33,7 @@ export interface WallpaperConfig {
   themeType: ThemeType;
   customColor?: string;
   backgroundImage?: string;
+  backgroundImageUrl?: string;
   dotColor?: string;
   dotShape?: DotShape;
   customText?: string;
@@ -250,50 +251,6 @@ export default function Generator() {
 
     const generatePreview = async () => {
       try {
-        let previewConfig = { ...config };
-
-        if (config.themeType === 'image' && config.backgroundImage && config.backgroundImage.startsWith('http')) {
-          try {
-            const response = await fetch(config.backgroundImage);
-            if (!response.ok) throw new Error('Image fetch failed');
-
-            const blob = await response.blob();
-
-            const img = new Image();
-            const imageUrl = URL.createObjectURL(blob);
-
-            await new Promise((resolve, reject) => {
-              img.onload = resolve;
-              img.onerror = reject;
-              img.src = imageUrl;
-            });
-
-            const maxSize = 800;
-            let width = img.width;
-            let height = img.height;
-
-            if (width > maxSize || height > maxSize) {
-              const ratio = Math.min(maxSize / width, maxSize / height);
-              width = Math.floor(width * ratio);
-              height = Math.floor(height * ratio);
-            }
-
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0, width, height);
-              const base64 = canvas.toDataURL('image/jpeg', 0.65);
-              previewConfig = { ...config, backgroundImage: base64 };
-            }
-
-            URL.revokeObjectURL(imageUrl);
-          } catch (err) {
-            console.error('Failed to load background image for preview:', err);
-          }
-        }
-
         if (cancelled) return;
 
         const { generateSVG } = await import('../utils/svgGenerator');
@@ -307,7 +264,7 @@ export default function Generator() {
             years: t('wallpaper.timeRemaining.years')
           }
         };
-        const svgContent = generateSVG(previewConfig, modelSpecs, translations, currentDayOffset);
+        const svgContent = generateSVG(config, modelSpecs, translations, currentDayOffset);
 
         if (cancelled) return;
 
@@ -424,7 +381,7 @@ export default function Generator() {
         theme: config.theme,
         themeType: config.themeType,
         customColor: config.customColor,
-        backgroundImage: config.backgroundImage,
+        backgroundImage: config.backgroundImageUrl || config.backgroundImage,
         dotColor: config.dotColor,
         dotShape: config.dotShape,
         customText: config.customText,
@@ -485,9 +442,52 @@ export default function Generator() {
     }
   };
 
-  const loadSavedConfig = (savedConfig: any) => {
+  const loadSavedConfig = async (savedConfig: any) => {
     const generation = defaultGeneration.id;
     const variant = defaultVariant;
+
+    let backgroundImage = savedConfig.background_image;
+    const backgroundImageUrl = savedConfig.background_image_url;
+
+    if (backgroundImageUrl && !backgroundImage) {
+      try {
+        const response = await fetch(backgroundImageUrl);
+        if (response.ok) {
+          const blob = await response.blob();
+          const img = new Image();
+          const tempUrl = URL.createObjectURL(blob);
+
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = tempUrl;
+          });
+
+          const maxSize = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxSize || height > maxSize) {
+            const ratio = Math.min(maxSize / width, maxSize / height);
+            width = Math.floor(width * ratio);
+            height = Math.floor(height * ratio);
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            backgroundImage = canvas.toDataURL('image/jpeg', 0.6);
+          }
+
+          URL.revokeObjectURL(tempUrl);
+        }
+      } catch (err) {
+        console.error('Failed to load background image from URL:', err);
+      }
+    }
 
     setConfig({
       mode: savedConfig.mode as WallpaperMode,
@@ -496,7 +496,8 @@ export default function Generator() {
       theme: savedConfig.theme,
       themeType: savedConfig.theme_type as ThemeType,
       customColor: savedConfig.custom_color,
-      backgroundImage: savedConfig.background_image,
+      backgroundImage,
+      backgroundImageUrl,
       dotColor: savedConfig.dot_color,
       dotShape: savedConfig.dot_shape as DotShape,
       customText: savedConfig.custom_text,
@@ -507,6 +508,11 @@ export default function Generator() {
       lifeExpectancy: savedConfig.life_expectancy,
       generation,
       variant,
+      wallpaperType: savedConfig.wallpaper_type as WallpaperType,
+      quoteMode: savedConfig.quote_mode as QuoteMode,
+      quoteTextColor: savedConfig.quote_text_color,
+      quoteCategories: savedConfig.quote_categories,
+      customQuotes: savedConfig.custom_quotes,
     });
 
     const baseUrl = window.location.origin;
