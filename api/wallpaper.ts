@@ -1183,9 +1183,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (config.theme_type === 'image') {
       if (config.background_image_url) {
-        console.log('Using direct Storage URL for background image');
-        backgroundImage = config.background_image_url;
-        console.log(`Background image URL: ${backgroundImage}`);
+        console.log('Fetching image from Storage URL:', config.background_image_url);
+        try {
+          const imageResponse = await fetch(config.background_image_url);
+          if (!imageResponse.ok) {
+            console.error('Failed to fetch image:', imageResponse.status);
+            return res.status(400).json({
+              error: 'Failed to fetch background image from storage'
+            });
+          }
+
+          const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+          const arrayBuffer = await imageResponse.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString('base64');
+          backgroundImage = `data:${contentType};base64,${base64}`;
+          console.log(`✓ Converted Storage URL to base64 (${base64.length} chars, ${contentType})`);
+        } catch (error) {
+          console.error('Error fetching background image:', error);
+          return res.status(400).json({
+            error: 'Failed to process background image from storage'
+          });
+        }
       } else if (config.background_image) {
         console.log('Using legacy base64 background image');
         backgroundImage = config.background_image;
