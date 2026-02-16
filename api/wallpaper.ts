@@ -1093,7 +1093,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         start_date, target_date, birth_date, life_expectancy, custom_text, width, height, safe_top, safe_bottom,
         safe_left, safe_right, timezone, dot_shape, additional_display, theme,
         last_accessed_at, created_at, wallpaper_type, quote_categories, quote_mode, quote_text_color,
-        custom_quotes, language, background_image_url
+        custom_quotes, language, background_image_url, background_image
       `)
       .eq('id', id)
       .maybeSingle();
@@ -1186,38 +1186,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log('Using direct Storage URL for background image');
         backgroundImage = config.background_image_url;
         console.log(`Background image URL: ${backgroundImage}`);
-      } else {
-        console.log('Checking for legacy base64 background image');
-        const { data: legacyConfig } = await supabase
-          .from('wallpaper_configs')
-          .select('background_image')
-          .eq('id', id)
-          .maybeSingle();
+      } else if (config.background_image) {
+        console.log('Using legacy base64 background image');
+        backgroundImage = config.background_image;
+        const imageSize = backgroundImage.length;
+        console.log(`Background image size: ${imageSize} bytes`);
 
-        if (legacyConfig?.background_image) {
-          backgroundImage = legacyConfig.background_image;
-          const imageSize = backgroundImage.length;
-          console.log(`Background image size: ${imageSize} bytes`);
+        if (imageSize > 10 * 1024 * 1024) {
+          console.error('Background image too large:', imageSize);
+          return res.status(400).json({
+            error: 'Background image is too large (>10MB). Please use a smaller image.'
+          });
+        }
 
-          if (imageSize > 10 * 1024 * 1024) {
-            console.error('Background image too large:', imageSize);
-            return res.status(400).json({
-              error: 'Background image is too large (>10MB). Please use a smaller image.'
-            });
-          }
-
-          if (!backgroundImage.startsWith('data:image/')) {
-            console.error('Invalid background image format');
-            return res.status(400).json({
-              error: 'Invalid background image format. Must be a data URL.'
-            });
-          }
+        if (!backgroundImage.startsWith('data:image/')) {
+          console.error('Invalid background image format');
+          return res.status(400).json({
+            error: 'Invalid background image format. Must be a data URL.'
+          });
         }
       }
 
       if (backgroundImage) {
-        config.background_image = backgroundImage;
-        console.log(`✓ Background image assigned to config: ${backgroundImage.substring(0, 50)}...`);
+        console.log(`✓ Background image ready: ${backgroundImage.substring(0, 50)}...`);
+      } else {
+        console.log('⚠️ No background image found despite theme_type being "image"');
       }
     }
 
