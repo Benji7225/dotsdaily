@@ -679,7 +679,7 @@ const translations = {
     home: {
       hero: {
         title: 'Your wallpaper\nupdated daily.',
-        subtitle: 'Turn your life, goals, and daily progress into a beautiful iPhone wallpaper that updates automatically every day.',
+        subtitle: 'Minimal. No app. No notifications.',
         cta: 'Create Your Wallpaper',
         learn: 'See How It Works'
       },
