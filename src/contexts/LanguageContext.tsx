@@ -269,8 +269,8 @@ const translations = {
       }
     },
     generator: {
-      title: 'Chaque Jour Compte',
-      subtitle: 'Transforme le temps en motivation avec ton fond d\'écran quotidien',
+      title: 'Mis à jour automatiquement',
+      subtitle: 'Minimal. Sans app. Sans notifications.',
       modes: {
         year: {
           name: 'Année',
