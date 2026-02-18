@@ -551,9 +551,11 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
     return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}</text>`;
   }).join('\n  ');
 
+  const bgRect = config.themeType === 'image' ? '' : `<rect width="${width}" height="${height}" fill="${bgColor}"/>`;
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <rect width="${width}" height="${height}" fill="${bgColor}"/>
+  ${bgRect}
 
   ${textElements}
 </svg>`;
