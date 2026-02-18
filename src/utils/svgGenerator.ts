@@ -302,9 +302,13 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   if (config.themeType === 'custom' && config.customColor) {
     bgColor = config.customColor;
   } else if (config.themeType === 'image' && config.backgroundImage) {
+    const imageData = config.backgroundImage.startsWith('data:')
+      ? config.backgroundImage
+      : `data:image/jpeg;base64,${config.backgroundImage}`;
+
     backgroundDef = `<defs>
       <pattern id="bgImage" x="0" y="0" width="1" height="1">
-        <image href="${config.backgroundImage}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+        <image href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
     bgColor = 'url(#bgImage)';
@@ -592,9 +596,13 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, tra
   if (config.themeType === 'custom' && config.customColor) {
     bgColor = config.customColor;
   } else if (config.themeType === 'image' && config.backgroundImage) {
+    const imageData = config.backgroundImage.startsWith('data:')
+      ? config.backgroundImage
+      : `data:image/jpeg;base64,${config.backgroundImage}`;
+
     backgroundDef = `<defs>
       <pattern id="bgImage" x="0" y="0" width="1" height="1">
-        <image href="${config.backgroundImage}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+        <image href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
     bgColor = 'url(#bgImage)';

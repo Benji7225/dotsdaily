@@ -388,9 +388,13 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: 
   if (config.theme_type === 'custom' && config.custom_color) {
     bgColor = config.custom_color;
   } else if (config.theme_type === 'image' && config.background_image) {
+    const imageData = config.background_image.startsWith('data:')
+      ? config.background_image
+      : `data:image/jpeg;base64,${config.background_image}`;
+
     backgroundDef = `<defs>
       <pattern id="bgImage" x="0" y="0" width="1" height="1">
-        <image href="${config.background_image}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+        <image href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
     bgColor = 'url(#bgImage)';
@@ -677,9 +681,13 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
   if (config.theme_type === 'custom' && config.custom_color) {
     bgColor = config.custom_color;
   } else if (config.theme_type === 'image' && config.background_image) {
+    const imageData = config.background_image.startsWith('data:')
+      ? config.background_image
+      : `data:image/jpeg;base64,${config.background_image}`;
+
     backgroundDef = `<defs>
       <pattern id="bgImage" x="0" y="0" width="1" height="1">
-        <image href="${config.background_image}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+        <image href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
     bgColor = 'url(#bgImage)';
@@ -1185,7 +1193,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (config.background_image_url) {
         console.log('Fetching image from Storage URL:', config.background_image_url);
         try {
-          const imageResponse = await fetch(config.background_image_url);
+          const fetchWithTimeout = async (url: string, timeout = 10000) => {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+            try {
+              const response = await fetch(url, { signal: controller.signal });
+              clearTimeout(timeoutId);
+              return response;
+            } catch (error) {
+              clearTimeout(timeoutId);
+              throw error;
+            }
+          };
+
+          const imageResponse = await fetchWithTimeout(config.background_image_url);
           if (!imageResponse.ok) {
             console.error('Failed to fetch image:', imageResponse.status);
             return res.status(400).json({
@@ -1193,7 +1215,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
           }
 
-          const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+          const contentType = imageResponse.headers.get('content-type') || 'image/png';
           const arrayBuffer = await imageResponse.arrayBuffer();
           const base64 = Buffer.from(arrayBuffer).toString('base64');
           backgroundImage = `data:${contentType};base64,${base64}`;
@@ -1218,10 +1240,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         if (!backgroundImage.startsWith('data:image/')) {
-          console.error('Invalid background image format');
-          return res.status(400).json({
-            error: 'Invalid background image format. Must be a data URL.'
-          });
+          backgroundImage = `data:image/png;base64,${backgroundImage}`;
+          console.log('Fixed background image format to include data URL prefix');
         }
       }
 
