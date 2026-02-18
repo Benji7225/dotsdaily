@@ -388,13 +388,17 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: 
   if (config.theme_type === 'custom' && config.custom_color) {
     bgColor = config.custom_color;
   } else if (config.theme_type === 'image' && config.background_image) {
-    const imageData = config.background_image.startsWith('data:')
-      ? config.background_image
-      : `data:image/jpeg;base64,${config.background_image}`;
+    let imageData = config.background_image;
+
+    if (!imageData.startsWith('data:')) {
+      imageData = `data:image/png;base64,${imageData}`;
+    }
+
+    imageData = imageData.replace(/[\r\n]/g, '');
 
     backgroundDef = `<defs>
-      <pattern id="bgImage" x="0" y="0" width="1" height="1">
-        <image href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+      <pattern id="bgImage" patternUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}">
+        <image xlink:href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
     bgColor = 'url(#bgImage)';
@@ -681,13 +685,17 @@ function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, now: Date)
   if (config.theme_type === 'custom' && config.custom_color) {
     bgColor = config.custom_color;
   } else if (config.theme_type === 'image' && config.background_image) {
-    const imageData = config.background_image.startsWith('data:')
-      ? config.background_image
-      : `data:image/jpeg;base64,${config.background_image}`;
+    let imageData = config.background_image;
+
+    if (!imageData.startsWith('data:')) {
+      imageData = `data:image/png;base64,${imageData}`;
+    }
+
+    imageData = imageData.replace(/[\r\n]/g, '');
 
     backgroundDef = `<defs>
-      <pattern id="bgImage" x="0" y="0" width="1" height="1">
-        <image href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+      <pattern id="bgImage" patternUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}">
+        <image xlink:href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
     bgColor = 'url(#bgImage)';

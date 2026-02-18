@@ -302,13 +302,17 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   if (config.themeType === 'custom' && config.customColor) {
     bgColor = config.customColor;
   } else if (config.themeType === 'image' && config.backgroundImage) {
-    const imageData = config.backgroundImage.startsWith('data:')
-      ? config.backgroundImage
-      : `data:image/jpeg;base64,${config.backgroundImage}`;
+    let imageData = config.backgroundImage;
+
+    if (!imageData.startsWith('data:')) {
+      imageData = `data:image/png;base64,${imageData}`;
+    }
+
+    imageData = imageData.replace(/[\r\n]/g, '');
 
     backgroundDef = `<defs>
-      <pattern id="bgImage" x="0" y="0" width="1" height="1">
-        <image href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+      <pattern id="bgImage" patternUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}">
+        <image xlink:href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
     bgColor = 'url(#bgImage)';
@@ -596,16 +600,28 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, tra
   if (config.themeType === 'custom' && config.customColor) {
     bgColor = config.customColor;
   } else if (config.themeType === 'image' && config.backgroundImage) {
-    const imageData = config.backgroundImage.startsWith('data:')
-      ? config.backgroundImage
-      : `data:image/jpeg;base64,${config.backgroundImage}`;
+    console.log('SVGGen: themeType is image, backgroundImage exists:', !!config.backgroundImage);
+    console.log('SVGGen: backgroundImage length:', config.backgroundImage?.length || 0);
+    console.log('SVGGen: backgroundImage starts with data:', config.backgroundImage?.startsWith('data:'));
+
+    let imageData = config.backgroundImage;
+
+    if (!imageData.startsWith('data:')) {
+      imageData = `data:image/png;base64,${imageData}`;
+    }
+
+    imageData = imageData.replace(/[\r\n]/g, '');
+
+    console.log('SVGGen: imageData prepared, length:', imageData.length);
+    console.log('SVGGen: imageData format:', imageData.substring(0, 30));
 
     backgroundDef = `<defs>
-      <pattern id="bgImage" x="0" y="0" width="1" height="1">
-        <image href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+      <pattern id="bgImage" patternUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}">
+        <image xlink:href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
     bgColor = 'url(#bgImage)';
+    console.log('SVGGen: backgroundDef set, using pattern');
   }
 
   const subTextColor = isDark ? '#999999' : '#666666';

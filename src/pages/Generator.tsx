@@ -264,7 +264,18 @@ export default function Generator() {
             years: t('wallpaper.timeRemaining.years')
           }
         };
+
+        if (config.themeType === 'image') {
+          console.log('Preview - themeType:', config.themeType);
+          console.log('Preview - backgroundImage:', config.backgroundImage ? `${config.backgroundImage.substring(0, 50)}... (length: ${config.backgroundImage.length})` : 'none');
+        }
+
         const svgContent = generateSVG(config, modelSpecs, translations, currentDayOffset);
+
+        if (config.themeType === 'image') {
+          console.log('SVG includes pattern?', svgContent.includes('pattern id="bgImage"'));
+          console.log('SVG includes image tag?', svgContent.includes('<image'));
+        }
 
         if (cancelled) return;
 
@@ -273,8 +284,14 @@ export default function Generator() {
 
         const img = new Image();
         await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
+          img.onload = () => {
+            console.log('SVG loaded successfully');
+            resolve(null);
+          };
+          img.onerror = (err) => {
+            console.error('SVG load error:', err);
+            reject(err);
+          };
           img.src = svgUrl;
         });
 
