@@ -270,7 +270,7 @@ export default function Generator() {
           console.log('Preview - backgroundImage:', config.backgroundImage ? `${config.backgroundImage.substring(0, 50)}... (length: ${config.backgroundImage.length})` : 'none');
         }
 
-        const svgContent = generateSVG(config, modelSpecs, translations, currentDayOffset);
+        const svgContent = generateSVG(config, modelSpecs, translations, currentDayOffset, true);
 
         if (config.themeType === 'image') {
           console.log('SVG includes pattern?', svgContent.includes('pattern id="bgImage"'));
@@ -678,7 +678,12 @@ export default function Generator() {
           </div>
 
           <div className="order-1 lg:order-2 lg:sticky lg:top-4">
-            <WallpaperPreview url={shortUrl || previewUrl} modelSpecs={modelSpecs} theme={config.theme} />
+            <WallpaperPreview
+              url={shortUrl || previewUrl}
+              modelSpecs={modelSpecs}
+              theme={config.theme}
+              backgroundImage={config.themeType === 'image' ? config.backgroundImage : undefined}
+            />
             {config.wallpaperType === 'quotes' && (
               <div className="flex items-center justify-center gap-4 mt-4">
                 <button

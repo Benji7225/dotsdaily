@@ -292,7 +292,7 @@ function generateDotShape(x: number, y: number, size: number, fill: string, shap
   }
 }
 
-function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOffset: number = 0): string {
+function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOffset: number = 0, forPreview?: boolean): string {
   const { width, height, safeArea } = modelSpecs;
   const isDark = config.theme !== 'light';
 
@@ -302,20 +302,24 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   if (config.themeType === 'custom' && config.customColor) {
     bgColor = config.customColor;
   } else if (config.themeType === 'image' && config.backgroundImage) {
-    let imageData = config.backgroundImage;
+    if (forPreview) {
+      bgColor = 'transparent';
+    } else {
+      let imageData = config.backgroundImage;
 
-    if (!imageData.startsWith('data:')) {
-      imageData = `data:image/png;base64,${imageData}`;
-    }
+      if (!imageData.startsWith('data:')) {
+        imageData = `data:image/png;base64,${imageData}`;
+      }
 
-    imageData = imageData.replace(/[\r\n]/g, '');
+      imageData = imageData.replace(/[\r\n]/g, '');
 
-    backgroundDef = `<defs>
+      backgroundDef = `<defs>
       <pattern id="bgImage" patternUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}">
         <image xlink:href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
-    bgColor = 'url(#bgImage)';
+      bgColor = 'url(#bgImage)';
+    }
   }
 
   const quotesByCategory: Record<string, string[]> = {
@@ -573,9 +577,9 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
 </svg>`;
 }
 
-export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, translations: Translations, dayOffset?: number): string {
+export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, translations: Translations, dayOffset?: number, forPreview?: boolean): string {
   if (config.wallpaperType === 'quotes') {
-    return generateQuoteSVG(config, modelSpecs, dayOffset || 0);
+    return generateQuoteSVG(config, modelSpecs, dayOffset || 0, forPreview);
   }
   const { width, height, safeArea } = modelSpecs;
   const isDark = config.theme !== 'light';
@@ -600,28 +604,32 @@ export function generateSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, tra
   if (config.themeType === 'custom' && config.customColor) {
     bgColor = config.customColor;
   } else if (config.themeType === 'image' && config.backgroundImage) {
-    console.log('SVGGen: themeType is image, backgroundImage exists:', !!config.backgroundImage);
-    console.log('SVGGen: backgroundImage length:', config.backgroundImage?.length || 0);
-    console.log('SVGGen: backgroundImage starts with data:', config.backgroundImage?.startsWith('data:'));
+    if (forPreview) {
+      bgColor = 'transparent';
+    } else {
+      console.log('SVGGen: themeType is image, backgroundImage exists:', !!config.backgroundImage);
+      console.log('SVGGen: backgroundImage length:', config.backgroundImage?.length || 0);
+      console.log('SVGGen: backgroundImage starts with data:', config.backgroundImage?.startsWith('data:'));
 
-    let imageData = config.backgroundImage;
+      let imageData = config.backgroundImage;
 
-    if (!imageData.startsWith('data:')) {
-      imageData = `data:image/png;base64,${imageData}`;
-    }
+      if (!imageData.startsWith('data:')) {
+        imageData = `data:image/png;base64,${imageData}`;
+      }
 
-    imageData = imageData.replace(/[\r\n]/g, '');
+      imageData = imageData.replace(/[\r\n]/g, '');
 
-    console.log('SVGGen: imageData prepared, length:', imageData.length);
-    console.log('SVGGen: imageData format:', imageData.substring(0, 30));
+      console.log('SVGGen: imageData prepared, length:', imageData.length);
+      console.log('SVGGen: imageData format:', imageData.substring(0, 30));
 
-    backgroundDef = `<defs>
+      backgroundDef = `<defs>
       <pattern id="bgImage" patternUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}">
         <image xlink:href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
       </pattern>
     </defs>`;
-    bgColor = 'url(#bgImage)';
-    console.log('SVGGen: backgroundDef set, using pattern');
+      bgColor = 'url(#bgImage)';
+      console.log('SVGGen: backgroundDef set, using pattern');
+    }
   }
 
   const subTextColor = isDark ? '#999999' : '#666666';

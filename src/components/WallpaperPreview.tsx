@@ -7,9 +7,10 @@ interface WallpaperPreviewProps {
   url: string;
   modelSpecs: ModelSpecs | null;
   theme: 'dark' | 'light';
+  backgroundImage?: string;
 }
 
-export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPreviewProps) {
+export default function WallpaperPreview({ url, modelSpecs, theme, backgroundImage }: WallpaperPreviewProps) {
   const { language } = useLanguage();
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -60,19 +61,30 @@ export default function WallpaperPreview({ url, modelSpecs, theme }: WallpaperPr
                   }}
                 >
                   <div className={`relative w-full h-full ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
+                    {backgroundImage && (
+                      <div
+                        className="absolute inset-0 w-full h-full"
+                        style={{
+                          backgroundImage: `url(${backgroundImage})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat'
+                        }}
+                      />
+                    )}
                     {url ? (
                       <img
                         key={url}
                         src={url.startsWith('blob:') ? url : `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`}
                         alt="Aperçu du fond d'écran"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover relative z-10"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
                         }}
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">
+                      <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm relative z-10">
                         Chargement...
                       </div>
                     )}
