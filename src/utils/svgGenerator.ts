@@ -492,7 +492,12 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   const quoteIndex = dayOfYear % shortQuotes.length;
   const quote = shortQuotes[quoteIndex];
 
-  const textColor = isDark ? '#ffffff' : '#000000';
+  let textColor = isDark ? '#ffffff' : '#000000';
+
+  if (config.themeType === 'image' && config.backgroundImage) {
+    textColor = '#ffffff';
+  }
+
   const dotColor = config.dotColor || '#FF8C42';
   const dotSize = 10;
 
@@ -567,19 +572,38 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   const totalHeight = allLines.length * lineHeight;
   const startY = height / 2 - totalHeight / 2 + fontSize;
 
+  const hasImageBackground = config.themeType === 'image' && config.backgroundImage;
+  const textShadow = hasImageBackground ? 'filter="url(#textShadow)"' : '';
+
   const textElements = allLines.map((lineObj, index) => {
     const centerY = startY + index * lineHeight;
 
     if (lineObj.hasDot) {
-      return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}<tspan font-size="${fontSize * 1.4}" fill="${dotColor}">.</tspan></text>`;
+      return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle" ${textShadow}>${lineObj.text}<tspan font-size="${fontSize * 1.4}" fill="${dotColor}">.</tspan></text>`;
     }
-    return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}</text>`;
+    return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle" ${textShadow}>${lineObj.text}</text>`;
   }).join('\n  ');
 
   const backgroundRect = bgColor === 'transparent' ? '' : `<rect width="${width}" height="${height}" fill="${bgColor}"/>`;
 
+  const shadowFilter = hasImageBackground ? `
+  <defs>
+    <filter id="textShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>` : '';
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  ${shadowFilter}
   ${backgroundDef}
   ${backgroundRect}
 
