@@ -682,7 +682,7 @@ export default function Generator() {
               url={shortUrl || previewUrl}
               modelSpecs={modelSpecs}
               theme={config.theme}
-              backgroundImage={config.themeType === 'image' ? config.backgroundImage : undefined}
+              backgroundImage={config.themeType === 'image' && config.wallpaperType !== 'quotes' ? config.backgroundImage : undefined}
             />
             {config.wallpaperType === 'quotes' && (
               <div className="flex items-center justify-center gap-4 mt-4">
