@@ -302,24 +302,7 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   if (config.themeType === 'custom' && config.customColor) {
     bgColor = config.customColor;
   } else if (config.themeType === 'image' && config.backgroundImage) {
-    if (forPreview) {
-      bgColor = 'transparent';
-    } else {
-      let imageData = config.backgroundImage;
-
-      if (!imageData.startsWith('data:')) {
-        imageData = `data:image/png;base64,${imageData}`;
-      }
-
-      imageData = imageData.replace(/[\r\n]/g, '');
-
-      backgroundDef = `<defs>
-      <pattern id="bgImage" patternUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}">
-        <image xlink:href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
-      </pattern>
-    </defs>`;
-      bgColor = 'url(#bgImage)';
-    }
+    bgColor = 'transparent';
   }
 
   const quotesByCategory: Record<string, string[]> = {
@@ -570,7 +553,6 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  ${backgroundDef}
   <rect width="${width}" height="${height}" fill="${bgColor}"/>
 
   ${textElements}
