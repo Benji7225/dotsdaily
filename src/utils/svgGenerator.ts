@@ -302,7 +302,32 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
   if (config.themeType === 'custom' && config.customColor) {
     bgColor = config.customColor;
   } else if (config.themeType === 'image' && config.backgroundImage) {
-    bgColor = 'transparent';
+    if (forPreview) {
+      bgColor = 'transparent';
+    } else {
+      console.log('QuoteSVG: themeType is image, backgroundImage exists:', !!config.backgroundImage);
+      console.log('QuoteSVG: backgroundImage length:', config.backgroundImage?.length || 0);
+      console.log('QuoteSVG: backgroundImage starts with data:', config.backgroundImage?.startsWith('data:'));
+
+      let imageData = config.backgroundImage;
+
+      if (!imageData.startsWith('data:')) {
+        imageData = `data:image/png;base64,${imageData}`;
+      }
+
+      imageData = imageData.replace(/[\r\n]/g, '');
+
+      console.log('QuoteSVG: imageData prepared, length:', imageData.length);
+      console.log('QuoteSVG: imageData format:', imageData.substring(0, 30));
+
+      backgroundDef = `<defs>
+      <pattern id="bgImage" patternUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}">
+        <image xlink:href="${imageData}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice"/>
+      </pattern>
+    </defs>`;
+      bgColor = 'url(#bgImage)';
+      console.log('QuoteSVG: backgroundDef set, using pattern');
+    }
   }
 
   const quotesByCategory: Record<string, string[]> = {
@@ -551,11 +576,10 @@ function generateQuoteSVG(config: WallpaperConfig, modelSpecs: ModelSpecs, dayOf
     return `<text x="${width / 2}" y="${centerY}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="500" fill="${textColor}" text-anchor="middle">${lineObj.text}</text>`;
   }).join('\n  ');
 
-  const bgRect = config.themeType === 'image' ? '' : `<rect width="${width}" height="${height}" fill="${bgColor}"/>`;
-
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  ${bgRect}
+  ${backgroundDef}
+  <rect width="${width}" height="${height}" fill="${bgColor}"/>
 
   ${textElements}
 </svg>`;
