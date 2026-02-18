@@ -308,6 +308,17 @@ export default function Generator() {
         if (!ctx) throw new Error('Canvas non disponible');
 
         ctx.scale(scale, scale);
+
+        if (config.themeType === 'image' && config.backgroundImage) {
+          const bgImg = new Image();
+          bgImg.src = config.backgroundImage;
+          await new Promise((resolve, reject) => {
+            bgImg.onload = resolve;
+            bgImg.onerror = reject;
+          });
+          ctx.drawImage(bgImg, 0, 0, modelSpecs.width, modelSpecs.height);
+        }
+
         ctx.drawImage(img, 0, 0);
         URL.revokeObjectURL(svgUrl);
 
