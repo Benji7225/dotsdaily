@@ -10,6 +10,7 @@ import { useSubscription } from '../hooks/useSubscription';
 import { useSavedConfigs } from '../hooks/useSavedConfigs';
 import { Link } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
+import { trackGenerateWallpaper, trackCompleteRegistration, trackInitiateCheckout } from '../utils/tiktokPixel';
 
 export type WallpaperType = 'dots' | 'quotes';
 export type WallpaperMode = 'year' | 'life' | 'countdown';
@@ -360,6 +361,9 @@ export default function Generator() {
   const handlePayment = async (plan: 'monthly' | 'annual') => {
     await saveDraftConfig(config);
 
+    const value = plan === 'monthly' ? 5 : 36;
+    trackInitiateCheckout(value);
+
     const stripeUrl = plan === 'monthly'
       ? 'https://buy.stripe.com/eVq14pcvT5LE9xbexDfMA04'
       : 'https://buy.stripe.com/fZufZjdzXb5Y24J0GNfMA05';
@@ -451,6 +455,8 @@ export default function Generator() {
       const baseUrl = window.location.origin;
       const pngUrl = `${baseUrl}/w/${configId}`;
       setShortUrl(pngUrl);
+
+      trackGenerateWallpaper(config.mode);
     } catch (error) {
       console.error('Erreur complète:', error);
       alert(`Erreur: ${error instanceof Error ? error.message : 'Erreur lors de la génération du fond d\'écran'}`);

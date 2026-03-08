@@ -2,12 +2,15 @@ import { Check, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { trackViewContent } from '../utils/tiktokPixel';
 
 export default function Pricing() {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
+    trackViewContent('pricing_page');
+
     const url = new URL(window.location.href);
     if (url.searchParams.has('success')) {
       navigate('/generator?success=true');

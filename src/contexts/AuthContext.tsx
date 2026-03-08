@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabase';
+import { trackCompleteRegistration } from '../utils/tiktokPixel';
 
 interface AuthContextType {
   user: User | null;
@@ -36,6 +37,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
 
       if (event === 'SIGNED_IN') {
+        if (session?.user) {
+          trackCompleteRegistration(session.user.id);
+        }
+
         const returnUrl = localStorage.getItem('authReturnUrl');
         if (returnUrl) {
           localStorage.removeItem('authReturnUrl');
