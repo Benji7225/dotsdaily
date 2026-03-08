@@ -10,7 +10,7 @@ const corsHeaders = {
 const TIKTOK_PIXEL_ID = 'D6MKGRBC77U4L3UM30K0';
 const TIKTOK_ACCESS_TOKEN = Deno.env.get("TIKTOK_ACCESS_TOKEN");
 
-async function sendTikTokEvent(eventName: string, eventData: any) {
+async function sendTikTokEvent(eventName: string, eventData: any, userId?: string, userEmail?: string) {
   if (!TIKTOK_ACCESS_TOKEN) {
     console.log('TikTok Access Token not configured, skipping event:', eventName);
     return;
@@ -20,15 +20,22 @@ async function sendTikTokEvent(eventName: string, eventData: any) {
     const eventId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
     const timestamp = Math.floor(Date.now() / 1000);
 
+    const eventSourceId = userId || userEmail || `guest_${eventId}`;
+
     const payload = {
       pixel_code: TIKTOK_PIXEL_ID,
       event: eventName,
       event_id: eventId,
       timestamp: timestamp,
+      context: {
+        user: {
+          external_id: eventSourceId,
+        },
+      },
       properties: eventData,
     };
 
-    console.log('Sending TikTok event:', eventName, eventData);
+    console.log('Sending TikTok event:', eventName, 'for user:', eventSourceId, eventData);
 
     const response = await fetch('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
       method: 'POST',
@@ -134,7 +141,7 @@ Deno.serve(async (req: Request) => {
                 content_type: 'subscription',
                 content_name: 'lifetime',
                 order_id: session.id,
-              });
+              }, userId, customerEmail);
 
               await sendTikTokEvent('Subscribe', {
                 value: amount,
@@ -142,7 +149,7 @@ Deno.serve(async (req: Request) => {
                 content_type: 'subscription',
                 content_name: 'lifetime',
                 order_id: session.id,
-              });
+              }, userId, customerEmail);
             }
           } else {
             console.log("No userId found - email:", customerEmail);
@@ -165,12 +172,34 @@ Deno.serve(async (req: Request) => {
           const plan = subscription.items?.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly';
           const amount = plan === 'monthly' ? 2.99 : 36;
 
+          let userEmail: string | undefined;
+          let userId: string | undefined;
+
+          if (customerId) {
+            try {
+              const customer = await stripe.customers.retrieve(customerId as string);
+              if (customer && !customer.deleted && customer.email) {
+                userEmail = customer.email;
+
+                const { data: userData } = await supabase.auth.admin.listUsers();
+                if (userData?.users) {
+                  const user = userData.users.find((u: any) => u.email === userEmail);
+                  if (user) {
+                    userId = user.id;
+                  }
+                }
+              }
+            } catch (error) {
+              console.error("Error fetching customer:", error);
+            }
+          }
+
           await sendTikTokEvent('StartTrial', {
             value: amount,
             currency: 'USD',
             content_type: 'subscription',
             content_name: plan,
-          });
+          }, userId, userEmail);
         }
         break;
       }
@@ -183,13 +212,36 @@ Deno.serve(async (req: Request) => {
           const plan = subscription.items?.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly';
           const amount = plan === 'monthly' ? 2.99 : 36;
 
+          let userEmail: string | undefined;
+          let userId: string | undefined;
+          const customerId = subscription.customer;
+
+          if (customerId) {
+            try {
+              const customer = await stripe.customers.retrieve(customerId as string);
+              if (customer && !customer.deleted && customer.email) {
+                userEmail = customer.email;
+
+                const { data: userData } = await supabase.auth.admin.listUsers();
+                if (userData?.users) {
+                  const user = userData.users.find((u: any) => u.email === userEmail);
+                  if (user) {
+                    userId = user.id;
+                  }
+                }
+              }
+            } catch (error) {
+              console.error("Error fetching customer:", error);
+            }
+          }
+
           await sendTikTokEvent('CompletePayment', {
             value: amount,
             currency: 'USD',
             content_type: 'subscription',
             content_name: plan,
             order_id: subscription.id,
-          });
+          }, userId, userEmail);
 
           await sendTikTokEvent('Subscribe', {
             value: amount,
@@ -197,7 +249,7 @@ Deno.serve(async (req: Request) => {
             content_type: 'subscription',
             content_name: plan,
             order_id: subscription.id,
-          });
+          }, userId, userEmail);
         }
         break;
       }
