@@ -59,7 +59,26 @@ export const trackInitiateCheckout = (value?: number) => {
 export const trackCompletePayment = (value: number, orderId?: string) => {
   trackTikTokEvent('CompletePayment', {
     value: value,
-    currency: 'EUR',
+    currency: 'USD',
+    order_id: orderId,
+  });
+};
+
+export const trackStartTrial = (value: number, plan: string) => {
+  trackTikTokEvent('StartTrial', {
+    value: value,
+    currency: 'USD',
+    content_type: 'subscription',
+    content_name: plan,
+  });
+};
+
+export const trackSubscribe = (value: number, plan: string, orderId?: string) => {
+  trackTikTokEvent('Subscribe', {
+    value: value,
+    currency: 'USD',
+    content_type: 'subscription',
+    content_name: plan,
     order_id: orderId,
   });
 };

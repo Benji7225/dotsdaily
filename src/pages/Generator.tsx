@@ -10,7 +10,7 @@ import { useSubscription } from '../hooks/useSubscription';
 import { useSavedConfigs } from '../hooks/useSavedConfigs';
 import { Link } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
-import { trackGenerateWallpaper, trackCompleteRegistration, trackInitiateCheckout } from '../utils/tiktokPixel';
+import { trackGenerateWallpaper, trackCompleteRegistration, trackInitiateCheckout, trackStartTrial, trackSubscribe } from '../utils/tiktokPixel';
 
 export type WallpaperType = 'dots' | 'quotes';
 export type WallpaperMode = 'year' | 'life' | 'countdown';
@@ -126,9 +126,40 @@ export default function Generator() {
 
     const url = new URL(window.location.href);
     const hadSuccessParam = url.searchParams.has('success') || url.searchParams.has('session_id');
+
     if (hadSuccessParam) {
       setShouldAutoGenerateUrl(true);
+
+      const checkSubscriptionAndTrack = async () => {
+        if (user) {
+          try {
+            const { data: subscription } = await supabase
+              .from('user_subscriptions')
+              .select('plan, status, current_period_end')
+              .eq('user_id', user.id)
+              .maybeSingle();
+
+            if (subscription) {
+              const plan = subscription.plan || 'monthly';
+              const value = plan === 'monthly' ? 2.99 : (plan === 'annual' ? 36 : 49);
+
+              const isTrialing = subscription.status === 'trialing';
+
+              if (isTrialing) {
+                trackStartTrial(value, plan);
+              } else if (subscription.status === 'active' || subscription.status === 'lifetime') {
+                trackSubscribe(value, plan);
+              }
+            }
+          } catch (error) {
+            console.error('Error checking subscription for tracking:', error);
+          }
+        }
+      };
+
+      setTimeout(() => checkSubscriptionAndTrack(), 500);
     }
+
     if (url.searchParams.has('success') || url.searchParams.has('canceled') || url.searchParams.has('session_id')) {
       url.searchParams.delete('success');
       url.searchParams.delete('canceled');
@@ -136,7 +167,7 @@ export default function Generator() {
       url.hash = '';
       window.history.replaceState({}, '', url.toString());
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (user && session) {

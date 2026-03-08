@@ -7,6 +7,45 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Stripe-Signature",
 };
 
+const TIKTOK_PIXEL_ID = 'D6MKGRBC77U4L3UM30K0';
+const TIKTOK_ACCESS_TOKEN = Deno.env.get("TIKTOK_ACCESS_TOKEN");
+
+async function sendTikTokEvent(eventName: string, eventData: any) {
+  if (!TIKTOK_ACCESS_TOKEN) {
+    console.log('TikTok Access Token not configured, skipping event:', eventName);
+    return;
+  }
+
+  try {
+    const eventId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const timestamp = Math.floor(Date.now() / 1000);
+
+    const payload = {
+      pixel_code: TIKTOK_PIXEL_ID,
+      event: eventName,
+      event_id: eventId,
+      timestamp: timestamp,
+      properties: eventData,
+    };
+
+    console.log('Sending TikTok event:', eventName, eventData);
+
+    const response = await fetch('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Token': TIKTOK_ACCESS_TOKEN,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    console.log('TikTok event response:', result);
+  } catch (error) {
+    console.error('Error sending TikTok event:', error);
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -86,12 +125,79 @@ Deno.serve(async (req: Request) => {
               console.error("Error updating lifetime access:", error);
             } else {
               console.log("Successfully granted lifetime access:", data);
+
+              const amount = session.amount_total ? session.amount_total / 100 : 49;
+
+              await sendTikTokEvent('CompletePayment', {
+                value: amount,
+                currency: 'USD',
+                content_type: 'subscription',
+                content_name: 'lifetime',
+                order_id: session.id,
+              });
+
+              await sendTikTokEvent('Subscribe', {
+                value: amount,
+                currency: 'USD',
+                content_type: 'subscription',
+                content_name: 'lifetime',
+                order_id: session.id,
+              });
             }
           } else {
             console.log("No userId found - email:", customerEmail);
           }
         } else {
           console.log("Skipping checkout - paymentStatus:", paymentStatus);
+        }
+        break;
+      }
+
+      case "customer.subscription.created": {
+        const subscription = event.data.object;
+        const customerId = subscription.customer;
+        const status = subscription.status;
+        const trialEnd = subscription.trial_end;
+
+        console.log("Subscription created:", subscription.id, "Status:", status, "Trial End:", trialEnd);
+
+        if (status === "trialing" && trialEnd) {
+          const plan = subscription.items?.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly';
+          const amount = plan === 'monthly' ? 2.99 : 36;
+
+          await sendTikTokEvent('StartTrial', {
+            value: amount,
+            currency: 'USD',
+            content_type: 'subscription',
+            content_name: plan,
+          });
+        }
+        break;
+      }
+
+      case "customer.subscription.updated": {
+        const subscription = event.data.object;
+        const previousAttributes = event.data.previous_attributes;
+
+        if (previousAttributes?.status === 'trialing' && subscription.status === 'active') {
+          const plan = subscription.items?.data[0]?.price?.recurring?.interval === 'year' ? 'annual' : 'monthly';
+          const amount = plan === 'monthly' ? 2.99 : 36;
+
+          await sendTikTokEvent('CompletePayment', {
+            value: amount,
+            currency: 'USD',
+            content_type: 'subscription',
+            content_name: plan,
+            order_id: subscription.id,
+          });
+
+          await sendTikTokEvent('Subscribe', {
+            value: amount,
+            currency: 'USD',
+            content_type: 'subscription',
+            content_name: plan,
+            order_id: subscription.id,
+          });
         }
         break;
       }
