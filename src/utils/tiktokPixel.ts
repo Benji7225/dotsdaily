@@ -83,9 +83,9 @@ export const trackSubscribe = (value: number, plan: string, orderId?: string) =>
   });
 };
 
-export const trackGenerateWallpaper = (mode: string) => {
-  trackTikTokEvent('SubmitForm', {
+export const trackLinkGenerator = (wallpaperType: 'dots' | 'quotes') => {
+  trackTikTokEvent('LinkGenerator', {
     content_type: 'wallpaper_generator',
-    mode: mode,
+    wallpaper_type: wallpaperType,
   });
 };

@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, Smartphone, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import ImageCarousel from '../components/ImageCarousel';
+import { trackPageView } from '../utils/tiktokPixel';
 
 export default function Home() {
   const { t } = useLanguage();
   const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    trackPageView();
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">

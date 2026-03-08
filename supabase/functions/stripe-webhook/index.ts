@@ -20,7 +20,10 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
     const eventId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
     const timestamp = Math.floor(Date.now() / 1000);
 
-    const eventSourceId = userId || userEmail || `guest_${eventId}`;
+    if (!userId) {
+      console.warn('Warning: No userId provided for TikTok event:', eventName);
+      return;
+    }
 
     const payload = {
       pixel_code: TIKTOK_PIXEL_ID,
@@ -29,13 +32,13 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
       timestamp: timestamp,
       context: {
         user: {
-          external_id: eventSourceId,
+          external_id: userId,
         },
       },
       properties: eventData,
     };
 
-    console.log('Sending TikTok event:', eventName, 'for user:', eventSourceId, eventData);
+    console.log('Sending TikTok event:', eventName, 'for user:', userId, 'with data:', JSON.stringify(eventData));
 
     const response = await fetch('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
       method: 'POST',
@@ -47,7 +50,11 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
     });
 
     const result = await response.json();
-    console.log('TikTok event response:', result);
+    console.log('TikTok event response:', JSON.stringify(result));
+
+    if (result.code !== 0) {
+      console.error('TikTok API error:', result);
+    }
   } catch (error) {
     console.error('Error sending TikTok event:', error);
   }

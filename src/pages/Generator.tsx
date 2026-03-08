@@ -10,7 +10,7 @@ import { useSubscription } from '../hooks/useSubscription';
 import { useSavedConfigs } from '../hooks/useSavedConfigs';
 import { Link } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
-import { trackGenerateWallpaper, trackCompleteRegistration, trackInitiateCheckout, trackStartTrial, trackSubscribe } from '../utils/tiktokPixel';
+import { trackLinkGenerator, trackCompleteRegistration, trackInitiateCheckout, trackStartTrial, trackSubscribe, trackViewContent } from '../utils/tiktokPixel';
 
 export type WallpaperType = 'dots' | 'quotes';
 export type WallpaperMode = 'year' | 'life' | 'countdown';
@@ -56,6 +56,10 @@ export default function Generator() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showSavedConfigsModal, setShowSavedConfigsModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual'>('annual');
+
+  useEffect(() => {
+    trackViewContent('generator_page');
+  }, []);
   const [config, setConfig] = useState<WallpaperConfig>({
     wallpaperType: 'quotes',
     mode: 'year',
@@ -487,7 +491,7 @@ export default function Generator() {
       const pngUrl = `${baseUrl}/w/${configId}`;
       setShortUrl(pngUrl);
 
-      trackGenerateWallpaper(config.mode);
+      trackLinkGenerator(config.wallpaperType);
     } catch (error) {
       console.error('Erreur complète:', error);
       alert(`Erreur: ${error instanceof Error ? error.message : 'Erreur lors de la génération du fond d\'écran'}`);
