@@ -30,6 +30,7 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
       event: eventName,
       event_id: eventId,
       timestamp: timestamp,
+      event_source: "web",
       event_source_id: TIKTOK_PIXEL_ID,
       context: {
         user: {
