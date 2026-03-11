@@ -32,31 +32,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
 
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      (async () => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
 
-      if (event === 'SIGNED_IN') {
-        if (session?.user) {
-          trackCompleteRegistration(session.user.id);
+        if (event === 'SIGNED_IN') {
+          if (session?.user) {
+            trackCompleteRegistration(session.user.id);
+          }
+
+          const returnUrl = localStorage.getItem('authReturnUrl');
+          if (returnUrl) {
+            localStorage.removeItem('authReturnUrl');
+            const url = new URL(returnUrl);
+            url.hash = '';
+            setTimeout(() => {
+              window.location.href = url.toString();
+            }, 100);
+          }
         }
 
-        const returnUrl = localStorage.getItem('authReturnUrl');
-        if (returnUrl) {
-          localStorage.removeItem('authReturnUrl');
-          const url = new URL(returnUrl);
-          url.hash = '';
+        if (event === 'SIGNED_OUT') {
           setTimeout(() => {
-            window.location.href = url.toString();
+            window.location.href = '/';
           }, 100);
         }
-      }
-
-      if (event === 'SIGNED_OUT') {
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 100);
-      }
+      })();
     });
 
     return () => {
@@ -85,9 +87,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.removeItem('authReturnUrl');
       localStorage.removeItem('pendingConfig');
-      await supabase.auth.signOut({ scope: 'local' });
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
     } catch (error) {
       console.error('Error signing out:', error);
+      window.location.href = '/';
     }
   };
 
