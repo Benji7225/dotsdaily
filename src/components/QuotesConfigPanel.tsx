@@ -1,10 +1,7 @@
 import { WallpaperConfig, QuoteMode, DotShape } from '../pages/Generator';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
-import { Pipette, Upload, X, HelpCircle, Loader2 } from 'lucide-react';
+import { Pipette, X, HelpCircle, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { compressImageToBlob } from '../utils/imageCompression';
-import { uploadImageToStorage } from '../utils/imageStorage';
-import { useAuth } from '../contexts/AuthContext';
 
 interface QuotesConfigPanelProps {
   config: WallpaperConfig;
@@ -57,9 +54,6 @@ const quoteCategories = {
 const shortQuotes: string[] = [];
 
 export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPanelProps) {
-  const { user } = useAuth();
-  const [imageError, setImageError] = useState<string | null>(null);
-  const [imageUploading, setImageUploading] = useState(false);
   const [availableVariants, setAvailableVariants] = useState<Variant[]>([]);
   const [showCategoryExamples, setShowCategoryExamples] = useState<string | null>(null);
   const [customQuotesText, setCustomQuotesText] = useState('');
@@ -84,49 +78,6 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
 
   const handleVariantChange = (variant: Variant) => {
     setConfig({ ...config, variant });
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      setImageError('Image must be less than 10MB');
-      return;
-    }
-    if (!file.type.startsWith('image/')) {
-      setImageError('Please upload a valid image');
-      return;
-    }
-
-    if (!user) {
-      setImageError('Please sign in to upload images');
-      return;
-    }
-
-    setImageError(null);
-    setImageUploading(true);
-
-    try {
-      const compressedBlob = await compressImageToBlob(file, {
-        maxWidth: 2048,
-        maxHeight: 2048,
-        quality: 0.85,
-      });
-
-      const compressedFile = new File([compressedBlob], file.name, {
-        type: 'image/jpeg',
-      });
-
-      const publicUrl = await uploadImageToStorage(compressedFile, user.id);
-
-      setConfig({ ...config, backgroundImage: publicUrl, themeType: 'image' });
-    } catch (error) {
-      console.error('Image upload error:', error);
-      setImageError('Failed to upload image. Please try again.');
-    } finally {
-      setImageUploading(false);
-    }
   };
 
   const handleThemeChange = (themeType: 'dark' | 'light') => {
@@ -303,12 +254,6 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Background
             </label>
-            {imageError && (
-              <div className="mb-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                <X className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
-                <span className="text-sm text-red-700">{imageError}</span>
-              </div>
-            )}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => handleThemeChange('dark')}
@@ -349,39 +294,7 @@ export default function QuotesConfigPanel({ config, setConfig }: QuotesConfigPan
                   className="w-0 h-0 opacity-0 absolute"
                 />
               </label>
-              <label
-                className={`relative w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
-                  imageUploading ? 'cursor-wait' : 'cursor-pointer'
-                } ${
-                  config.themeType === 'image'
-                    ? 'border-slate-900 shadow-lg scale-110'
-                    : 'border-slate-200 hover:border-slate-300'
-                }`}
-                style={{
-                  backgroundImage: config.themeType === 'image' && config.backgroundImage
-                    ? `url(${config.backgroundImage})`
-                    : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundColor: config.themeType === 'image' ? 'transparent' : '#666666'
-                }}
-                title="Custom Image"
-              >
-                {imageUploading ? (
-                  <Loader2 className="w-5 h-5 text-white animate-spin" />
-                ) : config.themeType !== 'image' ? (
-                  <Upload className="w-5 h-5 text-white" />
-                ) : null}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  disabled={imageUploading}
-                />
-              </label>
             </div>
-            <p className="mt-2 text-xs text-slate-500">Max 3 MB</p>
           </div>
 
           <div>

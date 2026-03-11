@@ -1,24 +1,18 @@
 import { WallpaperConfig, WallpaperMode, Granularity, Grouping, ThemeType, DotShape, AdditionalDisplay } from '../pages/Generator';
 import { iPhoneGenerations, getAvailableVariants, variantLabels, Variant, getDefaultVariant } from '../utils/iPhoneModels';
-import { Pipette, Upload, Circle, Square, Heart, Percent, Clock, X } from 'lucide-react';
+import { Pipette, Circle, Square, Heart, Percent, Clock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useState, useEffect } from 'react';
-import { compressImageToBlob } from '../utils/imageCompression';
-import { uploadImageToStorage } from '../utils/imageStorage';
-import type { User } from '@supabase/supabase-js';
 
 interface ConfigPanelProps {
   config: WallpaperConfig;
   setConfig: (config: WallpaperConfig) => void;
   onShowPremiumModal: () => void;
   onUpgradeToPremium: () => void;
-  user?: User | null;
 }
 
-export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onUpgradeToPremium, user }: ConfigPanelProps) {
+export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onUpgradeToPremium }: ConfigPanelProps) {
   const { t } = useLanguage();
-  const [imageError, setImageError] = useState<string | null>(null);
-  const [isCompressing, setIsCompressing] = useState(false);
 
   const granularityOptions: Record<WallpaperMode, { value: Granularity; label: string }[]> = {
     year: [
@@ -134,75 +128,6 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
     const b = parseInt(hex.substring(4, 6), 16);
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
     return brightness < 128;
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setImageError(null);
-    setIsCompressing(true);
-
-    const maxSize = 50 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setImageError(t('config.imageErrors.tooLarge'));
-      e.target.value = '';
-      setIsCompressing(false);
-      return;
-    }
-
-    if (!user) {
-      setImageError('You must be logged in to upload images');
-      e.target.value = '';
-      setIsCompressing(false);
-      return;
-    }
-
-    try {
-      const previewBlob = await compressImageToBlob(file, {
-        maxWidth: 390,
-        maxHeight: 844,
-        quality: 0.5,
-        maxSizeKB: 150,
-      });
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setImageError(null);
-        handleThemeChange('image', undefined, base64, '');
-      };
-      reader.readAsDataURL(previewBlob);
-
-      const compressedBlob = await compressImageToBlob(file, {
-        maxWidth: 1170,
-        maxHeight: 2532,
-        quality: 0.6,
-        maxSizeKB: 350,
-      });
-
-      const timestamp = Date.now();
-      const compressedFile = new File([compressedBlob], `image_${timestamp}.jpg`, {
-        type: 'image/jpeg',
-        lastModified: timestamp,
-      });
-
-      const imageUrl = await uploadImageToStorage(compressedFile, user.id);
-
-      setConfig(prev => ({ ...prev, backgroundImageUrl: imageUrl }));
-
-    } catch (error) {
-      console.error('Image upload error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      if (errorMessage.includes('timeout')) {
-        setImageError('Image processing timeout. Please try with a smaller image.');
-      } else {
-        setImageError(t('config.imageErrors.readError'));
-      }
-      e.target.value = '';
-    } finally {
-      setIsCompressing(false);
-    }
   };
 
   const handleBgColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -382,17 +307,6 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
             <label className="block text-sm font-medium text-slate-700 mb-2">
               {t('config.background')}
             </label>
-            {isCompressing && (
-              <div className="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <span className="text-sm text-blue-700">{t('config.imageCompressing') || 'Processing image...'}</span>
-              </div>
-            )}
-            {imageError && (
-              <div className="mb-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                <X className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
-                <span className="text-sm text-red-700">{imageError}</span>
-              </div>
-            )}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => handleThemeChange('dark')}
@@ -431,37 +345,6 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
                   value={config.customColor || '#888888'}
                   onChange={handleBgColorChange}
                   className="w-0 h-0 opacity-0 absolute"
-                />
-              </label>
-              <label
-                className={`relative w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center ${
-                  isCompressing ? 'cursor-wait' : 'cursor-pointer'
-                } ${
-                  config.themeType === 'image'
-                    ? 'border-slate-900 shadow-lg scale-110'
-                    : 'border-slate-200 hover:border-slate-300'
-                }`}
-                style={{
-                  backgroundImage: config.themeType === 'image' && config.backgroundImage && !isCompressing
-                    ? `url(${config.backgroundImage})`
-                    : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundColor: config.themeType === 'image' && !isCompressing ? 'transparent' : '#666666'
-                }}
-                title={isCompressing ? 'Compressing...' : t('config.customImage')}
-              >
-                {isCompressing ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : config.themeType !== 'image' ? (
-                  <Upload className="w-5 h-5 text-white" />
-                ) : null}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  disabled={isCompressing}
                 />
               </label>
             </div>
