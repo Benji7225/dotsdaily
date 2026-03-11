@@ -638,7 +638,7 @@ export default function Generator() {
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4 lg:gap-6 max-w-6xl mx-auto items-start">
           <div className="order-2 lg:order-1">
             {config.wallpaperType === 'dots' ? (
-              <ConfigPanel config={config} setConfig={handleConfigChange} onShowPremiumModal={() => setShowPremiumModal(true)} onUpgradeToPremium={handleUpgradeToPremium} user={user} />
+              <ConfigPanel config={config} setConfig={handleConfigChange} onShowPremiumModal={() => setShowPremiumModal(true)} onUpgradeToPremium={handleUpgradeToPremium} />
             ) : (
               <QuotesConfigPanel config={config} setConfig={handleConfigChange} />
             )}

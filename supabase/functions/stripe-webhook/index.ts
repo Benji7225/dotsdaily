@@ -10,6 +10,14 @@ const corsHeaders = {
 const TIKTOK_PIXEL_ID = 'D6MKGRBC77U4L3UM30K0';
 const TIKTOK_ACCESS_TOKEN = Deno.env.get("TIKTOK_ACCESS_TOKEN");
 
+async function sha256(message: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+
 async function sendTikTokEvent(eventName: string, eventData: any, userId?: string, userEmail?: string) {
   if (!TIKTOK_ACCESS_TOKEN) {
     console.log('TikTok Access Token not configured, skipping event:', eventName);
@@ -20,9 +28,19 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
     const eventId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
     const timestamp = Math.floor(Date.now() / 1000);
 
-    if (!userId) {
-      console.warn('Warning: No userId provided for TikTok event:', eventName);
+    if (!userEmail && !userId) {
+      console.warn('Warning: No user identifier provided for TikTok event:', eventName);
       return;
+    }
+
+    const userData: any = {};
+
+    if (userEmail) {
+      userData.email = await sha256(userEmail.toLowerCase().trim());
+    }
+
+    if (userId) {
+      userData.external_id = await sha256(userId);
     }
 
     const payload = {
@@ -30,18 +48,18 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
       event: eventName,
       event_id: eventId,
       timestamp: timestamp,
-      event_source: "web",
-      event_source_id: TIKTOK_PIXEL_ID,
       context: {
-        user: {
-          external_id: userId,
-          email: userEmail,
-        },
+        user_agent: 'Mozilla/5.0 (compatible; Stripe-Webhook/1.0)',
+        ip: '0.0.0.0',
+        user: userData,
       },
       properties: eventData,
     };
 
-    console.log('Sending TikTok event:', eventName, 'for user:', userId, 'with data:', JSON.stringify(eventData));
+    console.log('Sending TikTok event:', eventName, 'with payload:', JSON.stringify({
+      ...payload,
+      context: { ...payload.context, user: { email: userEmail ? 'hashed' : undefined, external_id: userId ? 'hashed' : undefined } }
+    }));
 
     const response = await fetch('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
       method: 'POST',
@@ -57,6 +75,8 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
 
     if (result.code !== 0) {
       console.error('TikTok API error:', result);
+    } else {
+      console.log('TikTok event sent successfully:', eventName);
     }
   } catch (error) {
     console.error('Error sending TikTok event:', error);

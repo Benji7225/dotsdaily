@@ -1,12 +1,17 @@
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, Settings } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { trackViewContent } from '../utils/tiktokPixel';
+import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../hooks/useSubscription';
 
 export default function Pricing() {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const { user, session } = useAuth();
+  const { isPremium, loading } = useSubscription();
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
 
   useEffect(() => {
     trackViewContent('pricing_page');
@@ -22,8 +27,39 @@ export default function Pricing() {
     }
   }, [navigate]);
 
+  const handleManageSubscription = async () => {
+    if (!user || !session) return;
+
+    setIsLoadingPortal(true);
+    try {
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create portal session');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error creating portal session:', error);
+      setIsLoadingPortal(false);
+    }
+  };
+
   const handleSubscribe = (planUrl: string) => {
-    window.location.href = planUrl;
+    if (isPremium) {
+      handleManageSubscription();
+    } else {
+      window.location.href = planUrl;
+    }
   };
 
   return (
@@ -74,9 +110,11 @@ export default function Pricing() {
 
             <button
               onClick={() => handleSubscribe('https://buy.stripe.com/eVq14pcvT5LE9xbexDfMA04')}
-              className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors text-sm sm:text-base"
+              disabled={loading || isLoadingPortal}
+              className="w-full bg-slate-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-800 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {language === 'fr' ? 'Commencer l\'essai gratuit' : 'Start Free Trial'}
+              {isPremium && <Settings className="w-4 h-4" />}
+              {isLoadingPortal ? (language === 'fr' ? 'Chargement...' : 'Loading...') : isPremium ? (language === 'fr' ? 'Gérer l\'abonnement' : 'Manage Subscription') : (language === 'fr' ? 'Commencer l\'essai gratuit' : 'Start Free Trial')}
             </button>
           </div>
 
@@ -126,9 +164,11 @@ export default function Pricing() {
 
             <button
               onClick={() => handleSubscribe('https://buy.stripe.com/fZufZjdzXb5Y24J0GNfMA05')}
-              className="w-full bg-white text-orange-500 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors text-sm sm:text-base"
+              disabled={loading || isLoadingPortal}
+              className="w-full bg-white text-orange-500 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {language === 'fr' ? 'Commencer l\'essai gratuit' : 'Start Free Trial'}
+              {isPremium && <Settings className="w-4 h-4" />}
+              {isLoadingPortal ? (language === 'fr' ? 'Chargement...' : 'Loading...') : isPremium ? (language === 'fr' ? 'Gérer l\'abonnement' : 'Manage Subscription') : (language === 'fr' ? 'Commencer l\'essai gratuit' : 'Start Free Trial')}
             </button>
           </div>
         </div>
