@@ -160,10 +160,10 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
 
     try {
       const compressedBlob = await compressImageToBlob(file, {
-        maxWidth: 1920,
-        maxHeight: 1920,
-        quality: 0.75,
-        maxSizeKB: 700,
+        maxWidth: 1170,
+        maxHeight: 2532,
+        quality: 0.65,
+        maxSizeKB: 400,
       });
 
       const timestamp = Date.now();
@@ -175,10 +175,10 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
       const imageUrl = await uploadImageToStorage(compressedFile, user.id);
 
       const previewBlob = await compressImageToBlob(file, {
-        maxWidth: 800,
-        maxHeight: 800,
-        quality: 0.6,
-        maxSizeKB: 300,
+        maxWidth: 390,
+        maxHeight: 844,
+        quality: 0.5,
+        maxSizeKB: 150,
       });
 
       const reader = new FileReader();
