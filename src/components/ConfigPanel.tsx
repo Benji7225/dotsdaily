@@ -159,21 +159,6 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
     }
 
     try {
-      const compressedBlob = await compressImageToBlob(file, {
-        maxWidth: 1170,
-        maxHeight: 2532,
-        quality: 0.65,
-        maxSizeKB: 400,
-      });
-
-      const timestamp = Date.now();
-      const compressedFile = new File([compressedBlob], `image_${timestamp}.png`, {
-        type: 'image/png',
-        lastModified: timestamp,
-      });
-
-      const imageUrl = await uploadImageToStorage(compressedFile, user.id);
-
       const previewBlob = await compressImageToBlob(file, {
         maxWidth: 390,
         maxHeight: 844,
@@ -185,9 +170,27 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
       reader.onloadend = () => {
         const base64 = reader.result as string;
         setImageError(null);
-        handleThemeChange('image', undefined, base64, imageUrl);
+        handleThemeChange('image', undefined, base64, '');
       };
       reader.readAsDataURL(previewBlob);
+
+      const compressedBlob = await compressImageToBlob(file, {
+        maxWidth: 1170,
+        maxHeight: 2532,
+        quality: 0.6,
+        maxSizeKB: 350,
+      });
+
+      const timestamp = Date.now();
+      const compressedFile = new File([compressedBlob], `image_${timestamp}.jpg`, {
+        type: 'image/jpeg',
+        lastModified: timestamp,
+      });
+
+      const imageUrl = await uploadImageToStorage(compressedFile, user.id);
+
+      setConfig(prev => ({ ...prev, backgroundImageUrl: imageUrl }));
+
     } catch (error) {
       console.error('Image upload error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -379,6 +382,11 @@ export default function ConfigPanel({ config, setConfig, onShowPremiumModal, onU
             <label className="block text-sm font-medium text-slate-700 mb-2">
               {t('config.background')}
             </label>
+            {isCompressing && (
+              <div className="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <span className="text-sm text-blue-700">{t('config.imageCompressing') || 'Processing image...'}</span>
+              </div>
+            )}
             {imageError && (
               <div className="mb-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
                 <X className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />

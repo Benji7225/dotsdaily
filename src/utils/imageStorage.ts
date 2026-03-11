@@ -4,8 +4,8 @@ export async function uploadImageToStorage(
   file: File,
   userId: string
 ): Promise<string> {
-  const maxRetries = 2;
-  const fileExt = 'png';
+  const maxRetries = 3;
+  const fileExt = 'jpg';
   const fileName = `${userId}/${Date.now()}.${fileExt}`;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -13,13 +13,13 @@ export async function uploadImageToStorage(
       const uploadPromise = supabase.storage
         .from('wallpaper-images')
         .upload(fileName, file, {
-          cacheControl: '3600',
+          cacheControl: '31536000',
           upsert: false,
-          contentType: 'image/png',
+          contentType: 'image/jpeg',
         });
 
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Upload timeout')), 25000)
+        setTimeout(() => reject(new Error('Upload timeout')), 60000)
       );
 
       const { data, error } = await Promise.race([uploadPromise, timeoutPromise]);
@@ -27,7 +27,7 @@ export async function uploadImageToStorage(
       if (error) {
         if (attempt < maxRetries && (error.message.includes('timeout') || error.message.includes('timed out'))) {
           console.warn(`Upload attempt ${attempt + 1} failed, retrying...`);
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
           continue;
         }
         console.error('Storage upload error:', error);
@@ -42,7 +42,7 @@ export async function uploadImageToStorage(
     } catch (err) {
       if (attempt < maxRetries && err instanceof Error && err.message.includes('timeout')) {
         console.warn(`Upload attempt ${attempt + 1} timed out, retrying...`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
         continue;
       }
       throw err;

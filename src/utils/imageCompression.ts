@@ -98,7 +98,7 @@ export async function compressImageToBlob(
     const reader = new FileReader();
     const timeout = setTimeout(() => {
       reject(new Error('Image processing timeout'));
-    }, 30000);
+    }, 60000);
 
     reader.onload = (e) => {
       const img = new Image();
@@ -128,28 +128,17 @@ export async function compressImageToBlob(
           ctx.fillRect(0, 0, width, height);
           ctx.drawImage(img, 0, 0, width, height);
 
-          const processBlob = (currentQuality: number) => {
-            canvas.toBlob(
-              (blob) => {
-                if (!blob) {
-                  reject(new Error('Failed to create blob'));
-                  return;
-                }
-
-                const sizeKB = blob.size / 1024;
-                if (sizeKB > maxSizeKB && currentQuality > 0.4) {
-                  const newQuality = Math.max(0.4, currentQuality * (maxSizeKB / sizeKB) * 0.9);
-                  processBlob(newQuality);
-                } else {
-                  resolve(blob);
-                }
-              },
-              'image/png',
-              currentQuality
-            );
-          };
-
-          processBlob(quality);
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to create blob'));
+                return;
+              }
+              resolve(blob);
+            },
+            'image/jpeg',
+            quality
+          );
         } catch (err) {
           reject(err);
         }

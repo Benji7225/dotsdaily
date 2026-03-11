@@ -429,6 +429,10 @@ export default function Generator() {
 
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+      const backgroundImageValue = config.backgroundImageUrl && config.backgroundImageUrl.trim() !== ''
+        ? config.backgroundImageUrl
+        : config.backgroundImage;
+
       const payload = {
         wallpaperType: config.wallpaperType,
         mode: config.mode,
@@ -437,7 +441,7 @@ export default function Generator() {
         theme: config.theme,
         themeType: config.themeType,
         customColor: config.customColor,
-        backgroundImage: config.backgroundImageUrl || config.backgroundImage,
+        backgroundImage: backgroundImageValue,
         dotColor: config.dotColor,
         dotShape: config.dotShape,
         customText: config.customText,

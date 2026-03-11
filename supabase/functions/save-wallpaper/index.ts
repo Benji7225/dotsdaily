@@ -77,17 +77,25 @@ Deno.serve(async (req: Request) => {
     }
 
     if (userId) {
-      const { data: subscription } = await supabase
+      const { data: subscription, error: subError } = await supabase
         .from('user_subscriptions')
         .select('status, current_period_end, plan')
         .eq('user_id', userId)
         .maybeSingle();
 
+      console.log('Subscription check:', { userId, subscription, subError });
+
+      if (subError) {
+        console.error('Error fetching subscription:', subError);
+      }
+
       const hasActiveSubscription = subscription && (
-        subscription.status === 'lifetime' ||
+        (subscription.plan === 'lifetime' && subscription.status === 'lifetime') ||
         subscription.status === 'trialing' ||
         (subscription.status === 'active' && subscription.current_period_end && new Date(subscription.current_period_end) > new Date())
       );
+
+      console.log('Subscription validation:', { hasActiveSubscription, subscription });
 
       if (!hasActiveSubscription) {
         return new Response(
