@@ -20,23 +20,9 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
     const eventId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
     const timestamp = Math.floor(Date.now() / 1000);
 
-    if (!userId && !userEmail) {
-      console.warn('Warning: No userId or email provided for TikTok event:', eventName);
+    if (!userId) {
+      console.warn('Warning: No userId provided for TikTok event:', eventName);
       return;
-    }
-
-    const user: any = {};
-    if (userEmail) {
-      const emailHash = await crypto.subtle.digest(
-        'SHA-256',
-        new TextEncoder().encode(userEmail.toLowerCase().trim())
-      );
-      user.email = Array.from(new Uint8Array(emailHash))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-    }
-    if (userId) {
-      user.external_id = userId;
     }
 
     const payload = {
@@ -44,17 +30,18 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
       event: eventName,
       event_id: eventId,
       timestamp: timestamp,
-      test_event_code: undefined,
+      event_source: "web",
+      event_source_id: TIKTOK_PIXEL_ID,
       context: {
-        user: user,
-        page: {
-          url: 'https://dotsdaily.com'
-        }
+        user: {
+          external_id: userId,
+          email: userEmail,
+        },
       },
       properties: eventData,
     };
 
-    console.log('Sending TikTok event:', eventName, 'for user:', userId, 'email:', userEmail, 'with data:', JSON.stringify(eventData));
+    console.log('Sending TikTok event:', eventName, 'for user:', userId, 'with data:', JSON.stringify(eventData));
 
     const response = await fetch('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
       method: 'POST',
@@ -62,7 +49,7 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
         'Content-Type': 'application/json',
         'Access-Token': TIKTOK_ACCESS_TOKEN,
       },
-      body: JSON.stringify({ data: [payload] }),
+      body: JSON.stringify(payload),
     });
 
     const result = await response.json();
@@ -70,8 +57,6 @@ async function sendTikTokEvent(eventName: string, eventData: any, userId?: strin
 
     if (result.code !== 0) {
       console.error('TikTok API error:', result);
-    } else {
-      console.log('TikTok event sent successfully:', eventName);
     }
   } catch (error) {
     console.error('Error sending TikTok event:', error);
