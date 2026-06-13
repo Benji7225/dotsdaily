@@ -9,6 +9,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { SITE, articles } from './blog-articles.mjs';
+import { iphoneModels } from './iphone-models.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -216,7 +217,9 @@ function sitemapXml() {
   const today = new Date().toISOString().slice(0, 10);
   const urls = [
     ...core.map((c) => ({ loc: SITE.base + c.loc, lastmod: today, changefreq: c.changefreq, priority: c.priority })),
+    { loc: `${SITE.base}/wallpaper/`, lastmod: today, changefreq: 'weekly', priority: '0.7' },
     ...articles.map((a) => ({ loc: `${SITE.base}/blog/${a.slug}/`, lastmod: a.date, changefreq: 'monthly', priority: '0.7' })),
+    ...iphoneModels.map((m) => ({ loc: `${SITE.base}/wallpaper/${m.slug}/`, lastmod: today, changefreq: 'monthly', priority: '0.6' })),
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -230,6 +233,129 @@ ${urls.map((u) => `  <url>
 `;
 }
 
+// ── Programmatic SEO pages: one per iPhone model (/wallpaper/<slug>/) ──────────
+function wallpaperPageHtml(model) {
+  const name = model.name;
+  const url = `${SITE.base}/wallpaper/${model.slug}/`;
+  const related = articles.slice(0, 3)
+    .map((a) => `<a href="/blog/${a.slug}/">${esc(a.title)}<span>${esc(a.description)}</span></a>`)
+    .join('\n');
+  const others = iphoneModels.filter((m) => m.slug !== model.slug).slice(0, 6)
+    .map((m) => `<a href="/wallpaper/${m.slug}/" style="display:inline-block;margin:0 8px 8px 0;padding:6px 12px;border:1px solid var(--line);border-radius:999px;text-decoration:none;font-size:14px">${esc(m.name)}</a>`)
+    .join('');
+  const ld = {
+    '@context': 'https://schema.org', '@type': 'WebPage',
+    name: `${name} Wallpaper`, description: `Free daily-updating wallpapers for the ${name}.`,
+    url, isPartOf: { '@type': 'WebSite', name: SITE.name, url: SITE.base },
+  };
+  const crumbs = {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE.base + '/' },
+      { '@type': 'ListItem', position: 2, name: 'Wallpapers', item: SITE.base + '/wallpaper/' },
+      { '@type': 'ListItem', position: 3, name: name, item: url },
+    ],
+  };
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(name)} Wallpaper — Free Daily Wallpapers | ${esc(SITE.name)}</title>
+<meta name="description" content="Free wallpapers for the ${esc(name)} that update every day with your year progress, life calendar and quotes. Sized exactly for the ${esc(name)}. No app.">
+<meta name="keywords" content="${esc(name.toLowerCase())} wallpaper, ${esc(name.toLowerCase())} live wallpaper, ${esc(name.toLowerCase())} lock screen, daily wallpaper ${esc(name.toLowerCase())}">
+<link rel="canonical" href="${url}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="${esc(name)} Wallpaper — ${esc(SITE.name)}">
+<meta property="og:description" content="Daily-updating wallpapers built for the ${esc(name)}.">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="${SITE.base + SITE.logo}">
+<link rel="icon" href="${SITE.logo}">
+<style>${CSS}</style>
+<script type="application/ld+json">${JSON.stringify(ld)}</script>
+<script type="application/ld+json">${JSON.stringify(crumbs)}</script>
+</head>
+<body>
+${header()}
+<main class="wrap">
+  <nav class="crumb"><a href="/">Home</a> &rsaquo; <a href="/wallpaper/">Wallpapers</a> &rsaquo; ${esc(name)}</nav>
+  <article>
+    <h1>${esc(name)} Wallpaper</h1>
+    <p class="lead">Looking for a wallpaper that actually does something on your ${esc(name)}? ${esc(SITE.name)} generates a fresh one every day, sized exactly for the ${esc(name)} — showing your year progress, a life calendar or a quote, instead of another static picture.</p>
+
+    <h2>Built for the ${esc(name)} screen</h2>
+    <p>Generic wallpapers get cropped or sit awkwardly behind the clock and the Face ID sensors. ${esc(SITE.name)} knows the ${esc(name)}'s exact resolution and safe area, so your dots, progress bar and text land where they should — clean on both the lock screen and the home screen.</p>
+
+    <h2>What to put on your ${esc(name)} lock screen</h2>
+    <ul>
+      <li>A <strong>year progress bar</strong> so you feel the year going by.</li>
+      <li>A <strong>life calendar</strong> in weeks (your life at a glance).</li>
+      <li>A <strong>countdown</strong> to a launch, trip or exam.</li>
+      <li>A rotating <strong>short quote</strong>, by mood, that changes daily.</li>
+    </ul>
+
+    <h2>Make it change every day (no app)</h2>
+    <p>Pair your ${esc(name)} wallpaper with the built-in Shortcuts app so it refreshes on its own each morning. Full walkthrough in our guide on <a href="/blog/auto-change-iphone-wallpaper-daily/">auto-changing your iPhone wallpaper daily</a>.</p>
+
+    <div class="cta">
+      <h3>Create your ${esc(name)} wallpaper</h3>
+      <p>${esc(SITE.tagline)} Free, no app to install.</p>
+      <a class="btn" href="/generator">Open the generator</a>
+    </div>
+
+    <section class="related">
+      <h2>Other iPhone models</h2>
+      <div>${others}</div>
+    </section>
+
+    <section class="related">
+      <h2>Keep reading</h2>
+      ${related}
+    </section>
+  </article>
+</main>
+${footer()}
+</body>
+</html>`;
+}
+
+function wallpaperIndexHtml() {
+  const list = iphoneModels
+    .map((m) => `<li><a href="/wallpaper/${m.slug}/"><h2>${esc(m.name)} Wallpaper</h2><p>Daily-updating wallpapers sized for the ${esc(m.name)}.</p></a></li>`)
+    .join('\n');
+  const ld = {
+    '@context': 'https://schema.org', '@type': 'CollectionPage',
+    name: `iPhone Wallpapers by ${SITE.name}`, url: `${SITE.base}/wallpaper/`,
+  };
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iPhone Wallpapers by Model — Free Daily Wallpapers | ${esc(SITE.name)}</title>
+<meta name="description" content="Free daily-updating iPhone wallpapers, sized for every model from the iPhone SE to the iPhone 16 Pro Max. Year progress, life calendar and quotes.">
+<link rel="canonical" href="${SITE.base}/wallpaper/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="iPhone Wallpapers by Model — ${esc(SITE.name)}">
+<meta property="og:url" content="${SITE.base}/wallpaper/">
+<meta property="og:image" content="${SITE.base + SITE.logo}">
+<link rel="icon" href="${SITE.logo}">
+<style>${CSS}</style>
+<script type="application/ld+json">${JSON.stringify(ld)}</script>
+</head>
+<body>
+${header()}
+<main class="wrap">
+  <nav class="crumb"><a href="/">Home</a> &rsaquo; Wallpapers</nav>
+  <h1>iPhone Wallpapers, by model</h1>
+  <p class="lead">Pick your iPhone and get a wallpaper that updates every day — year progress, life calendar, quotes — sized exactly for your screen.</p>
+  <ul class="posts">${list}</ul>
+</main>
+${footer()}
+</body>
+</html>`;
+}
+
 // --- write ---
 mkdirSync(BLOG, { recursive: true });
 for (const a of articles) {
@@ -238,6 +364,16 @@ for (const a of articles) {
   writeFileSync(join(dir, 'index.html'), articleHtml(a));
 }
 writeFileSync(join(BLOG, 'index.html'), indexHtml());
+
+const WALLPAPER = join(PUBLIC, 'wallpaper');
+mkdirSync(WALLPAPER, { recursive: true });
+for (const m of iphoneModels) {
+  const dir = join(WALLPAPER, m.slug);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'index.html'), wallpaperPageHtml(m));
+}
+writeFileSync(join(WALLPAPER, 'index.html'), wallpaperIndexHtml());
+
 writeFileSync(join(PUBLIC, 'sitemap.xml'), sitemapXml());
 
-console.log(`Blog generated: ${articles.length} articles + index + sitemap (${articles.length + 1} pages).`);
+console.log(`SEO generated: ${articles.length} blog articles + ${iphoneModels.length} model pages + indexes + sitemap.`);
