@@ -321,4 +321,65 @@ export const articles = [
     ],
     cta: 'Put your life calendar on your lock screen',
   },
+  {
+    slug: 'how-to-stop-doomscrolling',
+    title: 'How to Stop Doomscrolling: Make the Unlock Moment Count',
+    description:
+      'Doomscrolling is a loop your phone is designed to start. Here is how to break it without deleting every app, by changing the first thing you see when you pick up your phone.',
+    date: '2026-06-17',
+    keywords:
+      'how to stop doomscrolling, stop doomscrolling, phone addiction, reduce screen time, mindless scrolling, intentional phone use, lock screen reminder',
+    intro:
+      'Doomscrolling is not a willpower problem, it is a design problem. Apps are built to pull you into an endless feed, and the moment you unlock your phone with no reason in mind, the feed fills the gap. You do not need to delete everything or buy a dumbphone. You need to change one thing: what happens in the first two seconds after you pick up your phone.',
+    sections: [
+      {
+        h2: 'Why you scroll without deciding to',
+        blocks: [
+          { p: 'Most scrolling starts on autopilot. You feel a flicker of boredom or anxiety, your hand reaches for the phone before you have a thought, and an app is open before you chose one. The loop runs in under three seconds, faster than any deliberate decision. That is why "just have more discipline" rarely works: by the time discipline shows up, you are already in the feed.' },
+        ],
+      },
+      {
+        h2: 'The fix is a pattern interrupt',
+        blocks: [
+          { p: 'To break an automatic loop, you insert a tiny pause that forces a conscious choice. In behavior design this is called a pattern interrupt. The best place to put one is the screen you see every single time before the apps: your lock screen. If that screen quietly reminds you of what you actually care about, the autopilot stalls for a half-second, which is exactly long enough to ask "do I really want to open this?"' },
+        ],
+      },
+      {
+        h2: 'What to put there instead of a pretty photo',
+        blocks: [
+          { p: 'A nice landscape does nothing, your brain ignores it within a day. Something that changes and means something keeps working. A few that do the job:' },
+          { ul: [
+            'A year progress bar, so you see time moving instead of standing still.',
+            'A life calendar, the weeks of your life as dots, so a wasted hour feels like a wasted hour.',
+            'A single line or goal you are chasing right now, rotated daily so it never goes stale.',
+          ] },
+          { p: 'None of these nag you. They just make the unlock moment a tiny bit more honest.' },
+        ],
+      },
+      {
+        h2: 'Stack it with the boring iOS settings that work',
+        blocks: [
+          { ol: [
+            'Turn off badges and most notifications, so there is no red dot pulling you in.',
+            'Move social apps off the first home screen, or into a folder, so opening them takes intent.',
+            'Set the phone to grayscale in the evening, which makes feeds far less rewarding.',
+            'Keep a meaningful, daily-changing lock screen as the pattern interrupt in front of all of it.',
+          ] },
+        ],
+      },
+      {
+        h2: 'Be honest: you will still scroll sometimes',
+        blocks: [
+          { p: 'The goal is not zero. Scrolling is not evil, and a hard ban usually snaps back. The goal is to turn the default from automatic to chosen. If you scroll because you decided to, fine. The problem was only ever the times you did it without deciding, and the unlock moment is where you take that decision back.' },
+        ],
+      },
+      {
+        h2: 'Make it run itself',
+        blocks: [
+          { p: 'A reminder you have to set up by hand will fade. DotsDaily turns your year progress, life calendar or daily goal into an iPhone wallpaper that refreshes on its own every morning, so the pattern interrupt is there every time you pick up the phone, without you maintaining anything.' },
+        ],
+      },
+    ],
+    cta: 'Turn your lock screen into a reason to look up',
+  },
 ];
