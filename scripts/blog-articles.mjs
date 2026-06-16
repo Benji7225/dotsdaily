@@ -190,4 +190,84 @@ export const articles = [
     ],
     cta: 'Get a new quote on your wallpaper daily',
   },
+  {
+    slug: 'iphone-lock-screen-ideas',
+    title: 'iPhone Lock Screen Ideas: 9 Ways to Make It Useful, Not Just Pretty',
+    description:
+      'Most iPhone lock screen ideas are just nicer photos. These 9 turn your lock screen into something that actually helps: progress bars, a life calendar, goal countdowns and quotes that change on their own.',
+    date: '2026-06-17',
+    keywords:
+      'iphone lock screen ideas, lock screen ideas, iphone wallpaper ideas, aesthetic lock screen, productive lock screen, ios lock screen ideas, custom lock screen iphone',
+    intro:
+      'Your lock screen is the screen you see more than any other in your day, dozens of times, often before you are even fully awake. Most lock screen ideas stop at a prettier photo. The ones below go further: each turns that constant glance into a small, useful nudge. Pick one or two, not all nine, so the message stays loud.',
+    sections: [
+      {
+        h2: 'The rule that makes any idea work',
+        blocks: [
+          { p: 'A pretty picture gets filtered out by your brain within a day. Anything that changes keeps catching your eye. So the best lock screen ideas all share one trait: they update. A progress bar that moves, a countdown that drops, a quote that rotates. Novelty is what makes the message land, day after day.' },
+        ],
+      },
+      {
+        h2: '1. A year progress bar',
+        blocks: [
+          { p: 'A simple bar showing how much of the year is gone is the single most motivating thing you can put on a lock screen. It makes time visible. "67% of 2026 is gone" hits differently than a date. It pushes you to use the months that are left.' },
+        ],
+      },
+      {
+        h2: '2. A life calendar',
+        blocks: [
+          { p: 'Zoom out further: a grid where every dot is one week of a roughly 90 year life, with the weeks you have already lived filled in. It is the memento mori idea, made gentle. You see how much canvas is still blank, and it quietly reorders your priorities every time you glance.' },
+        ],
+      },
+      {
+        h2: '3. A countdown to something that matters',
+        blocks: [
+          { p: 'Pick one real deadline: a launch, an exam, a trip, a goal date. A number that drops by one each morning creates honest urgency without an app full of notifications. The lock screen does the reminding for free.' },
+        ],
+      },
+      {
+        h2: '4. A rotating quote by mood',
+        blocks: [
+          { p: 'One quote loses its punch the moment you memorize it. A different line every morning, picked from a pack that matches what you need right now (focus, calm, ambition), stays alive instead of becoming wallpaper noise.' },
+        ],
+      },
+      {
+        h2: '5. One word as your theme for the day',
+        blocks: [
+          { p: 'Strip it all the way down. A single lowercase word, big and centered: "focus", "build", "breathe". Minimal, fast to read at a glance, and impossible to ignore when it is the only thing on the screen.' },
+        ],
+      },
+      {
+        h2: '6. A goal tracker you actually see',
+        blocks: [
+          { p: 'Habits die in apps you stop opening. Put the streak where you cannot miss it. A small ring or count on the lock screen ("day 12") keeps the chain visible, which is most of what keeps a habit alive.' },
+        ],
+      },
+      {
+        h2: '7. Keep it minimal so the message reads',
+        blocks: [
+          { p: 'The fastest way to ruin every idea above is clutter. Lots of contrast, a clean background, one focal element. If the eye has to hunt, the nudge is lost. Dark backgrounds with a single bright element read instantly, even in a half-second glance.' },
+          { ul: [
+            'One message per screen, not five.',
+            'High contrast so it reads under the clock and widgets.',
+            'Leave the top third clear for the iOS clock.',
+          ] },
+        ],
+      },
+      {
+        h2: '8. Match it to the iOS depth effect',
+        blocks: [
+          { p: 'iOS lets the subject of a wallpaper sit in front of the clock for a layered look. Designs with a clear element and open space at the top play nicely with this, so your useful element does not fight the time.' },
+        ],
+      },
+      {
+        h2: '9. Make it change on its own',
+        blocks: [
+          { p: 'This is the one that ties them all together. A wallpaper you have to swap by hand will sit untouched for weeks. The whole point is automation: an image that regenerates every morning so the bar moves, the countdown drops and the quote rotates without you lifting a finger.' },
+          { p: 'DotsDaily builds exactly these: year progress, life calendar, goals and rotating quotes, rendered as a fresh wallpaper each day. Pair it with the built-in Apple Shortcuts automation and your lock screen updates itself before you pick up the phone.' },
+        ],
+      },
+    ],
+    cta: 'Build a lock screen that updates itself daily',
+  },
 ];
