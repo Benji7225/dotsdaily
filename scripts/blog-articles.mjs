@@ -270,4 +270,55 @@ export const articles = [
     ],
     cta: 'Build a lock screen that updates itself daily',
   },
+  {
+    slug: 'what-is-a-life-calendar',
+    title: 'What Is a Life Calendar? (And Why People Put One on Their Phone)',
+    description:
+      'A life calendar shows your whole life as a grid of weeks, one dot each. Here is where the idea comes from, why it changes how you spend time, and how to keep one in front of you every day.',
+    date: '2026-06-17',
+    keywords:
+      'life calendar, life in weeks, weeks in a life, memento mori calendar, 4000 weeks, your life in weeks, life calendar wallpaper',
+    intro:
+      'A life calendar is a single grid where every dot is one week of a human life. Around 90 rows of 52 weeks, a little over 4,000 dots in total. You fill in the weeks you have already lived, and you are left looking at how many are still blank. It sounds morbid. In practice it does the opposite: it makes the time you have feel real, and real time is much harder to waste.',
+    sections: [
+      {
+        h2: 'Where the idea comes from',
+        blocks: [
+          { p: 'The grid was made popular by Tim Urban in his essay "Your Life in Weeks", but the instinct behind it is ancient. The Stoics called it memento mori, remember that you will die, not as a threat but as a tool for living with intent. Seneca complained that people guard their money carefully and waste their time freely, even though time is the one thing you cannot earn back. A life calendar is that lesson turned into a picture.' },
+        ],
+      },
+      {
+        h2: 'Why a grid works when a number does not',
+        blocks: [
+          { p: 'You already know, abstractly, that life is finite. But "life is short" is a phrase your brain has heard a thousand times and now ignores. A grid is different. When you see that a 30 year old has already filled in more than 1,500 of the dots, the abstract becomes concrete. You are not looking at a number, you are looking at how much canvas is gone and how much is left.' },
+          { p: 'That shift from abstract to visual is the whole point. It is the same reason a progress bar motivates more than a percentage in your head.' },
+        ],
+      },
+      {
+        h2: 'What it actually changes',
+        blocks: [
+          { p: 'People who keep a life calendar in view tend to report the same few effects:' },
+          { ul: [
+            'Small daily annoyances shrink. A wasted afternoon is one dot; you stop treating every minor problem like a crisis.',
+            'Big decisions get easier. "Do I have time for this?" has a visible answer, and the things that do not matter fall away faster.',
+            'Presence goes up. Seeing the dots fill in makes the current week feel like something to use, not skip.',
+          ] },
+        ],
+      },
+      {
+        h2: 'Is it depressing?',
+        blocks: [
+          { p: 'For most people, no, the opposite. What feels heavy is a vague sense that time is slipping by with no shape. Giving it a shape is oddly calming. You stop feeling like life is leaking away in the background and start feeling like you are spending it on purpose. If it ever does feel heavy, the fix is simple: look at the blank weeks, not the filled ones. Those are still yours.' },
+        ],
+      },
+      {
+        h2: 'How to keep one in front of you',
+        blocks: [
+          { p: 'A life calendar only works if you see it often. A poster on the wall gets ignored within a week, the same way any decoration does. The screen you actually look at dozens of times a day is your phone, so that is where it belongs.' },
+          { p: 'DotsDaily renders your life calendar as an iPhone wallpaper and refreshes it each day, so the current week quietly advances on its own. You set your birth date once, and from then on every glance at your lock screen is a small, honest reminder to use the week you are in.' },
+        ],
+      },
+    ],
+    cta: 'Put your life calendar on your lock screen',
+  },
 ];
